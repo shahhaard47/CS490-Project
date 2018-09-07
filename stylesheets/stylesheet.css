@@ -7,22 +7,33 @@ body, html {
     height: 100%;
     background: url("../images/background-blur-clean-531880.jpg") no-repeat center;
     background-size: cover;
-    /*opacity: 0.90;*/
-    /*filter: alpha(opacity=50);*/
     overflow: auto;
 }
 
+.top-credentials {
+    background: #00BBFF;
+    height: 8vh;
+    width: 20%;
+    margin-top: 100px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 10px 10px 0 0;
+    text-align: center;
+    font-size: 30px;
+    color: #00192D;
+}
+
 .login-container {
-    margin-top: 120px;
+    /*margin-top: 100px;*/
     margin-left: auto;
     margin-right: auto;
     height: 55vh;
     width: 20%;
     text-align: center;
     background: #00192D;
-    opacity: 0.70;
-    border-radius: 10px;
-    border-top: 40px solid #00BBFF;
+    opacity: 0.80;
+    border-radius: 0 0 10px 10px;
+    /*border-top: 40px solid #00BBFF;*/
 
 }
 
@@ -73,7 +84,8 @@ body, html {
 .submit-btn {
     margin-top: 50px;
     font-size: 18px;
-    border-color: #00a8d8;
+    /*border-color: #00a8d8;*/
+    border: none;
     border-radius: 20px;
     padding: 5px;
     width: 70%;
