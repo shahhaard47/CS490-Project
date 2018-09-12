@@ -1,0 +1,104 @@
+body, html {
+    height: 100%;
+    margin: 0;
+}
+
+.bg {
+    height: 100%;
+    /*background: url("../images/background-blur-clean-531880.jpg") no-repeat center;*/
+    background-size: cover;
+    overflow: auto;
+}
+
+/*.top-credentials {*/
+    /*!*background: ;*!*/
+    /*height: 8vh;*/
+    /*width: 20%;*/
+    /*margin-top: 100px;*/
+    /*margin-left: auto;*/
+    /*margin-right: auto;*/
+    /*border-radius: 10px 10px 0 0;*/
+    /*text-align: center;*/
+    /*font-size: 30px;*/
+    /*color: black;*/
+/*}*/
+
+.login-container .title {
+    font-size: 40px;
+    color: #45484d;
+    padding-top: 20px;
+    /*margin-bottom: -10px;*/
+}
+.login-container {
+    margin-top: 100px;
+    margin-left: auto;
+    margin-right: auto;
+    height: 55vh;
+    width: 20%;
+    text-align: center;
+    /*background: #00192D;*/
+    /*opacity: 0.80;*/
+    border-radius: 10px;
+    box-shadow: 3px 3px 15px lightgray;
+
+}
+
+.user-icon {
+    padding: 10px 0 10px 0;
+    min-width: 30px;
+    text-align: center;
+    font-size: 20px;
+
+}
+
+.pass-icon {
+    padding: 10px 0 10px 0;
+    min-width: 30px;
+    text-align: center;
+    font-size: 20px;
+}
+
+.username {
+    background: none;
+    font-size: 18px;
+    outline: none;
+    margin-top: 90px;
+    margin-bottom: 20px;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    border-color: #45484d;
+}
+
+.password {
+    background: none;
+    font-size: 18px;
+    outline: none;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    border-color: #45484d;
+}
+
+.submit-btn {
+    background-color: #45484d;
+    margin-top: 50px;
+    font-size: 18px;
+    /*border-color: #00a8d8;*/
+    border: none;
+    border-radius: 20px;
+    padding: 5px;
+    width: 70%;
+    color: white;
+}
+
+.submit-btn:hover{
+    background: black;
+}
+
+.submit-btn:active{
+    background: black;
+    width: 60%;
+    /*height: 50%;*/
+    font-size: 16px;
+}
