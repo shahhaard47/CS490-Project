@@ -56,7 +56,8 @@ if($data["user"] && $data["pass"])
 	// else {
 	// 	// echo "NJIT is a no go";
 	// }
-	echo $auth_results;
+	$auth_results_json = json_encode($auth_results);
+	echo $auth_results_json;
 }
 else
 { // didn't receive proper format data request
