@@ -11,8 +11,8 @@ $credentials = array(
 );
 
 // initialize both as failed
-$success = 'success';
-$failure = 'failure';
+$success = true;
+$failure = false;
 $auth_results = array(
 	'back' => $failure,
 	'njit' => $failure
@@ -28,10 +28,11 @@ if($data["user"] && $data["pass"])
 	$ch = curl_init();
 	curl_setopt_array($ch, $curl_opts);
 	$result = curl_exec($ch);
+
 	#need to check $result
-	if (strpos($result, "Success") !== false){
-		$auth_results['back'] = $success;
-	} // else it'll stay $failure
+	if (strpos($result, "true")){
+   	   $auth_results['back'] =	$success;
+	}
 
 	#login spoofing
 	$loginUrl = 'https://aevitepr2.njit.edu/myhousing/login.cfm';
@@ -53,9 +54,7 @@ if($data["user"] && $data["pass"])
 		// echo "NJIT says welcome!";
 		$auth_results['njit'] = $success;
 	} // else $auth_results['njit'] will stay equal to $false
-	// else {
-	// 	// echo "NJIT is a no go";
-	// }
+
 	$auth_results_json = json_encode($auth_results);
 	echo $auth_results_json;
 }
