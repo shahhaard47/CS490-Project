@@ -1,42 +1,17 @@
-body, html {
-    height: 100%;
-    margin: 0;
-}
-
-.bg {
-    height: 100%;
-    /*background: url("../images/background-blur-clean-531880.jpg") no-repeat center;*/
-    background-size: cover;
-    overflow: auto;
-}
-
-/*.top-credentials {*/
-    /*!*background: ;*!*/
-    /*height: 8vh;*/
-    /*width: 20%;*/
-    /*margin-top: 100px;*/
-    /*margin-left: auto;*/
-    /*margin-right: auto;*/
-    /*border-radius: 10px 10px 0 0;*/
-    /*text-align: center;*/
-    /*font-size: 30px;*/
-    /*color: black;*/
-/*}*/
-
 .login-container .title {
     font-size: 40px;
     color: #45484d;
     padding-top: 20px;
     /*margin-bottom: -10px;*/
 }
+
 .login-container {
     margin-top: 100px;
     margin-left: auto;
     margin-right: auto;
-    height: 55vh;
+    /*height: 55vh;*/
     width: 20%;
     text-align: center;
-    /*background: #00192D;*/
     /*opacity: 0.80;*/
     border-radius: 10px;
     box-shadow: 3px 3px 15px lightgray;
@@ -84,7 +59,6 @@ body, html {
     background-color: #45484d;
     margin-top: 50px;
     font-size: 18px;
-    /*border-color: #00a8d8;*/
     border: none;
     border-radius: 20px;
     padding: 5px;
@@ -92,13 +66,37 @@ body, html {
     color: white;
 }
 
-.submit-btn:hover{
+.submit-btn:hover {
     background: black;
 }
 
-.submit-btn:active{
+.submit-btn:active {
     background: black;
     width: 60%;
     /*height: 50%;*/
     font-size: 16px;
+}
+
+.loading {
+    border: 6px solid lightgray;
+    border-top: 6px solid dodgerblue;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    margin: 10px auto;
+    animation: spin 1s linear infinite;
+    visibility: hidden;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+#response {
+    font-size: 20px;
 }

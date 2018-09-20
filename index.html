@@ -3,27 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>Log In - Student Portal</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="assets/stylesheets/stylesheet.css">
-    <script src="assets/js/login.js"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/front/stylesheets/stylesheet.css">
+    <script src="assets/front/js/login.js"></script>
 </head>
 <body>
-<div class="bg">
-    <div class="top-credentials">
-    </div>
-    <div class="login-container">
-        <p class="title"><strong>Student Portal</strong></p>
-        <div class="credentials">
-            <form action="#" onsubmit="authenticateLogin()">
-                <i class="fa fa-user icon user-icon"></i>
-                <input class="username" id="user" placeholder="Username" name="user"><br>
-                <i class="fa fa-lock icon pass-icon"></i>
-                <input class="password" id="pass" type="password" placeholder="Password" name="pass"><br>
-                <input class="submit-btn" type="submit" value="Login">
-            </form>
-            <div class="loading" id="loading"></div>
-            <div id="response"></div>
-        </div>
+<div class="login-container">
+    <p class="title"><strong>Student Portal</strong></p>
+    <div class="credentials">
+        <form id="login-form" action="" method="post" onsubmit="authenticateLogin(); return false">
+            <i class="fa fa-user icon user-icon"></i>
+            <input class="username" id="user" placeholder="Username" name="user"><br>
+            <i class="fa fa-lock icon pass-icon"></i>
+            <input class="password" id="pass" type="password" placeholder="Password" name="pass"><br>
+            <input class="submit-btn" id="submit-btn" type="submit" value="Sign In">
+        </form>
+        <div class="loading" id="loading"></div>
+        <div id="response"></div>
     </div>
 </div>
 
