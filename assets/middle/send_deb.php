@@ -2,7 +2,7 @@
 
 $ch = curl_init();
 
-curl_setopt($ch, CURLOPT_URL, 'https://web.njit.edu/~ds547/back.php');
+curl_setopt($ch, CURLOPT_URL, 'https://web.njit.edu/~ds547/CS490-Project/assets/back/back.php');
 
 curl_setopt($ch, CURLOPT_POST, 1);
 
@@ -14,3 +14,4 @@ $result = curl_exec($ch);
 
 echo $result;
 
+?>
