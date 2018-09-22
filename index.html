@@ -5,24 +5,32 @@
     <title>Log In - Student Portal</title>
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="assets/front/stylesheets/stylesheet.css">
-    <script src="assets/front/js/login.js"></script>
+    <link rel="stylesheet" href="assets/front/stylesheets/login.css">
+
 </head>
 <body>
+<div id="page-loader"></div>
 <div class="login-container">
     <p class="title"><strong>Student Portal</strong></p>
     <div class="credentials">
         <form id="login-form" action="" method="post" onsubmit="authenticateLogin(); return false">
-            <i class="fa fa-user icon user-icon"></i>
-            <input class="username" id="user" placeholder="Username" name="user"><br>
-            <i class="fa fa-lock icon pass-icon"></i>
-            <input class="password" id="pass" type="password" placeholder="Password" name="pass"><br>
-            <input class="submit-btn" id="submit-btn" type="submit" value="Sign In">
+            <fieldset id="field-set" style="border:0" disabled>
+                <i class="fa fa-user icon user-icon"></i>
+                <input class="username" id="user" placeholder="Username" name="user" autofocus><br>
+                <i class="fa fa-lock icon pass-icon"></i>
+                <input class="password" id="pass" type="password" placeholder="Password" name="pass"><br>
+                <div class="error" id="error"></div>
+                <input class="submit-btn" id="submit-btn" type="submit" value="Sign In">
+            </fieldset>
         </form>
-        <div class="loading" id="loading"></div>
+        <div id="loading"></div>
         <div id="response"></div>
+        <div id="is-njit"></div>
+        <div id="is-database"></div>
     </div>
 </div>
 
 </body>
+<script src="assets/front/js/login.js"></script>
+<script src="assets/front/js/handyMethods.js"></script>
 </html>
