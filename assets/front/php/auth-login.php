@@ -1,9 +1,5 @@
 <?php
-$credentials = array(
-    'user' => $_POST['user'],
-    'pass' => $_POST['pass']
-);
-$json = json_encode($credentials);
+$json = file_get_contents('php://input');
 $curl_opts = array(
     CURLOPT_POST => 1,
     CURLOPT_URL => 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/index.php',

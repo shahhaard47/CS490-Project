@@ -6,6 +6,11 @@ function authenticateLogin() {
         changeInnerHTML('error', "Username and password are required.");
         return;
     }
+    /* Later used to send as JSON */
+    let credentialsObj = {
+        "user": user,
+        "pass": pass
+    };
 
     /* Show the loading tag */
     loader('loading', 'visible');
@@ -58,7 +63,9 @@ function authenticateLogin() {
     /* Encode the data properly. Otherwise, php will not be able to get the values */
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     /* Send the POST request with the data */
-    xhr.send("user=" + user + "&pass=" + pass);
+    xhr.send(JSON.stringify(credentialsObj));
+
+
 
 }
 
@@ -71,4 +78,3 @@ window.onload = function () {
 /* Wait for the DOM to be created */
 // document.addEventListener('DOMContentLoaded', function () {
 // });
-
