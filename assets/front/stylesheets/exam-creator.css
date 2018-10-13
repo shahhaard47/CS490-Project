@@ -1,0 +1,109 @@
+* {
+    box-sizing: border-box;
+}
+
+textarea {
+    border-top-right-radius: 15px;
+}
+
+.left {
+    height: 100%;
+    width: 40%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    overflow-x: hidden;
+    border-right: solid 1px lightgray;
+    left: 0;
+}
+
+.right {
+    height: 100%;
+    width: 60%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    overflow-x: hidden;
+    right: 0;
+}
+
+.centered {
+    text-align: center;
+}
+
+/* Left Side */
+.left-header {
+border-bottom: solid 1px lightgray;
+}
+
+.question-bank .row {
+    border: solid 1px lightgray;
+    border-radius: 15px;
+    margin-bottom: 40px;
+}
+
+/* Right Side */
+.exam-questions {
+margin-top: 20px;
+}
+
+.right-header .row {
+border: solid 1px lightgray;
+}
+
+
+.exam-questions .row {
+border: solid 1px lightgray;
+border-radius: 15px;
+margin-bottom: 40px;
+}
+
+.col {
+float: left;
+}
+
+.right-header {
+position: fixed;
+}
+
+
+.delete {
+    text-align: center;
+}
+
+.exam-questions {
+padding: 20px;
+}
+
+.question-bank {
+padding: 10px;
+}
+
+.question-content {
+padding: 10px;
+}
+
+.question-left {
+    width: 3%;
+    min-height: 200px;
+    border-right: solid 1px lightgray;
+    /*background: #939393;*/
+}
+
+.deleteBtn {
+    border-top-left-radius: 15px;
+}
+
+.question-right {
+    width: 97%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.options {
+}

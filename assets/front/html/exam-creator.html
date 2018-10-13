@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Exam Creator</title>
+    <link rel="stylesheet" href="../stylesheets/exam-creator.css">
+</head>
+<body>
+
+<!-- Left Side-->
+<div class="left">
+    <div class="left-header">
+        <h1>Exam Creator</h1>
+    </div>
+    <div class="question-bank" id="question-bank">
+        <div class="row" id="q1">
+            <div class="question-content">
+                <textarea style="width:100%" rows="6" cols="80" wrap="soft" class="question-text">Write a function named [] that takes [] parameters [] and does [] and prints out []</textarea>
+            </div>
+            <div class="options">
+                <label>Difficulty<input size="4" value="Medium"></label>
+                <label>Points<input size="1" value="20"></label>
+                <button style="float: right;">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Right Side -->
+<div class="right" id="right">
+    <div class="right-header">
+        <div class="row">
+            <div class="col">
+                <input placeholder="Exam Title">
+            </div>
+            <div class="col">
+                <input placeholder="Exam Title">
+            </div>
+            <div class="col">
+                <input placeholder="Exam Title">
+            </div>
+        </div>
+    </div>
+    <div class="centered exam-questions" id="exam-questions">
+        <div class="row">
+            <div class="col question-left">
+                <div class="delete">
+                    <button class="deleteBtn" style="width: 100%;">x</button>
+                    <div class="centered">1</div>
+                </div>
+            </div>
+            <div class="col question-right">
+                <textarea style="width:100%" rows="6" wrap="soft" class="question-text">Write a function named [] that takes [] parameters [] and does [] and prints out []</textarea>
+            </div>
+            <div class="options">
+                <label>Difficulty<input size="4" value="Medium"></label>
+                <label>Points<input size="1" value="20"></label>
+            </div>
+        </div>
+    </div>
+
+    <button>Add Question</button>
+</div>
+</body>
+<script src="../js/exam-creator.js"></script>
+<script src="../js/handyMethods.js"></script>
+</html>

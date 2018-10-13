@@ -1,3 +1,8 @@
+let STUDENT = 'student';
+let INSTRUCTOR = 'instructor';
+let INVALID = null;
+
+
 function authenticateLogin() {
     /* Check if username and password are empty */
     let user = document.forms["login-form"]["user"].value;
@@ -9,7 +14,8 @@ function authenticateLogin() {
     /* Later used to send as JSON */
     let credentialsObj = {
         "user": user,
-        "pass": pass
+        "pass": pass,
+        "requestType" : "login"
     };
 
     /* Show the loading tag */
@@ -32,40 +38,34 @@ function authenticateLogin() {
             loader('loading', 'hidden');
             setAttribute('submit-btn', 'value', 'Sign In');
 
+            // console.log('result: ' + xhr.responseText);
+
             /* Try to parse JSON */
             let json = parseJSON(xhr.responseText);
+
             /* Check if json was successfully parsed */
-            if (json === false)
+            if (json === false) {
                 return;
+            }
 
             /* Update status tags */
-            if (json.njit) {
-                chngClass('is-njit', 'fail', 'success');
-                changeInnerHTML('is-njit', '<strong>NJIT:</strong> Success');
-            } else {
-                chngClass('is-njit', 'success', 'fail');
-                changeInnerHTML('is-njit', '<strong>NJIT:</strong> Fail');
+            if (json.user === INVALID) {
+                changeInnerHTML('error', "Username or password is incorrect.");
+            } else if (json.user === INSTRUCTOR) {
+                changeInnerHTML('identity', "You are an instructor");
+            } else if (json.user === STUDENT) {
+                changeInnerHTML('identity', "You are a student");
             }
-
-            if (json.back) {
-                chngClass('is-database', 'fail', 'success');
-                changeInnerHTML('is-database', '<strong>Database:</strong> Success');
-            } else {
-                chngClass('is-database', 'success', 'fail');
-                changeInnerHTML('is-database', '<strong>Database:</strong> Fail');
-            }
-
+            console.log(xhr.responseText);
         }
 
     };
     /* Open a POST request */
-    xhr.open("POST", "/~sk2283/assets/front/php/auth-login.php", true);
+    xhr.open("POST", "/~sk2283/assets/front/php/contact_middle.php", true);
     /* Encode the data properly. Otherwise, php will not be able to get the values */
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     /* Send the POST request with the data */
     xhr.send(JSON.stringify(credentialsObj));
-
-
 
 }
 
