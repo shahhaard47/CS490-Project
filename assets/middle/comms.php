@@ -1,6 +1,11 @@
 <?php
 
-/* This file is for any common communication between front and back that doesn't need middle involvement*/
+/* This file is for any common communication between front and back that doesn't need middle involvement
+
+Current use cases:
+- Add question (to questionBank)
+- Submit exam
+*/
 
 // get front json request
 $jsonrequest = file_get_contents('php://input');

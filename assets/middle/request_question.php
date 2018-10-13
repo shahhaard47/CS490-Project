@@ -63,16 +63,6 @@ function jsonConstructQuestion(&$queJSON){
 // receive request from front
 $jsonrequest = file_get_contents('php://input');
 
-// $jsonSample = array(
-// "qBank" => true,
-// "userid" => null,
-// "examid" => null,
-// "questionID" => null,
-// "difficulty" => "a"
-// );
-// $jsonrequest = json_encode($jsonSample);
-
-
 // send request to back
 //*	curl send to debbie
 $curl_opts = array(CURLOPT_POST => 1,
@@ -88,34 +78,34 @@ $ques_sendback = jsonConstructQuestion($result);
 echo $ques_sendback;
 
 // testing
-/*$sample = array(
-	"raw" => array(
-		array(
-			"questionID" => 0,
-			"functionName" => "add", 
-			"params" => array("num1", "num2"), 
-			"does" => "adds two numbers",
-			"prints" => "the sum",
-			"difficulty" => "m",
-			"points" => 20),
-		array(
-			"questionID" => 1,
-			"functionName" => "subtract",
-			"params" => array("num1", "num2"),
-			"does" => "subtracts second number from first number",
-			"prints" => "the result",
-			"difficulty" => "h",
-			"points" => 10)
-	)
-);
-$encodedSample = json_encode($sample);
+	/*$sample = array(
+		"raw" => array(
+			array(
+				"questionID" => 0,
+				"functionName" => "add", 
+				"params" => array("num1", "num2"), 
+				"does" => "adds two numbers",
+				"prints" => "the sum",
+				"difficulty" => "m",
+				"points" => 20),
+			array(
+				"questionID" => 1,
+				"functionName" => "subtract",
+				"params" => array("num1", "num2"),
+				"does" => "subtracts second number from first number",
+				"prints" => "the result",
+				"difficulty" => "h",
+				"points" => 10)
+		)
+	);
+	$encodedSample = json_encode($sample);
 
-$jsonEncodedQues = jsonConstructQuestion($encodedSample);
-$decoded = json_decode($jsonEncodedQues, true);
-// echo $decoded["questions"][0]."\n";
-foreach ($decoded["raw"] as $que) {
-	$question = $que["constructed"];
-	print("$question\n");
-}*/
+	$jsonEncodedQues = jsonConstructQuestion($encodedSample);
+	$decoded = json_decode($jsonEncodedQues, true);
+	// echo $decoded["questions"][0]."\n";
+	foreach ($decoded["raw"] as $que) {
+		$question = $que["constructed"];
+		print("$question\n");
+	}*/
 
 ?>
