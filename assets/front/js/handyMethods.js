@@ -33,3 +33,33 @@ function parseJSON(str) {
     }
     return json;
 }
+
+function getPage(url) {
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        /* Check if the xhr request was successful */
+        if (this.readyState === 4 && this.status === 200) {
+            return xhr.responseText;
+        }
+
+    };
+    /* Open a POST request */
+    xhr.open("POST", url, true);
+    /* Encode the data properly. Otherwise, php will not be able to get the values */
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    /* Send the POST request with the data */
+    xhr.send();
+
+    return 'oops';
+}
+
+
+/*
+{
+  "qBank": "true",
+  "userid": "null",
+  "examid": "null",
+  "questionID": "null",
+  "difficulty": "'a'"
+}
+*/
