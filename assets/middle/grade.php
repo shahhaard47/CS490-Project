@@ -127,26 +127,35 @@ function gradeAll($grading_data) {
 $jsonrequest = file_get_contents('php://input');
 // extract examID and userID
 $decoded = json_decode($jsonrequest, true);
-$examid = $decoded["examID"];
+
+//* testing without front input
+/*$decoded = array("examID" => 34, "userID" => "jsnow");
+// $decoded = array("examID" => 32, "userID" => "mscott");
+$jsonrequest = json_encode($decoded);*/
+
+$examID = $decoded["examID"];
 $userID = $decoded["userID"];
 
 if ($decoded["examID"] && $decoded["userID"]) {
 	//* forward the request to back 						M -> B
-		$backfile = "get_grading_info.php";
-		$url = "https://web.njit.edu/~ds547/CS490-Project/assets/back/".$backfile;
-		$curl_opts = array(CURLOPT_POST => 1,
-			CURLOPT_URL => $url,
-			CURLOPT_POSTFIELDS => $jsonrequest,
-			CURLOPT_RETURNTRANSFER => 1);
-		$ch = curl_init();
-		curl_setopt_array($ch, $curl_opts);
+	$backfile = "get_grading_info.php";
+	$url = "https://web.njit.edu/~ds547/CS490-Project/assets/back/".$backfile;
+	$curl_opts = array(CURLOPT_POST => 1,
+		CURLOPT_URL => $url,
+		CURLOPT_POSTFIELDS => $jsonrequest,
+		CURLOPT_RETURNTRANSFER => 1);
+	$ch = curl_init();
+	curl_setopt_array($ch, $curl_opts);
 	$result = curl_exec($ch); // should be json				B -> M
 
 	//* extract the grading data from $result
 	$grading_data = json_decode($result, true);
 
+	var_dump($grading_data);
+
 	//* perform grading
 	$grades = gradeAll($grading_data);
+
 	// check if grading worked
 	if (count($grades) != count($grading_data)) {
 		// error occured since num_rows of both are not the same
@@ -157,11 +166,14 @@ if ($decoded["examID"] && $decoded["userID"]) {
 	//* send grades to back 								M -> B
 	// 	package
 	$grades_pack = array("userID" => $userID,
-		"examID" => $examID,
-		"scores" => $grades);
+						"examID" => $examID,
+						"scores" => $grades);
+
+	var_dump($grades_pack); /*exit();*/
+
 	$grades_encoded = json_encode($grades_pack);
 	//	send
-	$backfile = "update_grades.php";
+	$backfile = "update_grade.php";
 	$url = "https://web.njit.edu/~ds547/CS490-Project/assets/back/".$backfile;
 	$curl_opts = array(CURLOPT_POST => 1,
 		CURLOPT_URL => $url,
@@ -174,7 +186,7 @@ if ($decoded["examID"] && $decoded["userID"]) {
 	//* check update status and report back to front 		M -> F
 	if (strpos($result, "error") === false) { // SUCCESS
 		// send the grades to front
-		echo $grades_encoded;
+		echo true;
 	}
 	else {
 		// unsuccessful grading or updating report error to front
@@ -185,15 +197,16 @@ exit(); // everthing after this is test data and test scripts
 
 //* SAMPLE DATA
 // debbie will send me array of associative arrays which will be arrays of testcases
-/* so array(
-			array(
+/* so array(array(
 					"questionID" => int,
 					"points" => int,
 					"function_name" => "name",
 					"student_response" => "def ...",
 					"correct_response" => "def ...",
 					"test_cases" => array("datatype value, datatype value", "datatype value, ..., datatype value")
-						)
+				),
+			array( "questionID" ... 
+				)
 			);
 	sidenote:
 	datatypes: str, int, float 
@@ -206,7 +219,7 @@ $grading_data = array(array(
 						"student_response" => "def printMe(name, num):\n\tfor i in range(num):\n\t\tprint(name, i+1)",
 						"correct_response" => "def printMe(name, num):\n\tfor i in range(num):\n\t\tprint(name, i+1)",
 						"test_cases" => array("str MAC,int 5", "str CHEESE,int 2")
-								),
+							),
 					array(
 						"questionID" => 3,
 						"points" => 10,
@@ -214,8 +227,8 @@ $grading_data = array(array(
 						"student_response" => "def roundNum(num):\n\tnum=round(num)\n\tprint(3)",
 						"correct_response" => "def roundNum(num):\n\tprint(int(num))",
 						"test_cases" => array("float 3.14159", "float 2.7183", "float 1.5")
-								)
-						);
+						)
+					);
 
 // $question_data = $grading_data[1];
 // $score = gradeQuestion($question_data);
