@@ -1,4 +1,5 @@
 <?php
+//return data needed in order to grade exams (for middle)
 
 
 
@@ -14,7 +15,7 @@ $conn = new mysqli($servername, $username, $password, $databaseName);
 //receiving json request from Haard (middle) for grading info
 $rawGradingRequest = file_get_contents('php://input'); //get JSON request data for grading info
 $data = json_decode($rawGradingRequest, true); //decode JSON request data for grading info
-$requestInfo = array('examID' => $data['examID'], 'userID' => $data['studentID']); //store JSON request data for grading info
+$requestInfo = array('examID' => $data['examID'], 'userID' => $data['userID']); //store JSON request data for grading info
 
 
 
@@ -37,7 +38,7 @@ if($result->num_rows!=0)
     //echo 'hello, in loop in if';
     $tempArray["questionID"]=$row['questionID'];
     $tempArray["points"]=$row['points'];
-    $tempArray["fnction_name"]=$row['functionName'];
+    $tempArray["function_name"]=$row['functionName'];
     $tempArray["student_response"]=$row['studentResponse'];
     $tempArray["correct_response"]=$row['correctResponse'];
     $tempArray["test_cases"]=explode(':',$row['testCases']);
