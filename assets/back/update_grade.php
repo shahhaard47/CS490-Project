@@ -15,8 +15,8 @@ $conn = new mysqli($servername, $username, $password, $databaseName);
 //receiving json request from Haard (middle) to update questionScore
 $rawGrades = file_get_contents('php://input'); //get JSON request data to update questionScore
 $data = json_decode($rawGrades, true); //decode JSON request data to update questionScore
-//$scoreInfo = array('userID' => $data['userID'], 'examID' => $data['examID'], 'scores' => $data['scores']); //store JSON request data to update questionScore
-$scoreInfo = array('userID' => 'mscott', 'examID' => 6, 'scores' => [[1,17],[2,15]]); //TEST
+$scoreInfo = array('userID' => $data['userID'], 'examID' => $data['examID'], 'scores' => $data['scores']); //store JSON request data to update questionScore
+//$scoreInfo = array('userID' => 'mscott', 'examID' => 6, 'scores' => [[1,17],[2,15]]); //TEST
 
 $totalExamScore = 0;
 $totalPossiblePoints = 0;
@@ -42,8 +42,9 @@ if($checkGrades->num_rows!=0)
 }
 else //meaning, a record for userID with examID does not exist and needs to be created
 {
-  $insert_gradesTable = mysqli_query($conn, "INSERT INTO BETA_grades (userID,examID,examScore) VALUES ('".$scoreInfo['userID']."','".$scoreInfo['examID']."','".$gradePercentage."')");
+  $insert_gradesTable = mysqli_query($conn, "INSERT INTO BETA_grades (userID,examID,examScore,released) VALUES ('".$scoreInfo['userID']."','".$scoreInfo['examID']."','".$gradePercentage."',FALSE)");
 }
+
 
 
 ?>

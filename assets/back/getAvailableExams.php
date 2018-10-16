@@ -12,7 +12,7 @@ $conn = new mysqli($servername, $username, $password, $databaseName);
 
 
 
-$exams = array("data"=>array());
+$exams = array();
 
 $allExamRecords = mysqli_query($conn, "SELECT * FROM BETA_exams");
 if($allExamRecords->num_rows!=0)
@@ -38,7 +38,7 @@ if($allExamRecords->num_rows!=0)
       $tempArray['output']=$row_j['output'];
       $tempArray['points']=(int)$row_j['points'];
       //var_dump($tempArray);
-      array_push($exams["data"],$tempArray);
+      array_push($exams,$tempArray);
     }
   }
   //var_dump($exams);

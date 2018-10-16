@@ -16,8 +16,8 @@ $conn = new mysqli($servername, $username, $password, $databaseName);
 $rawCreateExam = file_get_contents('php://input'); //get JSON data for creating an exam
 $data = json_decode($rawCreateExam, true); //decode JSON data for creating an exam
 $qIDs = array('questionIDs' => $data['questions']); //store JSON data for creating an exam
+//$qIDs = array('questionIDs' => array(1,3)); //TEST
 
-//$qIDs = array('questionIDs' => array(1,3));
 //convert $qIDs from an array into a string
 $questionIDs=implode(',',$qIDs['questionIDs']);
 

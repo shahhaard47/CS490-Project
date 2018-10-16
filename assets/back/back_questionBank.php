@@ -15,8 +15,8 @@ $conn = new mysqli($servername, $username, $password, $databaseName);
 //receiving json data from Haard (middle) for question bank request
 $rawQuestionBankDataRequest = file_get_contents('php://input'); //get JSON data for question bank request
 $data = json_decode($rawQuestionBankDataRequest, true); //decode JSON data for question bank request
-//$QB_Data = array('questionBank' => $data['qBank'], 'difficulty' => $data['difficulty']); //store JSON data for question bank request
-$QB_Data = array('questionBank' => TRUE, 'difficulty' => 'a'); //TEST
+$QB_Data = array('questionBank' => $data['qBank'], 'difficulty' => $data['difficulty']); //store JSON data for question bank request
+//$QB_Data = array('questionBank' => TRUE, 'difficulty' => 'a'); //TEST
 
 
 
