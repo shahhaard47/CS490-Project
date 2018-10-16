@@ -1,6 +1,6 @@
-let STUDENT = 'student';
-let INSTRUCTOR = 'instructor';
-let INVALID = null;
+const STUDENT = 'student';
+const INSTRUCTOR = 'instructor';
+const INVALID = null;
 
 
 function authenticateLogin() {
@@ -15,7 +15,7 @@ function authenticateLogin() {
     let credentialsObj = {
         "user": user,
         "pass": pass,
-        "requestType" : "login"
+        "requestType": "login"
     };
 
     /* Show the loading tag */
@@ -56,7 +56,7 @@ function authenticateLogin() {
             } else if (json.user === STUDENT) {
                 changeInnerHTML('identity', "You are a student");
             }
-            console.log(xhr.responseText);
+            // console.log(xhr.responseText);
         }
 
     };

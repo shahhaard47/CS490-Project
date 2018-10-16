@@ -1,5 +1,8 @@
 <?php
 $json = file_get_contents('php://input');
+$jsondec = json_decode($json, true);
+//echo $jsondec['difficulty'];
+
 $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/request_question.php';
 $curl_opts = array(
     CURLOPT_POST => 1,

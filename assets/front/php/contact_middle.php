@@ -1,15 +1,27 @@
 <?php
+/* Possible request types */
+const LOGIN_RT = 'login',
+GETQBANK_RT = 'getqbank',
+CREATE_EXAM_RT = 'create_exam',
+ADD_QUESTION_RT = 'add_question',
+GET_AVAILABLE_EXAMS_RT = 'getAvailableExams';
+
 $json = file_get_contents('php://input');
 $json_decoded = json_decode($json);
+
 $url = '';
 $req = $json_decoded->requestType;
-if ($req == 'login') {
+if ($req == LOGIN_RT) {
 //    echo 'login';
     $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/auth_login.php';
-} elseif ($req == 'getqbank') {
-    echo 'yoyoy';
-//    echo 'qbank';
+} elseif ($req == GETQBANK_RT) {
     $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/request_question.php';
+} elseif ($req == CREATE_EXAM_RT) {
+    $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/comms.php';
+} elseif ($req == ADD_QUESTION_RT) {
+    $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/comms.php';
+} elseif ($req == GET_AVAILABLE_EXAMS_RT) {
+    $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/comms.php';
 }
 $curl_opts = array(
     CURLOPT_POST => 1,

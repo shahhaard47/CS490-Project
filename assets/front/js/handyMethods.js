@@ -1,3 +1,6 @@
+const URL = 'https://web.njit.edu/~sk2283/assets/front/php/contact_middle.php';
+let examIDForTakeExam = '', jsonObjForTakeExam = '';
+
 function loader(id, state) {
     getelm(id).style.visibility = state;
 }
@@ -53,6 +56,54 @@ function getPage(url) {
     return 'oops';
 }
 
+function appendNodeToNode(type, id, clss, addTo) {
+    let newNode = addTo.appendChild(document.createElement(type));
+    if (id !== '')
+        newNode.setAttribute('id', id);
+    if (clss !== '')
+        newNode.setAttribute('class', clss);
+    return newNode;
+}
+
+
+function sendAJAXReq(content) {
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        /* Check if the xhr request was successful */
+        if (this.readyState === 4) {
+            if (this.status === 200) {
+                // log(xhr.responseText);
+                log(parseJSON(xhr.responseText));
+            } else {
+            }
+        }
+    };
+
+    /* Open a POST request */
+    xhr.open("POST", URL, true);
+    /* Encode the data properly. Otherwise, php will not be able to get the values */
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    /* Send the POST request with the data */
+    xhr.send(content);
+}
+
+function getURLParams(url) {
+    let params = {};
+    let x = url.split('&');
+    let firstParam = x[0].split('?')[1].split('=');
+    params[firstParam[0]] = decodeURIComponent(firstParam[1]);
+
+    for (let i = 1; i < x.length; i++) {
+        let y = x[i].split('=');
+        params[y[0]] = decodeURIComponent(y[1]);
+    }
+    return params;
+}
+
+
+function log(str) {
+    console.log(str);
+}
 
 /*
 {

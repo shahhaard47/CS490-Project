@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Exam Creator</title>
+    <link rel="stylesheet" href="assets/front/stylesheets/exam-creator.css">
+</head>
+<body>
+<div class="modal" id="addQuestionModal">
+    <div class="modal-content centered">
+        <span class="close" id="close-modal" onclick="closeModalBH()">&times;</span>
+        <h2>Add a question to the question bank</h2>
+        <p>
+            <label>
+                Function Name <input id="modal-fname">
+            </label>
+        </p>
+        <p>
+            <label id="modal-params">
+                Parameters
+                <select id="modal-param-sel0">
+                    <option>String</option>
+                    <option>Integer</option>
+                    <option>Float</option>
+                </select>
+                <input id="param0"><br><br>
+            </label>
+            <button id="addParam" onclick="addParamBH()">+</button>
+        </p>
+        <p>
+            <label>
+                Does <textarea rows="8" cols="70" id="modal-does"></textarea>
+            </label>
+        </p>
+        <p>
+            <label>
+                Prints <textarea rows="8" cols="70" id="modal-prints"></textarea>
+            </label>
+        </p>
+        <p>
+            <label>
+                Difficulty
+                <select id="modal-difficulty">
+                    <option>Easy</option>
+                    <option>Medium</option>
+                    <option>Hard</option>
+                </select>
+            </label>
+        </p>
+        <p>
+            <label>
+                Points <input id="modal-points">
+            </label>
+        </p>
+        <p>
+            <label>
+                Solution <textarea rows="8" cols="70" id="modal-solution"></textarea>
+            </label>
+        </p>
+        <p>
+            <label id="modal-testcases">
+                Test Cases
+                <!--<select id="modal-testcase-sel0">-->
+                <!--<option>str</option>-->
+                <!--<option>int</option>-->
+                <!--<option>float</option>-->
+                <!--</select>-->
+                <input id="modal-testcase0"><br><br>
+                <i>Hint: Each parameter separated by a comma, each test case separated by colin. If two parameters, enter 'int 1,int 2: int 3,int
+                    4'.</i>
+            </label>
+
+            <!--<button id="addTestCase" onclick="addTestCaseBH()">+</button>-->
+        </p>
+        <button class="modal-add-btn" onclick="addNewQuestionToBankBH()">Add</button>
+    </div>
+</div>
+<!-- Left Side-->
+<div class="left">
+    <div class="left-header">
+        <h1 style="">Exam Creator</h1>
+        <div class="row">
+            <div class="left-options centered col">
+                <div class="row">
+                    <h4>Sort By</h4>
+                </div>
+                <div class="row">
+                    <label id="sorting-options">
+                        <select onchange="sortQuestionBank(this)">
+                            <optgroup label="Difficulty">\
+                                <option>Easy</option>
+                                <option>Medium</option>
+                                <option>Hard</option>
+                            </optgroup>
+                            <optgroup label="Points">
+                                <option>Lowest</option>
+                                <option>Highest</option>
+                            </optgroup>
+                        </select>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- All available questions will be in this div -->
+    <div class="question-bank" id="question-bank">
+    </div>
+
+</div>
+
+<!-- Right Side -->
+<div class="right" id="right">
+    <div class="right-header centered">
+        <div class="row">
+            <div class="centered col">
+                <div class="row centered">
+                    <h1>Questions in the Exam</h1>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="centered exam-questions" id="exam-questions">
+    </div>
+
+</div>
+
+<div class="bottom-bar">
+    <button class="addQuestionToBank" id="addQuestionToBank" onclick="showModalBH()">Add Question to Bank
+    </button>
+    <button class="createExamBtn" id="createExamBtn" onclick="createExamBH()">Create Exam</button>
+</div>
+
+</body>
+<script src="assets/front/js/examCreator.js"></script>
+<script src="assets/front/js/handyMethods.js"></script>
+
+<!--<script type="application/javascript"-->
+<!--src="https://web.njit.edu/~sk2283/assets/front/php/getQues.php?callback=parseResponse()">-->
+<!--</script>-->
+
+</html>

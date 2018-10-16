@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Take Exam</title>
+    <link rel="stylesheet" href="assets/front/stylesheets/take-exam.css">
+</head>
+<body>
+<div class="left" id="left">
+    <div class="left-header">
+        <h1>Take Exam</h1>
+        <p id="header-examID"></p>
+        <div class="row">
+            <div class="left-options centered col">
+                <div class="row">
+                    <p>Sort By</p>
+                </div>
+                <div class="row">
+                    <label id="sorting-options">
+                        <select onchange="sortQuestionBank(this)">
+                            <optgroup label="Difficulty">
+                                <option>Easy</option>
+                                <option>Medium</option>
+                                <option>Hard</option>
+                            </optgroup>
+                            <optgroup label="Points">
+                                <option>Lowest</option>
+                                <option>Highest</option>
+                            </optgroup>
+                        </select>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- All available questions will be in this div -->
+    <div class="questions-in-exam" id="questions-in-exam">
+    </div>
+
+</div>
+<div class="right" id="right">
+
+</div>
+</body>
+
+<script src="assets/front/js/handyMethods.js"></script>
+<script src="assets/front/js/takeExam.js"></script>
+</html>
