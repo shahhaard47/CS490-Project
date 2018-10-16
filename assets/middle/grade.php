@@ -117,7 +117,7 @@ function gradeAll($grading_data) {
 	foreach ($grading_data as $question_data) {
 		$score = gradeQuestion($question_data);
 		$score = round($score);
-		array_push($final_grades, array($question_data[questionID], (int)$score));
+		array_push($final_grades, array($question_data["questionID"], (int)$score));
 	}
 	return $final_grades;
 }
