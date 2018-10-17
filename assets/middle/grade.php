@@ -102,7 +102,7 @@ function gradeQuestion($question_data) {
 	$points = $question_data["points"];
 	$score = $points * $ratio;
 	$id = $question_data["questionID"];
-	echo "$id: $score\n";
+	// echo "$id: $score\n";
 	return $score;
 }
 
@@ -117,7 +117,7 @@ function gradeAll($grading_data) {
 	foreach ($grading_data as $question_data) {
 		$score = gradeQuestion($question_data);
 		$score = round($score);
-		array_push($final_grades, array($question_data["questionID"], (int)$score));
+		array_push($final_grades, array((int)$question_data["questionID"], (int)$score));
 	}
 	return $final_grades;
 }
@@ -129,8 +129,8 @@ $jsonrequest = file_get_contents('php://input');
 $decoded = json_decode($jsonrequest, true);
 
 //* testing without front input
-/*$decoded = array("examID" => 34, "userID" => "jsnow");
-// $decoded = array("examID" => 32, "userID" => "mscott");
+/*$decoded = array("examID" => 49, "userID" => "jsnow");
+// $decoded = array("examID" => 49, "userID" => "mscott");
 $jsonrequest = json_encode($decoded);*/
 
 $examID = $decoded["examID"];
@@ -151,7 +151,7 @@ if ($decoded["examID"] && $decoded["userID"]) {
 	//* extract the grading data from $result
 	$grading_data = json_decode($result, true);
 
-	var_dump($grading_data);
+	// var_dump($grading_data); /*exit();*/
 
 	//* perform grading
 	$grades = gradeAll($grading_data);
@@ -169,7 +169,7 @@ if ($decoded["examID"] && $decoded["userID"]) {
 						"examID" => $examID,
 						"scores" => $grades);
 
-	var_dump($grades_pack); /*exit();*/
+	// var_dump($grades_pack);
 
 	$grades_encoded = json_encode($grades_pack);
 	//	send
@@ -186,7 +186,8 @@ if ($decoded["examID"] && $decoded["userID"]) {
 	//* check update status and report back to front 		M -> F
 	if (strpos($result, "error") === false) { // SUCCESS
 		// send the grades to front
-		echo true;
+		// echo true;
+		echo $grades_encoded;
 	}
 	else {
 		// unsuccessful grading or updating report error to front
@@ -235,8 +236,8 @@ $grading_data = array(array(
 // echo "Score: $score\n";
 
 $grades = gradeAll($grading_data);
-echo "-----------Final-----------\n";
-var_dump($grades);
+// echo "-----------Final-----------\n";
+// var_dump($grades);
 exit();
 
 /* same as gradeAll uncomment if that breaks and needs debugging with the following code that WORKS

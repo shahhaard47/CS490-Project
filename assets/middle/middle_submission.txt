@@ -1,0 +1,424 @@
+----- Middle Files ------
+
+-------------------------
+auth_login.php
+-------------------------
+<?php
+
+$jsondata = file_get_contents('php://input'); #check contents and send to debbie
+
+$data = json_decode($jsondata, true);
+
+if($data["user"] && $data["pass"])
+{
+	//*	curl send to debbie
+	$curl_opts = array(CURLOPT_POST => 1,
+		   	   CURLOPT_URL => 'https://web.njit.edu/~ds547/CS490-Project/assets/back/back_login.php',
+		   	   CURLOPT_POSTFIELDS => $jsondata,
+			   CURLOPT_RETURNTRANSFER => 1);
+	$ch = curl_init();
+	curl_setopt_array($ch, $curl_opts);
+	$result = curl_exec($ch);
+
+	echo $result;
+}
+else
+{ // didn't receive proper format data request
+	echo "NOT COOL";
+}
+
+?>
+
+
+-------------------------
+comms.php
+-------------------------
+<?php
+
+/* This file is for any common communication between front and back that doesn't need middle involvement
+
+Current use cases:
+- Add question (to questionBank)
+- Submit exam
+*/
+
+// get front json request
+$jsonrequest = file_get_contents('php://input');
+$decoded = json_decode($jsonrequest, true);
+
+if ($decoded["requestType"]) {
+	$url = "https://web.njit.edu/~ds547/CS490-Project/assets/back/".$decoded["requestType"].".php";
+
+	// forward the request to back
+	$curl_opts = array(CURLOPT_POST => 1,
+		CURLOPT_URL => $url,
+		CURLOPT_POSTFIELDS => $jsonrequest,
+		CURLOPT_RETURNTRANSFER => 1);
+	$ch = curl_init();
+	curl_setopt_array($ch, $curl_opts);
+	$result = curl_exec($ch);
+
+	// send back the response to front
+	echo $result;
+}
+
+?>
+
+
+
+-------------------------
+getallexams.php
+-------------------------
+<?php
+
+function constructQuestion(&$rawArr) {
+	// $outputarr = array();
+	// foreach ($rawArr as $que) {
+	for ($a = 0; $a < count($rawArr); $a++) {
+		$que = $rawArr[$a];
+		$funcName = $rawArr[$a]["functionName"];
+		$params = $rawArr[$a]["parameters"]; // array
+		$outparams = "";
+		if (count($params) == 1) {
+			$outparams = "parameter <$params[0]>";
+		}
+		elseif (count($params) == 2) {
+			$outparams = "parameters <$params[0]> and <$params[1]>";
+		}
+		else {
+			$outparams += "parameters ";
+			for ($i = 0; $i < count($params)-2; $i++) {
+				$outparams += "<$params[$i]>, ";
+			}
+			$outparams += "<$params[$i]> and "; $i++; 
+			$outparams += "<$params[$i]>";
+		}
+		$does = $rawArr[$a]["functionDescription"];
+		$prints = $rawArr[$a]["output"];
+		$tmp = "Write a function named \"$funcName\" that takes $outparams, $does and prints $prints.";
+		// add constructed question attribute
+		$rawArr[$a]["constructed"] = $tmp;
+
+		// $tmparr = array($tmp, $rawArr[$a]["difficulty"], $rawArr[$a]["points"], $rawArr[$a]["questionID"]);
+		// echo "$tmp\n";
+		// array_push($outputarr, $tmparr);
+	}
+}
+	// return $outputarr;
+
+	//*	curl send to debbie
+$curl_opts = array(CURLOPT_POST => 1,
+	CURLOPT_URL => 'https://web.njit.edu/~ds547/CS490-Project/assets/back/getAvailableExams.php',
+	CURLOPT_RETURNTRANSFER => 1);
+$ch = curl_init();
+curl_setopt_array($ch, $curl_opts);
+$result = curl_exec($ch);
+
+$decoded = json_decode($result, true);
+constructQuestion($decoded);
+// foreach ($decoded as $exam) {
+// 	echo "------------------------------------------------------\n";
+// 	var_dump($exam);
+// }
+$encoded = json_encode($decoded);
+echo $encoded;
+
+?>
+
+
+
+-------------------------
+grade.php
+-------------------------
+<?php
+
+/*
+1. get student response from database
+2. write student response to file
+3. get correct response from database
+4. write correct response to file
+5. get testcases from database
+6. compare student's to correct response's on individual testcases
+*/
+
+function constructFunctionCalls($functionName, $testcases) {
+	$functioncalls = array();
+	foreach ($testcases as $case) {
+		// echo "case: $case\n";
+		$call = "";
+		$call = "$functionName(";
+		$case = explode(",", $case);
+		// echo "$functionName(";
+		if (count($case) == 0) {
+			$call .= ")";
+			// echo ")";
+		}
+		else {
+			for ($i = 0; $i < count($case)-1; $i++) {
+				$a = explode(" ", $case[$i]);
+				$call .= "$a[0]('$a[1]')".", ";
+				// echo "$case[$i], ";
+			}
+			$a = explode(" ", $case[$i]);
+			$call .= "$a[0]('$a[1]')".")";
+			// echo "$case[$i])";
+		}
+		// echo $call."\n";
+		array_push($functioncalls, $call);
+	}
+	return $functioncalls;
+}
+
+function gradeQuestion($question_data) {
+	$student_filename = 'tmppy/student.py';
+	$correct_filename = 'tmppy/correct.py';
+	$test_file = 'tmppy/test.py';
+	//*	1. sample student response
+	$student_response = $question_data["student_response"];
+	//*	2. write student_response to py file
+	$file = fopen($student_filename, 'w');
+	if ($file) {
+		fwrite($file, $student_response);
+		fclose($file);
+	}
+	//* 3. correct response
+	$correct_response = $question_data["correct_response"];
+	//*	4. write correct_response to py file
+	$file = fopen($correct_filename, 'w');
+	if ($file) {
+		fwrite($file, $correct_response);
+		fclose($file);
+	}
+	//*	5. get testcases from database
+	$function_name = $question_data["function_name"];
+	$test_cases = $question_data["test_cases"];
+	$functioncalls = constructFunctionCalls($function_name, $test_cases);
+	// echo var_dump($functioncalls)."\n";
+
+	//*	6. compare student's to correct response's on individual testcases
+	$correct = 0;
+	foreach ($functioncalls as $call) {
+	// get students output
+		$text = "from student import *\n";
+		$text .= "$call\n";
+		$file = fopen($test_file, 'w');
+		if ($file){
+			fwrite($file, $text);
+			fclose($file);
+		}
+		$command = escapeshellcmd("python $test_file");
+		$student_output = shell_exec($command);
+		// print("Student output\n$student_output");
+
+		$text = "from correct import *\n";
+		$text .= "$call\n";
+		$file = fopen($test_file, 'w');
+		if ($file){
+			fwrite($file, $text);
+			fclose($file);
+		}
+		$command = escapeshellcmd("python $test_file");
+		$correct_output = shell_exec($command);
+		// print("Correct output\n$correct_output");
+
+		// compare outputs
+		if ($student_output == $correct_output && $student_output != "") {
+			// echo "MATCH\n";
+			$correct++;
+		} 
+		// else {
+		// 	echo "NOT MATCHED\n";
+		// }
+	}
+	$ratio = $correct / count($test_cases);
+	$points = $question_data["points"];
+	$score = $points * $ratio;
+	$id = $question_data["questionID"];
+	echo "$id: $score\n";
+	return $score;
+}
+
+/* returns 2D array of dims (questionID, 2)
+
+example: [[questionID, score],
+			[1, 17],
+			[3, 3]]
+*/
+function gradeAll($grading_data) {
+	$final_grades = array();
+	foreach ($grading_data as $question_data) {
+		$score = gradeQuestion($question_data);
+		$score = round($score);
+		array_push($final_grades, array($question_data["questionID"], (int)$score));
+	}
+	return $final_grades;
+}
+
+
+//* get front's grading request 							F -> M
+$jsonrequest = file_get_contents('php://input');
+// extract examID and userID
+$decoded = json_decode($jsonrequest, true);
+
+//* testing without front input
+/*$decoded = array("examID" => 34, "userID" => "jsnow");
+// $decoded = array("examID" => 32, "userID" => "mscott");
+$jsonrequest = json_encode($decoded);*/
+
+$examID = $decoded["examID"];
+$userID = $decoded["userID"];
+
+if ($decoded["examID"] && $decoded["userID"]) {
+	//* forward the request to back 						M -> B
+	$backfile = "get_grading_info.php";
+	$url = "https://web.njit.edu/~ds547/CS490-Project/assets/back/".$backfile;
+	$curl_opts = array(CURLOPT_POST => 1,
+		CURLOPT_URL => $url,
+		CURLOPT_POSTFIELDS => $jsonrequest,
+		CURLOPT_RETURNTRANSFER => 1);
+	$ch = curl_init();
+	curl_setopt_array($ch, $curl_opts);
+	$result = curl_exec($ch); // should be json				B -> M
+
+	//* extract the grading data from $result
+	$grading_data = json_decode($result, true);
+
+	var_dump($grading_data);
+
+	//* perform grading
+	$grades = gradeAll($grading_data);
+
+	// check if grading worked
+	if (count($grades) != count($grading_data)) {
+		// error occured since num_rows of both are not the same
+		echo "(middle) Error: while grading could not autograde\n";
+		exit();
+	}
+
+	//* send grades to back 								M -> B
+	// 	package
+	$grades_pack = array("userID" => $userID,
+						"examID" => $examID,
+						"scores" => $grades);
+
+	var_dump($grades_pack); /*exit();*/
+
+	$grades_encoded = json_encode($grades_pack);
+	//	send
+	$backfile = "update_grade.php";
+	$url = "https://web.njit.edu/~ds547/CS490-Project/assets/back/".$backfile;
+	$curl_opts = array(CURLOPT_POST => 1,
+		CURLOPT_URL => $url,
+		CURLOPT_POSTFIELDS => $grades_encoded,
+		CURLOPT_RETURNTRANSFER => 1);
+	$ch = curl_init();
+	curl_setopt_array($ch, $curl_opts);
+	$result = curl_exec($ch); // should be string			B -> M
+
+	//* check update status and report back to front 		M -> F
+	if (strpos($result, "error") === false) { // SUCCESS
+		// send the grades to front
+		echo true;
+	}
+	else {
+		// unsuccessful grading or updating report error to front
+		echo "(back)".$result."\n";
+	}
+}
+exit(); // everthing after this is test data and test scripts
+?>
+
+
+-------------------------
+request_question.php
+-------------------------
+<?php
+
+// returns array of questions encoded in json format
+/*
+questionJSON = {
+	"queArr" : array(array(question, difficulty, points))
+}
+constructedQuestions = {
+	"queArr" : array(array("Write a function named 'add' that takes parameters <num1> and <num2>, adds the 				two numbers and prints out the sum.", 'h', 20),
+					"Write a function named "subtract" that takes parameters <num1> and <num2>, subtracts the second number from first number and prints out the result"),
+};
+input param -> array
+returns -> array
+*/
+
+function constructQuestion(&$rawArr) {
+	// $outputarr = array();
+	// foreach ($rawArr as $que) {
+	for ($a = 0; $a < count($rawArr); $a++) {
+		$que = $rawArr[$a];
+		$funcName = $rawArr[$a]["functionName"];
+		$params = $rawArr[$a]["params"]; // array
+		$outparams = "";
+		if (count($params) == 1) {
+			$outparams = "parameter <$params[0]>";
+		}
+		elseif (count($params) == 2) {
+			$outparams = "parameters <$params[0]> and <$params[1]>";
+		}
+		else {
+			$outparams += "parameters ";
+			for ($i = 0; $i < count($params)-2; $i++) {
+				$outparams += "<$params[$i]>, ";
+			}
+			$outparams += "<$params[$i]> and "; $i++; 
+			$outparams += "<$params[$i]>";
+		}
+		$does = $rawArr[$a]["does"];
+		$prints = $rawArr[$a]["prints"];
+		$tmp = "Write a function named \"$funcName\" that takes $outparams, $does and prints $prints.";
+		// add constructed question attribute
+		$rawArr[$a]["constructed"] = $tmp;
+
+		// $tmparr = array($tmp, $rawArr[$a]["difficulty"], $rawArr[$a]["points"], $rawArr[$a]["questionID"]);
+		// echo "$tmp\n";
+		// array_push($outputarr, $tmparr);
+	}
+	// return $outputarr;
+}
+// wrapper for constructQuestion just takes in json and returns json
+function jsonConstructQuestion(&$queJSON){
+	$decJSON = json_decode($queJSON, true);
+	// $result = constructQuestion($decJSON["raw"]);
+	constructQuestion($decJSON["raw"]);
+
+	// echo "YOOOconstructed: ".$decJSON["raw"][1]["constructed"]."\n";
+	// $questionsArr = array("questions" => $result);
+	// $questionJSON = json_encode($questionsArr);
+	$questionJSON = json_encode($decJSON);
+	return $questionJSON;
+}
+
+// receive request from front
+$jsonrequest = file_get_contents('php://input');
+
+// send request to back
+//*	curl send to debbie
+$curl_opts = array(CURLOPT_POST => 1,
+	CURLOPT_URL => 'https://web.njit.edu/~ds547/CS490-Project/assets/back/back_questionBank.php',
+	CURLOPT_POSTFIELDS => $jsonrequest,
+	CURLOPT_RETURNTRANSFER => 1);
+$ch = curl_init();
+curl_setopt_array($ch, $curl_opts);
+$result = curl_exec($ch);
+// echo $result;
+// ideally
+$ques_sendback = jsonConstructQuestion($result);
+echo $ques_sendback;
+?>
+
+
+
+
+
+
+
+
+
+
+

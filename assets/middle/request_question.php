@@ -53,8 +53,6 @@ function jsonConstructQuestion(&$queJSON){
 	// $result = constructQuestion($decJSON["raw"]);
 	constructQuestion($decJSON["raw"]);
 
-	// echo "YOOOconstructed: ".$decJSON["raw"][1]["constructed"]."\n";
-	// $questionsArr = array("questions" => $result);
 	// $questionJSON = json_encode($questionsArr);
 	$questionJSON = json_encode($decJSON);
 	return $questionJSON;
