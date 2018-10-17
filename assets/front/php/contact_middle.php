@@ -4,13 +4,15 @@ const LOGIN_RT = 'login',
 GETQBANK_RT = 'getqbank',
 CREATE_EXAM_RT = 'create_exam',
 ADD_QUESTION_RT = 'add_question',
-GET_AVAILABLE_EXAMS_RT = 'getAvailableExams';
+GET_AVAILABLE_EXAMS_RT = 'getAvailableExams',
+SUBMIT_EXAM_RT = 'submit_exam';
 
 $json = file_get_contents('php://input');
 $json_decoded = json_decode($json);
 
 $url = '';
 $req = $json_decoded->requestType;
+
 if ($req == LOGIN_RT) {
 //    echo 'login';
     $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/auth_login.php';
@@ -21,8 +23,18 @@ if ($req == LOGIN_RT) {
 } elseif ($req == ADD_QUESTION_RT) {
     $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/comms.php';
 } elseif ($req == GET_AVAILABLE_EXAMS_RT) {
+    $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/getallexams.php';
+} elseif ($req == SUBMIT_EXAM_RT) {
     $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/comms.php';
+} elseif ($req == 'allExamsToBeGraded') {
+    $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/comms.php';
+} elseif ($req == 'allExamsToBeGraded') {
+    $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/comms.php';
+} elseif ($req == 'releaseGrade') {
+    $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/grade.php';
 }
+
+
 $curl_opts = array(
     CURLOPT_POST => 1,
     CURLOPT_URL => $url,
@@ -41,17 +53,3 @@ if ($error_msg = curl_error($ch)) {
 echo $result;
 
 curl_close($ch);
-
-
-//$json = json_decode(file_get_contents('php://input'));
-//$json = (file_get_contents('php://input'));
-//$url = '';
-//echo $json;
-//$req = $json['requestType'];
-//if ($req == 'login') {
-//    echo 'login';
-//    $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/auth_login.php';
-//} elseif ($req == 'getqbank') {
-//    echo 'qbank';
-//    $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/request_question.php';
-//}

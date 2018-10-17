@@ -52,9 +52,12 @@ function authenticateLogin() {
             if (json.user === INVALID) {
                 changeInnerHTML('error', "Username or password is incorrect.");
             } else if (json.user === INSTRUCTOR) {
-                changeInnerHTML('identity', "You are an instructor");
+                window.location = 'instructor-home.html?'+user;
+                // changeInnerHTML('identity', "You are an instructor");
             } else if (json.user === STUDENT) {
-                changeInnerHTML('identity', "You are a student");
+                window.location = 'student-home.html?ucid='+user;
+
+                // changeInnerHTML('identity', "You are a student");
             }
             // console.log(xhr.responseText);
         }

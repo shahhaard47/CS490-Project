@@ -6,41 +6,35 @@
     <link rel="stylesheet" href="assets/front/stylesheets/take-exam.css">
 </head>
 <body>
+<!--Left Side-->
 <div class="left" id="left">
     <div class="left-header">
         <h1>Take Exam</h1>
         <p id="header-examID"></p>
-        <div class="row">
-            <div class="left-options centered col">
-                <div class="row">
-                    <p>Sort By</p>
-                </div>
-                <div class="row">
-                    <label id="sorting-options">
-                        <select onchange="sortQuestionBank(this)">
-                            <optgroup label="Difficulty">
-                                <option>Easy</option>
-                                <option>Medium</option>
-                                <option>Hard</option>
-                            </optgroup>
-                            <optgroup label="Points">
-                                <option>Lowest</option>
-                                <option>Highest</option>
-                            </optgroup>
-                        </select>
-                    </label>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- All available questions will be in this div -->
-    <div class="questions-in-exam" id="questions-in-exam">
-    </div>
+    <div class="questions-in-exam" id="questions-in-exam"></div>
 
 </div>
-<div class="right" id="right">
 
+<!--Right Side-->
+<div class="right" id="right">
+    <div id="question-selected">
+        <p id="questionTitle"></p>
+        <label>
+            <textarea rows="5" id="question-content"></textarea>
+        </label>
+        <label>
+            <textarea class="solution-code" id="solution-code" rows="38" placeholder="Enter solution here"></textarea>
+
+        </label>
+    </div>
+</div>
+
+<div class="bottom-bar">
+    <!--<button class="saveBtn" id="saveBtn" onclick="">Save</button>-->
+    <button class="submitBtn" id="submitBtn" onclick="submitExamBH()">Submit</button>
 </div>
 </body>
 

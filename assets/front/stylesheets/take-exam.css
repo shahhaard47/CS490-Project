@@ -2,12 +2,21 @@
     box-sizing: border-box;
 }
 
+textarea {
+    width: 100%;
+}
+
+.solution-code {
+    height: 100%;
+}
+
 .header {
     width: 100%;
 }
+
 .left {
     height: 100%;
-    width: 40%;
+    width: 10%;
     position: fixed;
     z-index: 1;
     top: 0;
@@ -19,7 +28,7 @@
 
 .right {
     height: 100%;
-    width: 60%;
+    width: 90%;
     position: fixed;
     z-index: 1;
     top: 0;
@@ -35,7 +44,7 @@
 /* Left Side */
 .left-header {
     border-bottom: solid 1px lightgray;
-    width: 40%;
+    width: 10%;
     position: fixed;
     background-color: whitesmoke;
 }
@@ -66,4 +75,15 @@
 .btn-add {
     float: right;
     border-bottom-right-radius: 15px;
+}
+
+.bottom-bar {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    z-index: 2;
+    width: 100%;
+    text-align: center;
+    background-color: lightblue;
+    min-height: 50px;
 }

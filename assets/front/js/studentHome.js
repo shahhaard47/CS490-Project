@@ -1,4 +1,4 @@
-const GET_AVAILABLE_EXAMS_RT = 'getAvailableExams';
+let examIDsArr = [];
 
 function getAvailableExams() {
     let obj = {};
@@ -9,6 +9,7 @@ function getAvailableExams() {
         if (this.readyState === 4) {
             if (this.status === 200) {
                 // log(xhr.responseText);
+                populateExamsArray(parseJSON(xhr.responseText));
                 populateExamsTable(parseJSON(xhr.responseText));
             } else {
             }
@@ -28,16 +29,17 @@ function populateExamsTable(jsonObj) {
     let table = appendNodeToNode('table', 'examsTable', 'examsTable', container);
     let tr = appendNodeToNode('tr', '', '', table);
     appendNodeToNode('th', '', '', tr).innerHTML = 'Exam ID';
+    log(examIDsArr);
 
 
-    for (let i = 0; i < jsonObj.data.length; i++) {
-        let examID = jsonObj.data[i].examID;
+    for (let i = 0; i < examIDsArr.length; i++) {
+        let examID = examIDsArr[i];
         let tRow = appendNodeToNode('tr', examID, '', table);
         let td = appendNodeToNode('td', '', '', tRow);
         let btn = appendNodeToNode('button', '', 'examBtn', td);
         btn.innerHTML = examID;
         btn.onclick = function () {
-            openExam(examID, jsonObj);
+            openExam(examID);
         }
         // tRow.cells[0].onclick = function () {
         //     log(`Clicked: ${this.innerHTML}`);
@@ -45,11 +47,30 @@ function populateExamsTable(jsonObj) {
     }
 }
 
-function openExam(examID, jsonObj) {
-    examIDForTakeExam = examID;
-    jsonObjForTakeExam = jsonObj;
-    window.location = 'take-exam.html?id=' + examID + '&data=' + JSON.stringify(jsonObj);
+function populateExamsArray(jsonObj) {
+    log(jsonObj);
+    for (let i = 0; i < jsonObj.length; i++) {
+        // log('-----' + jsonObj[i].examID);
+        if (!inArray(examIDsArr, jsonObj[i].examID)) {
+            log('-not in: ' + jsonObj[i].examID);
+            examIDsArr.push(jsonObj[i].examID);
+        } else {
+            log('in: ' + jsonObj[i].examID);
+        }
+    }
 
+    log(examIDsArr);
+}
+
+function openExam(examID) {
+    let ucid = getURLParams(window.location.href).ucid;
+    window.location = `take-exam.html?userid=${ucid}&id=${examID}`;
+}
+
+function takeToViewExamBH(url) {
+    let ucid = getURLParams(window.location.href).ucid;
+    // prevUrl = url;
+    window.location = 'view-exams.html?ucid=' + ucid;
 }
 
 window.onload = function () {

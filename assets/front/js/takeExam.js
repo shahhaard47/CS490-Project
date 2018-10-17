@@ -1,90 +1,129 @@
-function addQuestionToView(node) {
-    let questionText = node.getElementsByTagName('textarea')[0].value;
-    let inputs = node.getElementsByTagName('input');
-    let questionsDifficulty = inputs[0].value;
-    let questionPts = inputs[1].value;
-    let qid = node.id;
-    let row = appendNodeToNode('div', qid, 'row', getelm('question-bank'));
+let questionIDsInExam = [], solutions = {}, examID = '', currIDSelected = '', prevUrl = '';
 
-    let questionContent = appendNodeToNode('div', '', 'question-content', row);
-    let textarea = appendNodeToNode('textarea', '', '', questionContent);
-    textarea.setAttribute('style', 'width:100%');
-    textarea.setAttribute('rows', '6');
-    textarea.setAttribute('wrap', 'soft');
-    textarea.innerHTML = questionText;
+function getAvailableExams() {
+    let obj = {};
+    obj.requestType = GET_AVAILABLE_EXAMS_RT;
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        /* Check if the xhr request was successful */
+        if (this.readyState === 4) {
+            if (this.status === 200) {
+                // log(xhr.responseText);
+                loadQuestions(parseJSON(xhr.responseText));
+            } else {
+            }
+        }
+    };
 
-    let options = appendNodeToNode('div', '', 'options centered', row);
+    /* Open a POST request */
+    xhr.open("POST", URL, true);
+    /* Encode the data properly. Otherwise, php will not be able to get the values */
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    /* Send the POST request with the data */
+    xhr.send(JSON.stringify(obj));
+}
 
-    let lblDifficulty = appendNodeToNode('label', '', '', options);
-    lblDifficulty.innerHTML = 'Difficulty';
-    let inputDifficulty = appendNodeToNode('input', '', '', lblDifficulty);
-    inputDifficulty.setAttribute('size', '4');
-    inputDifficulty.setAttribute('value', questionsDifficulty);
+/* src: https://jsfiddle.net/2wAzx/13/ */
+function enableTab(id) {
+    var el = document.getElementById(id);
+    el.onkeydown = function (e) {
+        if (e.keyCode === 9) { // tab was pressed
 
-    let lblPoints = appendNodeToNode('label', '', '', options);
-    lblPoints.innerHTML = 'Points';
-    let inputPoints = appendNodeToNode('input', '', '', lblPoints);
-    inputPoints.setAttribute('size', '1');
-    inputPoints.setAttribute('value', questionPts);
+            // get caret position/selection
+            var val = this.value,
+                start = this.selectionStart,
+                end = this.selectionEnd;
 
-    let btnAdd = appendNodeToNode('button', 'btnAdd' + qid, 'btn-add', options);
-    btnAdd.innerHTML = 'Add';
-    btnAdd.onclick = function () {
-        addQuestionToExam(getelm(this.id));
-    }
+            // set textarea value to: text before caret + tab + text after caret
+            this.value = val.substring(0, start) + '\t' + val.substring(end);
+
+            // put caret at right position again
+            this.selectionStart = this.selectionEnd = start + 1;
+
+            // prevent the focus lose
+            return false;
+
+        }
+    };
 }
 
 
-function selectQuestion(elm) {
+function openQuestion(questionID, obj) {
+    for (let i = 0; i < obj.length; i++) {
+        let x = obj[i];
+        if (x.examID == examID && x.questionID == questionID) {
+            questionTextArea.innerHTML = x.constructed;
+        }
+    }
+}
+
+function saveSolution(questionID, solutionCode) {
+    if (solutionCode !== '')
+        solutions[questionID] = solutionCode;
+}
+
+function loadQuestions(obj) {
+    log(obj);
+    let num = 1;
+    for (let i = 0; i < obj.length; i++) {
+        // log(obj[i].examID);
+        if (obj[i].examID == examID) {
+            questionIDsInExam.push(obj[i].questionID);
+            let btn = appendNodeToNode('button', obj[i].questionID, '', getelm('questions-in-exam'));
+            btn.innerHTML = num++;
+            btn.setAttribute('id', obj[i].questionID);
+            btn.setAttribute('style', 'width:100%');
+            btn.onclick = function () {
+                getelm('questionTitle').innerHTML = 'Question ' + btn.innerHTML;
+                saveSolution(currIDSelected, solutionTextArea.value);
+                currIDSelected = this.id;
+                openQuestion(this.id, obj);
+                // if (solutionTextArea.value !== '')
+                solutionTextArea.innerHTML = solutions[this.id];
+                solutionTextArea.value = '';
+                // log(solutions);
+            };
+            appendNodeToNode('br', '', '', getelm('questions-in-exam'));
+        }
+    }
 
 }
 
-/*function createQuestionNode(questionData) {
-    let {examID, functionDescription, functionName, output, parameters, points, questionID} = questionData;
-
-    let row = appendNodeToNode('div', questionID, 'row', getelm('questions-in-exam'));
-
-    let questionContent = appendNodeToNode('div', '', 'question-content', row);
-    let textarea = appendNodeToNode('textarea', '', '', questionContent);
-    textarea.setAttribute('style', 'width:100%');
-    textarea.setAttribute('rows', '6');
-    textarea.setAttribute('wrap', 'soft');
-    textarea.setAttribute('readonly', '');
-    textarea.innerHTML = '';
-
-    let options = appendNodeToNode('div', '', 'options centered', row);
-
-    let lblDifficulty = appendNodeToNode('label', '', '', options);
-    lblDifficulty.innerHTML = 'Difficulty';
-    let inputDifficulty = appendNodeToNode('input', '', '', lblDifficulty);
-    inputDifficulty.setAttribute('size', '4');
-    inputDifficulty.setAttribute('value', questionsDifficulty);
-
-    let lblPoints = appendNodeToNode('label', '', '', options);
-    lblPoints.innerHTML = 'Points';
-    let inputPoints = appendNodeToNode('input', '', '', lblPoints);
-    inputPoints.setAttribute('size', '1');
-    inputPoints.setAttribute('value', questionPts);
-
-    let btnAdd = appendNodeToNode('button', 'btnAdd' + questionID, 'btn-add', options);
-    btnAdd.innerHTML = 'Select';
-    btnAdd.onclick = function () {
-        selectQuestion(getelm(this.id));
+function getAnswers() {
+    let list = [], keys = Object.keys(solutions);
+    for (let i = 0; i < keys.length; i++) {
+        if (solutions.hasOwnProperty(keys[i])) {
+            let l2 = [];
+            l2.push(parseInt(keys[i]));
+            l2.push(solutions[keys[i]]);
+            list.push(l2);
+        }
     }
-}*/
+    return list;
+}
 
-
-function loadQuestions(jsonStr) {
-    let jsonObj = parseJSON(jsonStr);
-    log(jsonObj);
-    let data = jsonObj.data;
-    for (let i = 0; i < data.length; i++) {
-        
-    }
+function submitExamBH() {
+    let obj = {};
+    obj.examID = parseInt(examID);
+    obj.userID = getURLParams(window.location.href).userid;
+    obj.answers = getAnswers();
+    obj.requestType = 'submit_exam';
+    log(obj);
+    sendAJAXReq(JSON.stringify(obj));
+    window.location = 'student-home.html';
 }
 
 window.onload = function () {
+    questionTextArea = getelm('question-content');
+    solutionTextArea = getelm('solution-code');
+    enableTab(solutionTextArea.id);
     let params = getURLParams(window.location.href);
+    examID = params.id;
     changeInnerHTML('header-examID', `Exam ID: ${params.id}`);
-    loadQuestions(params.data);
+    getAvailableExams();
+    currIDSelected = questionIDsInExam[0];
 };
+/*
+grade.php -> userID, examID
+
+ */

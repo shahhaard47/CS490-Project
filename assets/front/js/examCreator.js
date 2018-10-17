@@ -18,57 +18,58 @@ function loadQuestionBank(xhrResponseText) {
     let json = parseJSON(xhrResponseText);
     let questionArray = json.raw;
     for (let i = 0; i < questionArray.length; i++) {
-        let qid = questionArray[i].questionID;
-        let row = appendNodeToNode('div', qid, 'row', getelm('question-bank'));
+        if (!questionIdInExam(questionArray[i].questionID)) {
+            let qid = questionArray[i].questionID;
+            let row = appendNodeToNode('div', qid, 'row', getelm('question-bank'));
 
-        let questionContent = appendNodeToNode('div', '', 'question-content', row);
-        let textarea = appendNodeToNode('textarea', '', '', questionContent);
-        textarea.setAttribute('style', 'width:100%');
-        textarea.setAttribute('rows', '6');
-        textarea.setAttribute('wrap', 'soft');
-        textarea.innerHTML = questionArray[i].constructed;
+            let questionContent = appendNodeToNode('div', '', 'question-content', row);
+            let textarea = appendNodeToNode('textarea', '', '', questionContent);
+            textarea.setAttribute('style', 'width:100%');
+            textarea.setAttribute('rows', '6');
+            textarea.setAttribute('wrap', 'soft');
+            textarea.innerHTML = questionArray[i].constructed;
 
-        let options = appendNodeToNode('div', '', 'options centered', row);
+            let options = appendNodeToNode('div', '', 'options centered', row);
 
-        let lblDifficulty = appendNodeToNode('label', '', '', options);
-        lblDifficulty.innerHTML = 'Difficulty';
-        let inputDifficulty = appendNodeToNode('input', '', '', lblDifficulty);
-        inputDifficulty.setAttribute('size', '4');
+            let lblDifficulty = appendNodeToNode('label', '', '', options);
+            lblDifficulty.innerHTML = 'Difficulty';
+            let inputDifficulty = appendNodeToNode('input', '', '', lblDifficulty);
+            inputDifficulty.setAttribute('size', '4');
 
-        let dif = '';
-        switch (questionArray[i].difficulty) {
-            case DIF_EASY:
-                dif = 'Easy';
-                easyQuestionNodes.push(row);
-                break;
-            case DIF_MED:
-                dif = 'Medium';
-                medQuestionNodes.push(row);
-                break;
-            case DIF_HARD:
-                hardQuestionNodes.push(row);
-                dif = 'Hard';
-                break;
-            default:
+            let dif = '';
+            switch (questionArray[i].difficulty) {
+                case DIF_EASY:
+                    dif = 'Easy';
+                    easyQuestionNodes.push(row);
+                    break;
+                case DIF_MED:
+                    dif = 'Medium';
+                    medQuestionNodes.push(row);
+                    break;
+                case DIF_HARD:
+                    hardQuestionNodes.push(row);
+                    dif = 'Hard';
+                    break;
+                default:
 
+            }
+            inputDifficulty.setAttribute('value', dif);
+
+            let lblPoints = appendNodeToNode('label', '', '', options);
+            lblPoints.innerHTML = 'Points';
+            let inputPoints = appendNodeToNode('input', '', '', lblPoints);
+            inputPoints.setAttribute('size', '1');
+            inputPoints.setAttribute('value', questionArray[i].points);
+
+            let btnAdd = appendNodeToNode('button', 'btnAdd' + qid, 'btn-add', options);
+            btnAdd.innerHTML = 'Add';
+            btnAdd.onclick = function () {
+                addQuestionToExam(getelm(this.id));
+            };
+
+            /* Add node to the array which is used to sort nodes later */
+            nodesInQuestionBank.push(row);
         }
-        inputDifficulty.setAttribute('value', dif);
-
-        let lblPoints = appendNodeToNode('label', '', '', options);
-        lblPoints.innerHTML = 'Points';
-        let inputPoints = appendNodeToNode('input', '', '', lblPoints);
-        inputPoints.setAttribute('size', '1');
-        inputPoints.setAttribute('value', questionArray[i].points);
-
-        let btnAdd = appendNodeToNode('button', 'btnAdd' + qid, 'btn-add', options);
-        btnAdd.innerHTML = 'Add';
-        btnAdd.onclick = function () {
-            addQuestionToExam(getelm(this.id));
-        };
-
-        /* Add node to the array which is used to sort nodes later */
-        nodesInQuestionBank.push(row);
-
 
     }
 }
@@ -162,6 +163,10 @@ function addQuestionToBank(node) {
 }
 
 function getQuestionBank() {
+    nodesInQuestionBank = [];
+    easyQuestionNodes = [];
+    medQuestionNodes = [];
+    hardQuestionNodes = [];
     /* Construct obj for JSON */
     let x = {
         'qBank': true,
@@ -270,8 +275,12 @@ function addNewQuestionToBankBH() {
         'solution': getelm('modal-solution').value,
         'requestType': ADDQUESTION_RT
     };
-
     sendAJAXReq(JSON.stringify(obj));
+
+    getelm('question-bank').innerHTML = '';
+    getQuestionBank();
+    closeModalBH();
+    alert('Question was added.')
 }
 
 function getModalParams() {
@@ -319,9 +328,11 @@ function createExamBH() {
         obj.questions.push(parseInt(questionIDsInExam[i]));
     }
 
-    log(JSON.stringify(obj));
+    // log(JSON.stringify(obj));
 
-    log(sendAJAXReq(JSON.stringify(obj)));
+    sendAJAXReq(JSON.stringify(obj));
+    alert('Exam was created!');
+    window.location = 'instructor-home.html';
 }
 
 function checkQuestionNodesSame(a, b) {
@@ -331,6 +342,15 @@ function checkQuestionNodesSame(a, b) {
 function checkQuestionNodeInExam(node) {
     for (let i in questionIDsInExam) {
         if (questionIDsInExam[i] === node.id) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function questionIdInExam(id) {
+    for (let i in questionIDsInExam) {
+        if (questionIDsInExam[i] === id) {
             return true;
         }
     }

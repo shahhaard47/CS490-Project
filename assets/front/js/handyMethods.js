@@ -1,5 +1,5 @@
-const URL = 'https://web.njit.edu/~sk2283/assets/front/php/contact_middle.php';
-let examIDForTakeExam = '', jsonObjForTakeExam = '';
+const URL = 'https://web.njit.edu/~sk2283/assets/front/php/contact_middle.php',
+    GET_AVAILABLE_EXAMS_RT = 'getAvailableExams';
 
 function loader(id, state) {
     getelm(id).style.visibility = state;
@@ -72,8 +72,7 @@ function sendAJAXReq(content) {
         /* Check if the xhr request was successful */
         if (this.readyState === 4) {
             if (this.status === 200) {
-                // log(xhr.responseText);
-                log(parseJSON(xhr.responseText));
+                log(xhr.responseText);
             } else {
             }
         }
@@ -100,6 +99,14 @@ function getURLParams(url) {
     return params;
 }
 
+function inArray(arr, b) {
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] === b) {
+            return true;
+        }
+    }
+    return false;
+}
 
 function log(str) {
     console.log(str);
