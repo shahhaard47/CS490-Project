@@ -12,17 +12,20 @@
 function constructFunctionCalls($functionName, $testcases) {
 	$functioncalls = array();
 	foreach ($testcases as $case) {
+		$tc = array();
 		// echo "case: $case\n";
 		$call = "";
 		$call = "$functionName(";
-		$case = explode(",", $case);
+		// $case = explode(",", $case);
+		$case = preg_split('/(,|;)/', $case, -1, PREG_SPLIT_NO_EMPTY);
+		// var_dump($case[count($case)-1]);
 		// echo "$functionName(";
-		if (count($case) == 0) {
+		if (count($case) == 1) {
 			$call .= ")";
 			// echo ")";
 		}
 		else {
-			for ($i = 0; $i < count($case)-1; $i++) {
+			for ($i = 0; $i < count($case)-2; $i++) {
 				$a = explode(" ", $case[$i]);
 				$call .= "$a[0]('$a[1]')".", ";
 				// echo "$case[$i], ";
@@ -32,14 +35,17 @@ function constructFunctionCalls($functionName, $testcases) {
 			// echo "$case[$i])";
 		}
 		// echo $call."\n";
-		array_push($functioncalls, $call);
+		array_push($tc, $call);
+		array_push($tc, $case[count($case)-1]);
+		// var_dump($tc);
+		array_push($functioncalls, $tc);
 	}
+	// var_dump($functioncalls);
 	return $functioncalls;
 }
 
 function gradeQuestion($question_data) {
 	$student_filename = 'tmppy/student.py';
-	$correct_filename = 'tmppy/correct.py';
 	$test_file = 'tmppy/test.py';
 	//*	1. sample student response
 	$student_response = $question_data["student_response"];
@@ -47,14 +53,6 @@ function gradeQuestion($question_data) {
 	$file = fopen($student_filename, 'w');
 	if ($file) {
 		fwrite($file, $student_response);
-		fclose($file);
-	}
-	//* 3. correct response
-	$correct_response = $question_data["correct_response"];
-	//*	4. write correct_response to py file
-	$file = fopen($correct_filename, 'w');
-	if ($file) {
-		fwrite($file, $correct_response);
 		fclose($file);
 	}
 	//*	5. get testcases from database
@@ -66,9 +64,17 @@ function gradeQuestion($question_data) {
 	//*	6. compare student's to correct response's on individual testcases
 	$correct = 0;
 	foreach ($functioncalls as $call) {
-	// get students output
+		$callll = $call[0]; $correct_response = $call[1];
+		$correct_response = explode(" ", $correct_response);
+		// get students output
 		$text = "from student import *\n";
-		$text .= "$call\n";
+		$text .= "response = $callll\n";
+		$text .= "correct = $correct_response[0]('$correct_response[1]')\n";
+		$text .= "if (response == correct):\n";
+		$text .= "\tprint('correct')\n";
+		$text .= "else:\n";
+		$text .= "\tprint('wrong')\n";
+
 		$file = fopen($test_file, 'w');
 		if ($file){
 			fwrite($file, $text);
@@ -76,29 +82,18 @@ function gradeQuestion($question_data) {
 		}
 		$command = escapeshellcmd("python $test_file");
 		$student_output = shell_exec($command);
-		// print("Student output\n$student_output");
-
-		$text = "from correct import *\n";
-		$text .= "$call\n";
-		$file = fopen($test_file, 'w');
-		if ($file){
-			fwrite($file, $text);
-			fclose($file);
-		}
-		$command = escapeshellcmd("python $test_file");
-		$correct_output = shell_exec($command);
-		// print("Correct output\n$correct_output");
 
 		// compare outputs
-		if ($student_output == $correct_output && $student_output != "") {
-			// echo "MATCH\n";
+		if ($student_output == "correct\n"){
 			$correct++;
-		} 
+		}
 		// else {
 		// 	echo "NOT MATCHED\n";
 		// }
 	}
-	$ratio = $correct / count($test_cases);
+	// var_dump($correct);
+	// var_dump(count($functioncalls));
+	$ratio = $correct / count($functioncalls);
 	$points = $question_data["points"];
 	$score = $points * $ratio;
 	$id = $question_data["questionID"];
@@ -129,9 +124,9 @@ $jsonrequest = file_get_contents('php://input');
 $decoded = json_decode($jsonrequest, true);
 
 //* testing without front input
-/*$decoded = array("examID" => 49, "userID" => "jsnow");
 // $decoded = array("examID" => 49, "userID" => "mscott");
-$jsonrequest = json_encode($decoded);*/
+// // $decoded = array("examID" => 49, "userID" => "mscott");
+// $jsonrequest = json_encode($decoded);
 
 $examID = $decoded["examID"];
 $userID = $decoded["userID"];
@@ -151,10 +146,11 @@ if ($decoded["examID"] && $decoded["userID"]) {
 	//* extract the grading data from $result
 	$grading_data = json_decode($result, true);
 
-	// var_dump($grading_data); /*exit();*/
+	// echo "Grading data received from debbie\n";
+	// var_dump($grading_data); exit();
 
 	//* perform grading
-	$grades = gradeAll($grading_data);
+	$grades = gradeAll($grading_data); 
 
 	// check if grading worked
 	if (count($grades) != count($grading_data)) {
@@ -196,38 +192,20 @@ if ($decoded["examID"] && $decoded["userID"]) {
 }
 exit(); // everthing after this is test data and test scripts
 
-//* SAMPLE DATA
-// debbie will send me array of associative arrays which will be arrays of testcases
-/* so array(array(
-					"questionID" => int,
-					"points" => int,
-					"function_name" => "name",
-					"student_response" => "def ...",
-					"correct_response" => "def ...",
-					"test_cases" => array("datatype value, datatype value", "datatype value, ..., datatype value")
-				),
-			array( "questionID" ... 
-				)
-			);
-	sidenote:
-	datatypes: str, int, float 
-	testcases_cases: is an array of strings in particular format
-*/
+//SAMPLE DATA AND TESTING
 $grading_data = array(array(
 						"questionID" => 1,
 						"points" => 20,
 						"function_name" => "printMe",
-						"student_response" => "def printMe(name, num):\n\tfor i in range(num):\n\t\tprint(name, i+1)",
-						"correct_response" => "def printMe(name, num):\n\tfor i in range(num):\n\t\tprint(name, i+1)",
-						"test_cases" => array("str MAC,int 5", "str CHEESE,int 2")
+						"student_response" => "def printMe(name, num):\n\treturn (name*num)",
+						"test_cases" => array("str MAC,int 5;str MACMACMACMACMAC", "str CHEESE,int 2;str CHEESECHEESE")
 							),
 					array(
 						"questionID" => 3,
 						"points" => 10,
 						"function_name" => "roundNum",
-						"student_response" => "def roundNum(num):\n\tnum=round(num)\n\tprint(3)",
-						"correct_response" => "def roundNum(num):\n\tprint(int(num))",
-						"test_cases" => array("float 3.14159", "float 2.7183", "float 1.5")
+						"student_response" => "def roundNum(num):\n\tnum=round(num)\n\treturn (3)",
+						"test_cases" => array("float 3.14159;int 3", "float 2.7183;int 3", "float 1.5;int 2")
 						)
 					);
 
@@ -236,8 +214,8 @@ $grading_data = array(array(
 // echo "Score: $score\n";
 
 $grades = gradeAll($grading_data);
-// echo "-----------Final-----------\n";
-// var_dump($grades);
+echo "-----------Final-----------\n";
+var_dump($grades);
 exit();
 
 /* same as gradeAll uncomment if that breaks and needs debugging with the following code that WORKS
