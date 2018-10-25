@@ -62,7 +62,8 @@ function gradeQuestion($question_data) {
 	// echo var_dump($functioncalls)."\n";
 
 	//*	6. compare student's to correct response's on individual testcases
-	$correct = 0;
+	$TCresults = array(); // size should be count($functioncalls)
+	$TCtotal = count($functioncalls);
 	foreach ($functioncalls as $call) {
 		$callll = $call[0]; $correct_response = $call[1];
 		$correct_response = explode(" ", $correct_response);
@@ -85,112 +86,124 @@ function gradeQuestion($question_data) {
 
 		// compare outputs
 		if ($student_output == "correct\n"){
-			$correct++;
+			array_push($TCresults, 1);
 		}
-		// else {
-		// 	echo "NOT MATCHED\n";
-		// }
+		else {
+			array_push($TCresults, 0);
+		}
 	}
-	// var_dump($correct);
-	// var_dump(count($functioncalls));
-	$ratio = $correct / count($functioncalls);
-	$points = $question_data["points"];
-	$score = $points * $ratio;
-	$id = $question_data["questionID"];
-	// echo "$id: $score\n";
-	return $score;
+
+	if (count($TCresults) == $TCtotal) {
+		return $TCresults;
+	}
+	else {
+		// something went wrong 
+		echo "(middle): error while grading. Testcase and function calls mismatch. Terminating.";
+		exit();
+	}
 }
 
 /* returns 2D array of dims (questionID, 2)
-
-example: [[questionID, score],
-			[1, 17],
-			[3, 3]]
+example:
+$final_grades=  [
+					[questionID, score, [testcase1pass, testcase2fail,...]],
+					[1, 17, [1, 0, 1, 1]],
+					[3, 3, [1, 1, 0, 0]]
+				]
 */
 function gradeAll($grading_data) {
 	$final_grades = array();
 	foreach ($grading_data as $question_data) {
-		$score = gradeQuestion($question_data);
+		$tcs = gradeQuestion($question_data);
+		$correct = array_sum($tcs);
+		$ratio = $correct / count($tcs);
+		$points = $question_data["points"];
+		$score = $points * $ratio;
 		$score = round($score);
-		array_push($final_grades, array((int)$question_data["questionID"], (int)$score));
+		array_push($final_grades, array((int)$question_data["questionID"], 
+										(int)$score, 
+										$tcs));
 	}
 	return $final_grades;
 }
 
+// Main stuff
+/*
+	//* get front's grading request 							F -> M
+	$jsonrequest = file_get_contents('php://input');
+	// extract examID and userID
+	$decoded = json_decode($jsonrequest, true);
 
-//* get front's grading request 							F -> M
-$jsonrequest = file_get_contents('php://input');
-// extract examID and userID
-$decoded = json_decode($jsonrequest, true);
+	//* testing without front input
+	// $decoded = array("examID" => 49, "userID" => "mscott");
+	// // $decoded = array("examID" => 49, "userID" => "mscott");
+	// $jsonrequest = json_encode($decoded);
 
-//* testing without front input
-// $decoded = array("examID" => 49, "userID" => "mscott");
-// // $decoded = array("examID" => 49, "userID" => "mscott");
-// $jsonrequest = json_encode($decoded);
+	$examID = $decoded["examID"];
+	$userID = $decoded["userID"];
 
-$examID = $decoded["examID"];
-$userID = $decoded["userID"];
+	if ($decoded["examID"] && $decoded["userID"]) {
+		//* forward the request to back 						M -> B
+		$backfile = "get_grading_info.php";
+		$url = "https://web.njit.edu/~ds547/CS490-Project/assets/back/".$backfile;
+		$curl_opts = array(CURLOPT_POST => 1,
+			CURLOPT_URL => $url,
+			CURLOPT_POSTFIELDS => $jsonrequest,
+			CURLOPT_RETURNTRANSFER => 1);
+		$ch = curl_init();
+		curl_setopt_array($ch, $curl_opts);
+		$result = curl_exec($ch); // should be json				B -> M
 
-if ($decoded["examID"] && $decoded["userID"]) {
-	//* forward the request to back 						M -> B
-	$backfile = "get_grading_info.php";
-	$url = "https://web.njit.edu/~ds547/CS490-Project/assets/back/".$backfile;
-	$curl_opts = array(CURLOPT_POST => 1,
-		CURLOPT_URL => $url,
-		CURLOPT_POSTFIELDS => $jsonrequest,
-		CURLOPT_RETURNTRANSFER => 1);
-	$ch = curl_init();
-	curl_setopt_array($ch, $curl_opts);
-	$result = curl_exec($ch); // should be json				B -> M
+		//* extract the grading data from $result
+		$grading_data = json_decode($result, true);
 
-	//* extract the grading data from $result
-	$grading_data = json_decode($result, true);
+		// echo "Grading data received from debbie\n";
+		// var_dump($grading_data); exit();
 
-	// echo "Grading data received from debbie\n";
-	// var_dump($grading_data); exit();
+		//* perform grading
+		$grades = gradeAll($grading_data); 
 
-	//* perform grading
-	$grades = gradeAll($grading_data); 
+		// check if grading worked
+		if (count($grades) != count($grading_data)) {
+			// error occured since num_rows of both are not the same
+			echo "(middle) Error: while grading could not autograde\n";
+			exit();
+		}
 
-	// check if grading worked
-	if (count($grades) != count($grading_data)) {
-		// error occured since num_rows of both are not the same
-		echo "(middle) Error: while grading could not autograde\n";
-		exit();
+		//* send grades to back 								M -> B
+		// 	package
+		$grades_pack = array("userID" => $userID,
+							"examID" => $examID,
+							"scores" => $grades);
+
+		// var_dump($grades_pack);
+
+		$grades_encoded = json_encode($grades_pack);
+		//	send
+		$backfile = "update_grade.php";
+		$url = "https://web.njit.edu/~ds547/CS490-Project/assets/back/".$backfile;
+		$curl_opts = array(CURLOPT_POST => 1,
+			CURLOPT_URL => $url,
+			CURLOPT_POSTFIELDS => $grades_encoded,
+			CURLOPT_RETURNTRANSFER => 1);
+		$ch = curl_init();
+		curl_setopt_array($ch, $curl_opts);
+		$result = curl_exec($ch); // should be string			B -> M
+
+		//* check update status and report back to front 		M -> F
+		if (strpos($result, "error") === false) { // SUCCESS
+			// send the grades to front
+			// echo true;
+			echo $grades_encoded;
+		}
+		else {
+			// unsuccessful grading or updating report error to front
+			echo "(back)".$result."\n";
+		}
 	}
+	exit(); // everthing after this is test data and test scripts
+*/
 
-	//* send grades to back 								M -> B
-	// 	package
-	$grades_pack = array("userID" => $userID,
-						"examID" => $examID,
-						"scores" => $grades);
-
-	// var_dump($grades_pack);
-
-	$grades_encoded = json_encode($grades_pack);
-	//	send
-	$backfile = "update_grade.php";
-	$url = "https://web.njit.edu/~ds547/CS490-Project/assets/back/".$backfile;
-	$curl_opts = array(CURLOPT_POST => 1,
-		CURLOPT_URL => $url,
-		CURLOPT_POSTFIELDS => $grades_encoded,
-		CURLOPT_RETURNTRANSFER => 1);
-	$ch = curl_init();
-	curl_setopt_array($ch, $curl_opts);
-	$result = curl_exec($ch); // should be string			B -> M
-
-	//* check update status and report back to front 		M -> F
-	if (strpos($result, "error") === false) { // SUCCESS
-		// send the grades to front
-		// echo true;
-		echo $grades_encoded;
-	}
-	else {
-		// unsuccessful grading or updating report error to front
-		echo "(back)".$result."\n";
-	}
-}
-exit(); // everthing after this is test data and test scripts
 
 //SAMPLE DATA AND TESTING
 $grading_data = array(array(
@@ -214,6 +227,8 @@ $grading_data = array(array(
 // echo "Score: $score\n";
 
 $grades = gradeAll($grading_data);
+echo "GradingData:\n";
+var_dump($grading_data);
 echo "-----------Final-----------\n";
 var_dump($grades);
 exit();
