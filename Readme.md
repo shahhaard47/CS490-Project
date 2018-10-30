@@ -1,8 +1,9 @@
 # Mock CS100 Exam Portal 
 
 ## Architecture
-- Front
-- Middle
-- Back
+Model-View-Controller
+- Front (view)
+- Middle (controller)
+- Back (model)
 
 ## Features
