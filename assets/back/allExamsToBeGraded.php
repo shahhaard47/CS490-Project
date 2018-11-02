@@ -11,23 +11,13 @@ $databaseName = "ds547";
 $conn = new mysqli($servername, $username, $password, $databaseName);
 
 
+$allFinishedExams = mysqli_query($conn, "SELECT BETA_grades.examScore,BETA_questionBank.functionName,BETA_questionBank.parameters,BETA_questionBank.functionDescription,BETA_questionBank.output,BETA_rawExamData.userID,BETA_rawExamData.examID,BETA_rawExamData.questionID,BETA_rawExamData.studentResponse,BETA_rawExamData.questionScore FROM BETA_grades,BETA_questionBank,BETA_rawExamData WHERE BETA_rawExamData.userID=BETA_grades.userID AND BETA_rawExamData.examID=BETA_grades.examID AND BETA_rawExamData.questionID=BETA_questionBank.questionID ORDER BY BETA_rawExamData.userID");
 
-//receiving json request from Haard (middle) for data to display for student/instructor
-//$rawStuExamData = file_get_contents('php://input'); //get JSON request data for data to display for student/instructor
-//$data = json_decode($rawStuExamData, true); //decode JSON request data for data to display for student/instructor
-//$requestInfo = array('userID' => $data['userID'], 'examID' => $data['examID']); //store JSON request data for data to display for student/instructor
-//$requestInfo = array('userID' => 'mscott', 'examID' => 6); //TEST
+$examsTableData = mysqli_query($conn, "SELECT * FROM BETA_exams");
 
 
-
-$returnArray=array();
-
-$allFinishedExams = mysqli_query($conn, "SELECT BETA_rawExamData.userID,BETA_rawExamData.examID,BETA_rawExamData.questionID,BETA_rawExamData.studentResponse,BETA_questionBank.functionName,BETA_questionBank.parameters,BETA_questionBank.functionDescription,BETA_questionBank.output,BETA_questionBank.points,BETA_grades.examScore FROM BETA_rawExamData,BETA_questionBank,BETA_grades WHERE BETA_rawExamData.questionID=BETA_questionBank.questionID AND BETA_rawExamData.examID=BETA_grades.examID");
-
-//$allGrades = mysqli_query($conn, "SELECT examID,examScore FROM BETA_exams");
-
-
-
+$returnArrayRAW=array();
+$returnArrayEXAMS=array();
 if($allFinishedExams->num_rows!=0)
 {
   $tempArray = array();
@@ -41,19 +31,38 @@ if($allFinishedExams->num_rows!=0)
     $tempArray['parameters']=explode(',',$row['parameters']);
     $tempArray['does']=$row['functionDescription'];
     $tempArray['prints']=$row['output'];
-    $tempArray['points']=(int)$row['points'];
+    $tempArray['points']=(int)$row['questionScore'];
     $tempArray['examScore']=(int)$row['examScore'];
     
-    array_push($returnArray,$tempArray);
+    array_push($returnArrayRAW,$tempArray);
   }
-  $myJSON=json_encode($returnArray);
-  echo $myJSON;
+  $myObj->raw=$returnArrayRAW;
 }
 else
 {
-  $myJSON=json_encode($returnArray);
-  echo $myJSON;
+  $myObj->raw=null;
 }
+if($examsTableData->num_rows!=0)
+{
+  $tempArray=array();
+  while($row = $examsTableData->fetch_assoc())
+  {
+    $tempArray['examID']=$row['examID'];
+    $tempArray['examName']=$row['examName'];
+    $tempArray['qIDs']=explode(',',$row['questionIDs']);
+    $tempArray['points']=explode(',',$row['points']);
+    
+    array_push($returnArrayEXAMS,$tempArray);
+  }
+  $myObj->exam=$returnArrayEXAMS;
+}
+else
+{
+  $myObj->exam=null;
+}
+
+$myJSON=json_encode($myObj);
+echo $myJSON;
 
 
 

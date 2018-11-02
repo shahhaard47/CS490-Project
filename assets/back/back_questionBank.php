@@ -12,39 +12,7 @@ $conn = new mysqli($servername, $username, $password, $databaseName);
 
 
 
-//receiving json data from Haard (middle) for question bank request
-$rawQuestionBankDataRequest = file_get_contents('php://input'); //get JSON data for question bank request
-$data = json_decode($rawQuestionBankDataRequest, true); //decode JSON data for question bank request
-$QB_Data = array('questionBank' => $data['qBank'], 'difficulty' => $data['difficulty']); //store JSON data for question bank request
-//$QB_Data = array('questionBank' => TRUE, 'difficulty' => 'a'); //TEST
-
-
-
-//check if there is a request for the questions from the questionBank
-if($QB_Data['questionBank']==TRUE)
-{
-  //check to see if the request is for all questions, or only questions with a certain difficulty
-  if($QB_Data['difficulty']=='a')
-  {
-    $result = mysqli_query($conn, "SELECT * FROM BETA_questionBank");
-  }
-  elseif($QB_Data['difficulty']=='e')
-  {
-    $result = mysqli_query($conn, "SELECT * FROM BETA_questionBank WHERE difficulty='e'");
-  }
-  elseif($QB_Data['difficulty']=='m')
-  {
-    $result = mysqli_query($conn, "SELECT * FROM BETA_questionBank WHERE difficulty='m'");
-  }
-  else //meaning, if($QB_Data['difficulty']=='h')
-  {
-    $result = mysqli_query($conn, "SELECT * FROM BETA_questionBank WHERE difficulty='h'");
-  }
-}
-else //meaning, if($QB_Data['questionBank']==FALSE)
-{
-}
-
+$result = mysqli_query($conn, "SELECT * FROM BETA_questionBank");
 
 
 //pack up data and return if $result contains anything
@@ -61,7 +29,6 @@ if($result->num_rows!=0)
     $tempArray["does"]=$row['functionDescription'];
     $tempArray["prints"]=$row['output'];
     $tempArray["difficulty"]=$row['difficulty'];
-    $tempArray["points"]=$row['points'];
     //echo(var_dump($tempArray));
     array_push($returnToMiddle["raw"],$tempArray);
   }

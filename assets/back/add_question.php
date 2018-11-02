@@ -16,9 +16,10 @@ $conn = new mysqli($servername, $username, $password, $databaseName);
 
 $rawCreateQuestion = file_get_contents('php://input');
 $data = json_decode($rawCreateQuestion, true);
-$newExamQuestion = array('functName' => $data['functionName'], 'parameters' => $data['params'], 'functDescription' => $data['does'], 'output' => $data['prints'], 'difficulty' => $data['difficulty'], 'points' => $data['points'], 'testCases' => $data['testCases']);
 
-//$newExamQuestion = array('functName' => 'roundNum', 'parameters' => array('num'), 'functDescription' => 'rounds a float number to an integer', 'output' => 'the rounded value of num', 'difficulty' => 'h', 'points' => 10, 'testCases' => "float 3.14159:float 2.7183:float 1.5"); //TEST
+$newExamQuestion = array('functionName' => $data['functionName'], 'parameters' => $data['params'], 'functionDescription' => $data['does'], 'output' => $data['returns'], 'difficulty' => $data['difficulty'], 'testCases' => $data['testCases']);
+
+//$newExamQuestion = array('functionName' => 'roundNum', 'parameters' => array('num'), 'functionDescription' => 'rounds a float number to an integer', 'output' => 'the rounded value of num', 'difficulty' => 'h', 'testCases' => "float 3.14159:int 3;float 2.7183:int 3;float 1.5:int 2"); //TEST
 
 
 
@@ -29,7 +30,7 @@ $params=implode(':',$newExamQuestion['parameters']);
 
 
 //insert new exam question data into BETA_questionBank table in database
-$newQuestion = "INSERT INTO BETA_questionBank (functionName,parameters,functionDescription,output,difficulty,points,correctResponse,testCases) VALUES ('".$newExamQuestion['functName']."','".$params."','".$newExamQuestion['functDescription']."','".$newExamQuestion['output']."','".$newExamQuestion['difficulty']."','".$newExamQuestion['points']."','".$newExamQuestion['testCases']."')";
+$newQuestion = "INSERT INTO BETA_questionBank (functionName,parameters,functionDescription,output,difficulty,testCases) VALUES ('".$newExamQuestion['functionName']."','".$params."','".$newExamQuestion['functionDescription']."','".$newExamQuestion['output']."','".$newExamQuestion['difficulty']."','".$newExamQuestion['testCases']."')";
 
 
 

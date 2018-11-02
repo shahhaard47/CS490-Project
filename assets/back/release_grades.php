@@ -20,8 +20,16 @@ $releaseInfo = array('userID' => $data['userID'], 'examID' => $data['examID']); 
 
 
 
-$update_release = mysqli_query($conn, "UPDATE BETA_grades SET released=TRUE WHERE userID='".$releaseInfo['userID']."' AND examID='".$releaseInfo['examID']."'");
+$update_release = mysqli_query($conn, "UPDATE BETA_grades SET released?=TRUE WHERE userID='".$releaseInfo['userID']."' AND examID='".$releaseInfo['examID']."'");
 
+if($conn->query($update_release)===TRUE)
+{
+  echo "released";
+}
+else
+{
+  echo "error: not released";
+}
 
 
 ?>
