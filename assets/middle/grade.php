@@ -203,9 +203,9 @@ if ($decoded["examID"] && $decoded["userID"]) {
 }
 exit(); // everthing after this is test data and test scripts
 
-
-
+/*--------------------------------------------------------------------------------------*/
 //SAMPLE DATA AND TESTING
+/*--------------------------------------------------------------------------------------*/
 $grading_data = array(array(
 						"questionID" => 1,
 						"points" => 20,

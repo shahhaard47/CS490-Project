@@ -37,7 +37,7 @@ function constructQuestion(&$rawArr) {
 		}
 		$does = $rawArr[$a]["does"];
 		$prints = $rawArr[$a]["prints"];
-		$tmp = "Write a function named \"$funcName\" that takes $outparams, $does and prints $prints.";
+		$tmp = "Write a function named \"$funcName\" that takes $outparams, $does and returns $prints.";
 		// add constructed question attribute
 		$rawArr[$a]["constructed"] = $tmp;
 
