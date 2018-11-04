@@ -1,8 +1,8 @@
 <?php
 $json = file_get_contents('php://input');
 
-$url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/comms.php';
-echo json_decode($json);
+$url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/grade.php';
+//echo json_decode($json);
 
 $curl_opts = array(
     CURLOPT_POST => 1,

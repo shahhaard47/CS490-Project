@@ -1,4 +1,4 @@
-let questionIDsInExam = [], solutions = {}, examID = '', currIDSelected = '', prevUrl = '';
+let questionIDsInExam = [], solutions = {}, examID = '', previousIDSelected = '';
 
 function getAvailableExams() {
     let obj = {};
@@ -10,6 +10,7 @@ function getAvailableExams() {
             if (this.status === 200) {
                 // log(xhr.responseText);
                 loadQuestions(parseJSON(xhr.responseText));
+                initView();
             } else {
             }
         }
@@ -57,16 +58,10 @@ function openQuestion(questionID, obj) {
     }
 }
 
-function saveSolution(questionID, solutionCode) {
-    if (solutionCode !== '')
-        solutions[questionID] = solutionCode;
-}
-
 function loadQuestions(obj) {
     log(obj);
     let num = 1;
     for (let i = 0; i < obj.length; i++) {
-        // log(obj[i].examID);
         if (obj[i].examID == examID) {
             questionIDsInExam.push(obj[i].questionID);
             let btn = appendNodeToNode('button', obj[i].questionID, '', getelm('questions-in-exam'));
@@ -75,18 +70,33 @@ function loadQuestions(obj) {
             btn.setAttribute('style', 'width:100%');
             btn.onclick = function () {
                 getelm('questionTitle').innerHTML = 'Question ' + btn.innerHTML;
-                saveSolution(currIDSelected, solutionTextArea.value);
-                currIDSelected = this.id;
+                saveSolution(previousIDSelected, solutionTextArea.value);
+                previousIDSelected = this.id;
                 openQuestion(this.id, obj);
-                // if (solutionTextArea.value !== '')
-                solutionTextArea.innerHTML = solutions[this.id];
-                solutionTextArea.value = '';
-                // log(solutions);
+                fillSolutionTextArea(this.id);
+                log(solutions);
             };
             appendNodeToNode('br', '', '', getelm('questions-in-exam'));
         }
     }
+    log(questionIDsInExam);
+}
 
+function saveSolution(questionID, textareaValue) {
+    log('saving sol for qid: ' + questionID);
+    log('value: ' + textareaValue);
+    if (textareaValue !== null || textareaValue !== '')
+        solutions[questionID] = textareaValue;
+    else
+        solutions[questionID] = '';
+}
+
+function fillSolutionTextArea(questionID) {
+    // if (solutionTextArea.value !== null || solutionTextArea.value !== '')
+    if (solutions.hasOwnProperty(questionID))
+        solutionTextArea.value = solutions[questionID];
+    else
+        solutionTextArea.value = '';
 }
 
 function getAnswers() {
@@ -103,6 +113,8 @@ function getAnswers() {
 }
 
 function submitExamBH() {
+    /* Make sure the solution to the last question is saved */
+    saveSolution(questionIDsInExam[questionIDsInExam.length - 1], solutionTextArea.value);
     let obj = {};
     obj.examID = parseInt(examID);
     obj.userID = getURLParams(window.location.href).userid;
@@ -113,6 +125,14 @@ function submitExamBH() {
     window.location = 'student-home.html';
 }
 
+function initView() {
+    if (questionIDsInExam[0] !== null || questionIDsInExam !== '')
+        previousIDSelected = questionIDsInExam[0];
+    let btn;
+    if ((btn = getelm('left').getElementsByTagName('button')[0]) !== null)
+        btn.click();
+}
+
 window.onload = function () {
     questionTextArea = getelm('question-content');
     solutionTextArea = getelm('solution-code');
@@ -121,7 +141,6 @@ window.onload = function () {
     examID = params.id;
     changeInnerHTML('header-examID', `Exam ID: ${params.id}`);
     getAvailableExams();
-    currIDSelected = questionIDsInExam[0];
 };
 /*
 grade.php -> userID, examID

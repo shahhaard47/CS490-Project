@@ -2,6 +2,12 @@
     box-sizing: border-box;
 }
 
+input {
+    border: solid 1px gray;
+    border-radius: 5px;
+    text-align: center;
+}
+
 .left {
     height: 100%;
     width: 40%;
@@ -29,27 +35,46 @@
     text-align: center;
 }
 
+.col {
+    float: left;
+}
+
+.question-easy {
+    background: #8AFF8A;
+}
+
+.question-medium {
+    background: #FFEC8A;
+}
+
+.question-hard {
+    background: #FF8A8A;
+}
+
 /* Left Side */
 .left-header {
     border-bottom: solid 1px lightgray;
     width: 40%;
     position: fixed;
-    background-color: whitesmoke;
+    box-shadow: 1px 1px lightgray;
+    background: white;
+
 }
 
 .left-options {
     width: 100%;
+    margin-top: 80px;
 }
 
 .question-bank {
-    /*top: 170px;*/
-    margin-top: 170px;
+
 }
 
 .question-bank .row {
     border: solid 1px lightgray;
     border-radius: 15px;
     margin-bottom: 40px;
+    box-shadow: 1px 1px 5px lightgray;
 }
 
 .question-content {
@@ -62,15 +87,54 @@
 }
 
 .btn-add {
+    min-height: 30px;
+    min-width: 60px;
     float: right;
     border-bottom-right-radius: 15px;
+    background-color: ghostwhite;
+    border-color: whitesmoke;
+    color: black;
+}
+
+.btn-add:hover {
+    background: #497EFF;
+    border-color: #497EFF;
+    color: white;
+}
+
+.btnAddQuestionToBank {
+    min-height: 30px;
+    min-width: 100px;
+    font-size: 20px;
+    border-radius: 10px;
+    border: 1px solid gray;
+    background: white;
+}
+
+.btnAddQuestionToBank:hover {
+    background: #497EFF;
+    border-color: #497EFF;
+    color: white;
+}
+
+.left .bottom-bar {
+    width: 40%;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    padding: 10px;
+    z-index: 2;
+    text-align: center;
+    min-height: 50px;
+    border: solid 1px lightgray;
+    background-color: #40434E;
 }
 
 /* Right Side */
 .right-header {
     width: 100%;
     border: solid 1px lightgray;
-    background-color: whitesmoke;
+    background-color: white;
 }
 
 .right-header .row {
@@ -85,10 +149,7 @@
     border: solid 1px lightgray;
     border-radius: 15px;
     margin-bottom: 40px;
-}
-
-.col {
-    float: left;
+    box-shadow: 1px 1px 5px lightgray;
 }
 
 .right-header {
@@ -111,7 +172,6 @@
     width: 3%;
     min-height: 200px;
     border-right: solid 1px lightgray;
-    /*background: #939393;*/
 }
 
 .deleteBtn {
@@ -136,22 +196,46 @@
 .options {
 }
 
-.bottom-bar {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    z-index: 2;
-    width: 100%;
-    text-align: center;
-    background-color: lightblue;
-    min-height: 50px;
-    /*min-height: 50px;*/
-    /*padding: 20px;*/
-}
-
 .createExamBtn {
     float: right;
-    height: 100%;
+    min-height: 50px;
+    font-size: 20px;
+    border: 1px solid gray;
+    background: white;
+}
+
+.createExamBtn:hover {
+    background: #497EFF;
+    border-color: #497EFF;
+    color: white;
+}
+
+.right .bottom-bar {
+    width: 60%;
+    position: fixed;
+    /*left: 0;*/
+    bottom: 0;
+    right: 0;
+    /*padding: 10px;*/
+    z-index: 2;
+    text-align: center;
+    min-height: 50px;
+    border: solid 1px lightgray;
+    background-color: #40434E;
+}
+
+/* Modal to show errors */
+.modalError {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 3; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
 }
 
 /* Modal used to add a question to the bank */
@@ -165,7 +249,6 @@
     width: 100%; /* Full width */
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0, 0, 0); /* Fallback color */
     background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
 }
 
@@ -179,7 +262,7 @@
 }
 
 /* The Close Button */
-.close {
+.closeModal {
     color: #aaaaaa;
     float: right;
     font-size: 28px;
@@ -190,3 +273,4 @@
     min-height: 20px;
     width: 100%;
 }
+

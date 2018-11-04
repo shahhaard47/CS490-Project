@@ -2,12 +2,15 @@ const RT_GETQBANK = 'getqbank';
 const DIF_EASY = 'e', DIF_MED = 'm', DIF_HARD = 'h';
 const CREATEEXAM_RT = 'create_exam';
 const ADDQUESTION_RT = 'add_question';
+const EASY_QUESTION_CLASS = 'question-easy', MEDIUM_QUESTION_CLASS = 'question-medium',
+    HARD_QUESTION_CLASS = 'question-hard',
+    ERR_MODAL_CONTENT = 'errorModalContent';
 
 // const URL = '/~sk2283/assets/front/php/contact_middle.php';
 // const URL = 'https://web.njit.edu/~ds547/CS490-Project/assets/back/back_questionBank.php';
 // const URL = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/request_question.php';
 let paramsNum = 1;
-let testCasesNum = 1;
+let testCasesNum = 2;
 let questionIDsInExam = [], easyQuestionNodes = [], medQuestionNodes = [], hardQuestionNodes = [];
 
 /* Used to keep track of node elements in question bank view (left side of screen). Used for sorting */
@@ -39,14 +42,17 @@ function loadQuestionBank(xhrResponseText) {
             let dif = '';
             switch (questionArray[i].difficulty) {
                 case DIF_EASY:
+                    inputDifficulty.setAttribute('class', EASY_QUESTION_CLASS);
                     dif = 'Easy';
                     easyQuestionNodes.push(row);
                     break;
                 case DIF_MED:
+                    inputDifficulty.setAttribute('class', MEDIUM_QUESTION_CLASS);
                     dif = 'Medium';
                     medQuestionNodes.push(row);
                     break;
                 case DIF_HARD:
+                    inputDifficulty.setAttribute('class', HARD_QUESTION_CLASS);
                     hardQuestionNodes.push(row);
                     dif = 'Hard';
                     break;
@@ -54,12 +60,6 @@ function loadQuestionBank(xhrResponseText) {
 
             }
             inputDifficulty.setAttribute('value', dif);
-
-            let lblPoints = appendNodeToNode('label', '', '', options);
-            lblPoints.innerHTML = 'Points';
-            let inputPoints = appendNodeToNode('input', '', '', lblPoints);
-            inputPoints.setAttribute('size', '1');
-            inputPoints.setAttribute('value', questionArray[i].points);
 
             let btnAdd = appendNodeToNode('button', 'btnAdd' + qid, 'btn-add', options);
             btnAdd.innerHTML = 'Add';
@@ -90,8 +90,6 @@ function addQuestionToExam(btnNode) {
     let questionText = parentRow.getElementsByTagName('textarea')[0].value;
     let inputs = parentRow.getElementsByTagName('input');
     let questionsDifficulty = inputs[0].value;
-    let questionPts = inputs[1].value;
-    // console.log(qDifficulty);
 
     let row = appendNodeToNode('div', parentRow.id, 'row', getelm('exam-questions'));
 
@@ -112,16 +110,18 @@ function addQuestionToExam(btnNode) {
     textarea.setAttribute('wrap', 'soft');
 
     let options = appendNodeToNode('div', '', 'options centered', row);
+
     let lblDifficulty = appendNodeToNode('label', '', '', options);
     lblDifficulty.innerHTML = 'Difficulty';
     let inputDifficulty = appendNodeToNode('input', '', '', lblDifficulty);
     inputDifficulty.setAttribute('size', '4');
     inputDifficulty.setAttribute('value', questionsDifficulty);
+
     let lblPoints = appendNodeToNode('label', '', '', options);
     lblPoints.innerHTML = 'Points';
     let inputPoints = appendNodeToNode('input', '', '', lblPoints);
     inputPoints.setAttribute('size', '1');
-    inputPoints.setAttribute('value', questionPts);
+    inputPoints.setAttribute('placeholder', 'Value');
 
     removeNode(parentRow);
 }
@@ -130,7 +130,6 @@ function addQuestionToBank(node) {
     let questionText = node.getElementsByTagName('textarea')[0].value;
     let inputs = node.getElementsByTagName('input');
     let questionsDifficulty = inputs[0].value;
-    let questionPts = inputs[1].value;
     let qid = node.id;
     let row = appendNodeToNode('div', qid, 'row', getelm('question-bank'));
 
@@ -149,11 +148,19 @@ function addQuestionToBank(node) {
     inputDifficulty.setAttribute('size', '4');
     inputDifficulty.setAttribute('value', questionsDifficulty);
 
-    let lblPoints = appendNodeToNode('label', '', '', options);
-    lblPoints.innerHTML = 'Points';
-    let inputPoints = appendNodeToNode('input', '', '', lblPoints);
-    inputPoints.setAttribute('size', '1');
-    inputPoints.setAttribute('value', questionPts);
+    switch (questionsDifficulty) {
+        case 'Easy':
+            inputDifficulty.setAttribute('class', EASY_QUESTION_CLASS);
+            break;
+        case 'Medium':
+            inputDifficulty.setAttribute('class', MEDIUM_QUESTION_CLASS);
+            break;
+        case 'Hard':
+            inputDifficulty.setAttribute('class', HARD_QUESTION_CLASS);
+            break;
+        default:
+
+    }
 
     let btnAdd = appendNodeToNode('button', 'btnAdd' + qid, 'btn-add', options);
     btnAdd.innerHTML = 'Add';
@@ -218,34 +225,118 @@ function removeNode(node) {
     node.parentNode.removeChild(node);
 }
 
-function showModalBH() {
-    let modal = getelm('addQuestionModal');
-    modal.style.display = "block";
+function showModalBH(id) {
+    getelm(id).style.display = "block";
 }
 
-function closeModalBH() {
-    getelm('addQuestionModal').style.display = "none";
+function closeModalBH(id) {
+    getelm(id).style.display = "none";
 }
 
 function addParamBH() {
     let modalParams = getelm('modal-params');
-    let sel = appendNodeToNode('select', 'modal-param-sel' + testCasesNum, '', modalParams);
+    appendNodeToNode('i', '', '', modalParams).value = ', ';
+    let sel = appendNodeToNode('select', 'modal-param-sel' + paramsNum, '', modalParams);
+    sel.onchange = function () {
+        populateTestCaseType(this);
+    };
     let optStr = appendNodeToNode('option', '', '', sel);
-    optStr.innerHTML = 'String';
+    optStr.innerHTML = 'str';
     let optInt = appendNodeToNode('option', '', '', sel);
-    optInt.innerHTML = 'Integer';
+    optInt.innerHTML = 'int';
     let optFloat = appendNodeToNode('option', '', '', sel);
-    optFloat.innerHTML = 'Float';
-
-    appendNodeToNode('input', 'param' + paramsNum++, '', modalParams);
-    appendNodeToNode('br', '', '', modalParams);
-    appendNodeToNode('br', '', '', modalParams);
-
+    optFloat.innerHTML = 'float';
+    let input = appendNodeToNode('input', 'param' + paramsNum++, 'modal-param', modalParams);
+    input.onkeyup = function () {
+        populateTestCaseName(this);
+    };
+    addParamToTestCase();
+    populateTestCaseType(sel);
 }
 
+function removeLastParam() {
+    if (paramsNum > 1) {
+        getelm('modal-param-sel' + (paramsNum - 1)).remove();
+        getelm('param' + (paramsNum - 1)).remove();
+        paramsNum--;
+        removeLastParamFromTestCase();
+    } else {
+    }
+}
+
+function addParamToTestCase() {
+    for (let i = 0; i < testCasesNum; i++) {
+        let label = appendNodeToNode('label', '', '', getelm('modal-testcase-container' + i));
+        appendNodeToNode('i', '', '', label).innerHTML = ' , ';
+        appendNodeToNode('i', '', '', label);
+        appendNodeToNode('i', '', '', label);
+        appendNodeToNode('input', '', '', label);
+    }
+}
+
+function removeLastParamFromTestCase() {
+//modal-testcase-container
+    for (let i = 0; i < testCasesNum; i++) {
+        let labels = getelm('modal-testcase-container' + i).getElementsByTagName('label');
+        labels[paramsNum].remove();
+
+    }
+}
+
+function populateTestCaseType(inputNode) {
+    let paramNum = parseInt(inputNode.id.split('sel')[1]),
+        val = getelm('modal-param-sel' + paramNum).value;
+    for (let i = 0; i < testCasesNum; i++) {
+        let iNodes = getelm('modal-testcase-container' + i).getElementsByTagName('label')[paramNum].getElementsByTagName('i'),
+            x = 0;
+        /* Account for first test case parameter which only has 2 i elements */
+        if (iNodes.length > 2)
+            x = 1;
+
+        let paramType = iNodes[x];
+        paramType.innerHTML = val + ' ';
+    }
+}
+
+function populateTestCaseName(inputNode) {
+    let paramNum = parseInt(inputNode.id.split('m')[1]),
+        val = getelm('param' + paramNum).value;
+    for (let i = 0; i < testCasesNum; i++) {
+        let iNodes = getelm('modal-testcase-container' + i).getElementsByTagName('label')[paramNum].getElementsByTagName('i'),
+            x = 1;
+        /* Account for first test case parameter which only has 2 i elements */
+        if (iNodes.length > 2)
+            x = 2;
+
+        let paramName = iNodes[x];
+        paramName.innerHTML = val + ' ';
+    }
+}
+
+
 function addTestCaseBH() {
-    let modalTC = getelm('modal-testcases');
-    let sel = appendNodeToNode('select', 'modal-testcase-sel' + testCasesNum, '', modalTC);
+    let allTestCasesNode = getelm('all-testcases'),
+        paramsNodes = getelm('modal-params'),
+        selectNodes = paramsNodes.getElementsByTagName('select'),
+        inputNodes = paramsNodes.getElementsByTagName('input');
+
+    let modalTCContainer = appendNodeToNode('label', 'modal-testcase-container' + testCasesNum, '', allTestCasesNode);
+
+    for (let i = 0; i < selectNodes.length; i++) {
+        let label = appendNodeToNode('label', '', '', modalTCContainer);
+
+        /* Add a comma node if there is more than one parameter */
+        if (i > 0 && selectNodes.length > 1)
+            appendNodeToNode('i', '', '', label).innerHTML = ' , ';
+
+        appendNodeToNode('i', '', '', label).innerHTML = ' ' + selectNodes[i].value + ' ';
+        appendNodeToNode('i', '', '', label).innerHTML = ' ' + inputNodes[i].value + ' ';
+        appendNodeToNode('input', '', '', label);
+
+
+    }
+
+    let sel = appendNodeToNode('select', 'output-type-sel' + testCasesNum, '', allTestCasesNode);
     let optStr = appendNodeToNode('option', '', '', sel);
     optStr.innerHTML = 'str';
     let optInt = appendNodeToNode('option', '', '', sel);
@@ -253,9 +344,33 @@ function addTestCaseBH() {
     let optFloat = appendNodeToNode('option', '', '', sel);
     optFloat.innerHTML = 'float';
 
-    appendNodeToNode('input', 'testcase' + testCasesNum++, '', modalTC);
-    appendNodeToNode('br', '', '', modalTC);
-    appendNodeToNode('br', '', '', modalTC);
+    // allTestCasesNode.innerHTML += '  Output ';
+    allTestCasesNode.appendChild(document.createTextNode(" Output "));
+
+    let outputInputNode = appendNodeToNode('input', '', '', allTestCasesNode);
+    outputInputNode.id = 'modal-testcase-output' + testCasesNum++;
+
+    appendNodeToNode('br', '', '', allTestCasesNode);
+
+}
+
+function removeLastTestCaseBH() {
+    if (testCasesNum > 2) {
+        let allTestCasesNode = getelm('all-testcases'),
+            labelToDelete = getelm('modal-testcase-container' + (testCasesNum - 1)),
+            inputNodes = allTestCasesNode.getElementsByTagName('input');
+
+        labelToDelete.remove();
+        inputNodes[inputNodes.length - 1].remove();
+
+        let children = allTestCasesNode.childNodes;
+        children[children.length - 1].remove(); // remove input node
+        children[children.length - 1].remove(); // remove ' Output ' text node
+        children[children.length - 1].remove(); // remove select node
+
+        testCasesNum--;
+    }
+
 }
 
 function getDifficultyAsChar(str) {
@@ -264,26 +379,28 @@ function getDifficultyAsChar(str) {
 }
 
 function addNewQuestionToBankBH() {
+    //TODO: Check for empty fields
     let obj = {
         'functionName': getelm('modal-fname').value,
-        'params': getModalParams(),
+        'params': getParams(),
         'does': getelm('modal-does').value,
-        'prints': getelm('modal-prints').value,
+        'returns': getelm('modal-returns').value,
         'difficulty': getDifficultyAsChar(getelm('modal-difficulty').value),
-        'points': parseInt(getelm('modal-points').value),
-        'testCases': getModalTestCasesBeta(),
-        'solution': getelm('modal-solution').value,
+        'testCases': getTestCases(),
+        'examTitle': getelm('exam-title').value,
         'requestType': ADDQUESTION_RT
     };
     sendAJAXReq(JSON.stringify(obj));
-
+    log(obj);
     getelm('question-bank').innerHTML = '';
     getQuestionBank();
-    closeModalBH();
-    alert('Question was added.')
+    // location.reload();
+
+    closeModalBH('addQuestionModal');
+    // alert('Question was added.')
 }
 
-function getModalParams() {
+function getParams() {
     let modalParams = getelm('modal-params');
     let sel = modalParams.getElementsByTagName('select');
     let inputs = modalParams.getElementsByTagName('input');
@@ -296,29 +413,49 @@ function getModalParams() {
     return list;
 }
 
-// function getModalTestCases() {
-//     let modalParams = getelm('modal-testcases'), strTestCases = '',
-//         sel = modalParams.getElementsByTagName('select'),
-//         inputs = modalParams.getElementsByTagName('input');
-//
-//     for (let i = 0; i < sel.length; i++) {
-//         // log(sel[i].value + ' ' + inputs[i].value);
-//         strTestCases += `${sel[i].value.toLowerCase()} ${inputs[i].value}`;
-//         if (i + 1 !== sel.length) {
-//             strTestCases += ',';
-//         }
-//     }
-//     return strTestCases;
-// }
+function getTestCases() {
+    let strTestcases = '';
 
-function getModalTestCasesBeta() {
-    let modalParams = getelm('modal-testcases'),
-        input = modalParams.getElementsByTagName('input')[0];
+    /* For all the test cases */
+    for (let i = 0; i < testCasesNum; i++) {
+        let modalTCContainer = getelm('modal-testcase-container' + i),
+            testcaseLabelNodes = modalTCContainer.getElementsByTagName('label');
 
-    return input.value;
+        /* For all the parameters */
+        for (let j = 0; j < testcaseLabelNodes.length; j++) {
+            let labelChildren = testcaseLabelNodes[j].childNodes;
+            /* Check if there's a comma node */
+            if (testcaseLabelNodes[j].childNodes[0].innerHTML === ' , ') {
+                strTestcases += labelChildren[1].innerHTML; // parameter Type
+                strTestcases += labelChildren[3].value; // input node value
+
+            } else {
+                strTestcases += labelChildren[0].innerHTML; // parameter Type
+                strTestcases += labelChildren[2].value; // input node value
+            }
+
+            /* Add comma if not the last parameter */
+            if (j + 1 !== testcaseLabelNodes.length)
+                strTestcases += ',';
+        }
+        strTestcases += ';';
+        strTestcases += getelm('output-type-sel' + i).value + ' ';
+        strTestcases += getelm('modal-testcase-output' + i).value;
+
+        /* Add colon if not the last test case */
+        if (i + 1 !== testCasesNum)
+            strTestcases += ':';
+    }
+    return strTestcases;
+
 }
 
 function createExamBH() {
+    if (questionIDsInExam.length === 0) {
+        getelm(ERR_MODAL_CONTENT).innerHTML = "You haven't added any questions in the exam.";
+        showModalBH('modalError');
+        return;
+    }
     let obj = {
         'questions': [],
         'requestType': CREATEEXAM_RT
@@ -327,8 +464,6 @@ function createExamBH() {
     for (let i in questionIDsInExam) {
         obj.questions.push(parseInt(questionIDsInExam[i]));
     }
-
-    // log(JSON.stringify(obj));
 
     sendAJAXReq(JSON.stringify(obj));
     alert('Exam was created!');
@@ -476,5 +611,12 @@ function sortQuestionBank(selectElm) {
 window.onload = function () {
     getQuestionBank();
     showEasyQuestionDifficulties();
+    populateTestCaseType(getelm('modal-param-sel0'));
+    populateTestCaseName(getelm('param0'));
+    window.onclick = function (event) {
+        let errModal = getelm("modalError");
+        if (event.target == errModal) {
+            errModal.style.display = "none";
+        }
+    }
 };
-

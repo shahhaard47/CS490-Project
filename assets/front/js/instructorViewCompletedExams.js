@@ -1,10 +1,5 @@
-function f() {
-    let container = getelm('container');
-
-}
-
 function getAvailableExams() {
-    let obj = {}; //TODO: make obj
+    let obj = {};
     obj.requestType = 'allExamsToBeGraded';
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
@@ -26,8 +21,25 @@ function getAvailableExams() {
     xhr.send(JSON.stringify(obj));
 }
 
-function openExam() {
+function submitGradeExam(str, url) {
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        /* Check if the xhr request was successful */
+        if (this.readyState === 4) {
+            if (this.status === 200) {
+                // showExams(parseJSON(xhr.responseText));
+            } else {
 
+            }
+        }
+    };
+
+    /* Open a POST request */
+    xhr.open("POST", url, true);
+    /* Encode the data properly. Otherwise, php will not be able to get the values */
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    /* Send the POST request with the data */
+    xhr.send(str);
 }
 
 function showExams(obj) {
@@ -79,9 +91,11 @@ function showExams(obj) {
             sendObj = {};
             sendObj.examID = parseInt(examID);
             sendObj.userID = userID;
-            sendObj.requestType = 'releaseGrade';
+            // sendObj.requestType = 'releaseGrade';
+            // location.reload();
             log(sendObj);
-            sendAJAXReq(JSON.stringify(sendObj));
+            // sendAJAXReq(JSON.stringify(sendObj));
+            submitGradeExam(JSON.stringify(sendObj), 'https://web.njit.edu/~sk2283/assets/front/php/submitExam.php');
         };
 
         changeGradeBtn.onclick = function () {
