@@ -1,0 +1,22 @@
+{
+    "userID":"mscott",
+    "examID":49,
+    "scores":[
+        {
+            "questionID":45,
+            "qScore":25,
+            "testcases":[
+                1,
+                0
+            ]
+        },
+        {
+            "questionID":48,
+            "qScore":0,
+            "testcases":[
+                0,
+                0
+            ]
+        }
+    ]
+}

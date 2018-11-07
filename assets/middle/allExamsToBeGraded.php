@@ -1,4 +1,4 @@
-<?php
+<?
 
 /*
 $funcName = string
@@ -108,16 +108,19 @@ foreach ($user_exam_ids as $elem) {
 }
 
 $encoded_return_array = json_encode($return_array);
-// var_dump($encoded_return_array);
+// var_dump($return_array);
 echo $encoded_return_array;
+
+
+
+
+
+
+
+
+
+
+
+
 ?>
-
-
-
-
-
-
-
-
-
 

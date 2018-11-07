@@ -120,9 +120,10 @@ function gradeAll($grading_data) {
 		$points = $question_data["points"];
 		$score = $points * $ratio;
 		$score = round($score);
-		array_push($final_grades, array((int)$question_data["questionID"], 
-										(int)$score, 
-										$tcs));
+		$tmpQuestion = array(	"questionID" => (int)$question_data["questionID"],
+								"qScore" => (int)$score,
+								"testcases" => $tcs);
+		array_push($final_grades, $tmpQuestion);
 	}
 	return $final_grades;
 }
@@ -130,14 +131,14 @@ function gradeAll($grading_data) {
 // Main stuff
 
 //* get front's grading request 							F -> M
-$jsonrequest = file_get_contents('php://input');
+// $jsonrequest = file_get_contents('php://input');
 // extract examID and userID
-$decoded = json_decode($jsonrequest, true);
+// $decoded = json_decode($jsonrequest, true);
 
 //* testing without front input
-// $decoded = array("examID" => 49, "userID" => "mscott");
+$decoded = array("examID" => 49, "userID" => "mscott");
 // // $decoded = array("examID" => 49, "userID" => "mscott");
-// $jsonrequest = json_encode($decoded);
+$jsonrequest = json_encode($decoded);
 
 $examID = $decoded["examID"];
 $userID = $decoded["userID"];
