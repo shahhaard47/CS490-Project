@@ -7,30 +7,33 @@ Back
 
 
 ----------------------------------------------------------------------------------------------
-add_question.php
+add_question.php 
 ----------------------------------------------------------------------------------------------
 Add a new question created by the instructor to the questionBank table in the database.
 
 Receives JSON from the middle in the form of:
 	
-	functionName: 'name of function'
-	params: array()
-	does: 'description of what the function is supposed to do'
-	returns: 'description of what the function is supposed to return'
-	difficulty: e | m | h
-	testCases: array() 
+	functionName: str, 'nameOfFunction'
+	params: array(), [str a, str b, int c]
+	does: str, 'what the function is supposed to do'
+	returns: str, 'what the function is supposed to return'
+	topic: str, 'what topic in CS 100 is this question related to, ex. lists, array, ...'
+	difficulty: str, e | m | h
+	constraints: str, 'what must the answer include, ex. for loop, while loop, recursion'
+	testCases: str, 'str hello,str world;hello world:str hey,str there;hey there:...'
 
-Once the data from the JSON is read, all data is inserted into the RC_guestionBank table.
-If the data isinserted into the table/the query runs properly, then the string "exam question
-entered into questionBank" is echoed, otherwise, if it is not inserted into the questionBank
-table, then the string "error: question not added in questionBank" is echoed.
+Data from JSON is decoded and put into an array. The parameters are converted from an array 
+into a string. Then, all of the data is inserted into the questionBank table in the database.
+If the data is inserted successfully, then "success" is echoed, else, "error: failure" is
+echoed. 
 
 
-
+**UPDATED ON Thursday, 11/8/2018
 ----------------------------------------------------------------------------------------------
 allExamsToBeGraded.php
 ----------------------------------------------------------------------------------------------
-Returns all exams that still need to be graded/released by the instructor.
+Returns all exams that need to have the grading reviewed by the professor and are waiting to 
+be released for the student to view their scores.
 
 Receives JSON from the middle in the form of: 
 
@@ -38,18 +41,20 @@ Receives JSON from the middle in the form of:
 
 Runs a query for the following data from the database:
 
-	RC_rawExamData.userID
-	RC_rawExamData.examID
-	RC_rawExamData.questionID
-	RC_rawExamData.studentResponse
-	RC_questionBank.functionName
-	RC_questionBank.parameters
-	RC_questionBank.functionDescription
-	RC_questionBank.output
-	RC_questionBank.points
-	RC_grades.examScore	
+	BETA_grades.examScore
+	BETA_questionBank.functionName
+	BETA_questionBank.parameters
+	BETA_questionBank.functionDescription
+	BETA_questionBank.output
+	BETA_rawExamData.userID
+	BETA_rawExamData.examID
+	BETA_rawExamData.questionID
+	BETA_rawExamData.studentResponse
+	BETA_rawExamData.questionScore
+	BETA_questionBank.testCases
+	BETA_rawExamData.testCasesPassFail	
 
-All above data is stored into an array as follows:
+All of the above data is stored in an array to then be returned to the middle, as shown:
 
 	$tempArray['userID']=$row['userID'];
     	$tempArray['examID']=(int)$row['examID'];
@@ -59,17 +64,43 @@ All above data is stored into an array as follows:
     	$tempArray['parameters']=explode(',',$row['parameters']);
     	$tempArray['does']=$row['functionDescription'];
     	$tempArray['prints']=$row['output'];
-    	$tempArray['points']=(int)$row['points'];
+    	$tempArray['points']=(int)$row['questionScore'];
+	$tempArray['testCases']=explode(':',$row['testCases']);
+	$tempArray['testCasesPassFail']=explode(',',$row['testCasesPassFail']);
     	$tempArray['examScore']=(int)$row['examScore'];
 
-Each array created in the above format is stored in another array.
-That main array is then encoded as a JSON and echoed.
+The array created with the data from the query in the above format is then stored as an
+object named $myObj with the key 'raw'.
+If the query returns nothing from the database, then null is stored in the object.
 
-If the query does not return any data from the database, then an empty array is encoded as a 
-JSON and that is echoed.
+Runs another query for the following data from the database:
+
+	* FROM BETA_exams
+	--> examID,examName,questionIDs,points,published
+
+The above data for the second query is stored in an array to then be returned to the middle,
+as shown:
+	
+	$tempArray['examID']=$row['examID'];
+	$tempArray['examName']=$row['examName'];
+	$tempArray['qIDs']=explode(',',$row['questionIDs']);
+	$tempArray['points']=explode(',',$row['points']);
+
+The array created with the data from the query in the above format is then stored as an
+object named $myObj with the key 'exam'.
+If the query returns nothing from the database, then null is stored in the object.
+
+$myObj is then encoded as JSON and echoed. 
 
 
+--> All data is sent to middle to then be reorganized into an array and then sent to front.
 
+
+NOTE: Should I add an if-statement when iterating through the query results to check which 
+exams have already had the grade released and should therefore not be sent for grading?
+
+
+**UPDATED ON Thursday, 11/8/2018
 ----------------------------------------------------------------------------------------------
 allStudentExamInfo.php
 ----------------------------------------------------------------------------------------------
@@ -142,7 +173,7 @@ Receives JSON from middle in the form of:
 
 Runs a query for the following data from the database:
 
-	* FROM RC_questionBank
+	* FROM BETA_questionBank
 
 All above data is stored into an array as follows:
 
@@ -151,8 +182,9 @@ All above data is stored into an array as follows:
     	$tempArray["params"]=explode(',',$row['parameters']);
     	$tempArray["does"]=$row['functionDescription'];
     	$tempArray["prints"]=$row['output'];
+	$tempArray["topic"]=$row['topic'];
     	$tempArray["difficulty"]=$row['difficulty'];
-    	$tempArray["points"]=$row['points'];
+    	$tempArray["constraints"]=$row['constraints'];
 
 Each array created in the above format is stored in another array.
 That main array is then encoded as a JSON and echoed.
@@ -161,7 +193,7 @@ If the query does not return any data from the database, then an empty array is 
 JSON and that is echoed.
 
 
-
+**UPDATED ON Thursday, 11/8/2018
 ----------------------------------------------------------------------------------------------
 create_exam.php
 ----------------------------------------------------------------------------------------------
@@ -191,12 +223,15 @@ Receives JSON from middle in the form of:
 
 Runs a query for the following data from the database:
 	
-	RC_rawExamData.questionID
-	RC_questionBank.points
-	RC_questionBank.functionName
-	RC_rawExamData.studentResponse
-	RC_questionBank.correctResponse
-	RC_questionBank.testCase
+	BETA_rawExamData.questionID
+	BETA_questionBank.functionName
+	BETA_rawExamData.studentResponse
+	BETA_questionBank.testCases
+
+Runs another query for the following data from the database:
+
+	BETA_exams.questionIDs
+	BETA_exams.points
 
 All above data is stored into an array as follows:
 
@@ -204,7 +239,6 @@ All above data is stored into an array as follows:
     	$tempArray["points"]=$row['points'];
     	$tempArray["function_name"]=$row['functionName'];
     	$tempArray["student_response"]=$row['studentResponse'];
-    	$tempArray["correct_response"]=$row['correctResponse'];
     	$tempArray["test_cases"]=explode(':',$row['testCases']);
 
 Each array created in the above format is stored in another array.
@@ -214,6 +248,7 @@ If the query does not return any data from the database, then an empty array is 
 JSON and that is echoed.
 
 
+**UPDATED ON Thursday, 11/8/2018
 ----------------------------------------------------------------------------------------------
 getAvailableExams.php
 ----------------------------------------------------------------------------------------------
@@ -253,7 +288,20 @@ If the query does not return any data from the database, then an empty array is 
 JSON and that is echoed.
 
 
+----------------------------------------------------------------------------------------------
+publish_exam.php
+----------------------------------------------------------------------------------------------
+Updates the release column in the BETA_grades table in the database, so that the exam grade 
+can be made visible to the student.
 
+Receives JSON from the middle in the form of:
+
+	examID: 46
+
+Runs a query to update the published column in the exams table to TRUE.
+
+
+**UPDATED ON Thursday, 11/8/2018
 ----------------------------------------------------------------------------------------------
 release_grades.php
 ----------------------------------------------------------------------------------------------

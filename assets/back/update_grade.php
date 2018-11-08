@@ -5,7 +5,7 @@
 
 $servername = "sql2.njit.edu";
 $username = "ds547";
-$password = "ZvwiSKhG";
+$password = "zrwEzyTq";
 $databaseName = "ds547";
 //connecting to database
 $conn = new mysqli($servername, $username, $password, $databaseName);
@@ -16,7 +16,12 @@ $conn = new mysqli($servername, $username, $password, $databaseName);
 $rawGrades = file_get_contents('php://input'); //get JSON request data to update questionScore
 $data = json_decode($rawGrades, true); //decode JSON request data to update questionScore
 $scoreInfo = array('userID' => $data['userID'], 'examID' => $data['examID'], 'scores' => $data['scores']); //store JSON request data to update questionScore
-//$scoreInfo = array('userID' => 'mscott', 'examID' => 6, 'scores' => [[1,17],[2,15]]); //TEST
+//$scoreInfo = array('userID' => 'mscott', 'examID' => 49, 'scores' => [[45,25,[0],"graded comments"],[48,12,[0],"graded comments"]]); //TEST
+
+$examPoints = mysqli_query($conn, "SELECT questionIDs,points FROM BETA_exams WHERE examID='".$scoreInfo['examID']."'");
+$items=$examPoints->fetch_assoc();
+$questionIDs=explode(',',$items['questionIDs']);
+$points=explode(',',$items['points']);
 
 $totalExamScore = 0;
 $totalPossiblePoints = 0;
@@ -24,12 +29,23 @@ $totalPossiblePoints = 0;
 //extract questionID and questionScore from $scoreInfo['scores'], and update questionScores in BETA_rawExamData
 foreach($scoreInfo['scores'] as $arr)
 {
-  $update_rawExamData = mysqli_query($conn, "UPDATE BETA_rawExamData SET questionScore='".$arr[1]."' WHERE userID='".$scoreInfo['userID']."' AND examID='".$scoreInfo['examID']."' AND questionID='".$arr[0]."'"); //$arr = [questionID, questionScore], $arr[1] = questionScore
-  $totalExamScore+=$arr[1];
-  $totalPossiblePoints+=mysqli_query($conn, "SELECT points FROM BETA_questionBank WHERE questionID='".$arr[0]."'")->fetch_row()[0];
+  if(sizeOf($arr)>2)
+  {
+    $testCases=implode(',',$arr["testcases"]);
+    $update_testCases = mysqli_query($conn, "UPDATE BETA_rawExamData SET testCasesPassFail='".$testCases."',gradedComments='".$arr["gradedComments"]."' WHERE userID='".$scoreInfo['userID']."' AND examID='".$scoreInfo['examID']."' AND questionID='".$arr["questionID"]."'");
+  }
+  $update_scores = mysqli_query($conn, "UPDATE BETA_rawExamData SET questionScore='".$arr["qScore"]."' WHERE userID='".$scoreInfo['userID']."' AND examID='".$scoreInfo['examID']."' AND questionID='".$arr["questionID"]."'"); //$arr = [questionID, questionScore], $arr[1] = questionScore
+  $totalExamScore+=$arr["qScore"];
+  
+  for($i=0;sizeof($questionIDs);$i++)
+  {
+    if($questionIDs[$i]==(int)$arr[0])
+    {
+      $totalPossiblePoints+=(int)$points[$i];
+      break;
+    }
+  }
 }
-//echo($totalExamScore); //TEST
-echo('grades updated');
 
 
 

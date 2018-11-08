@@ -1,17 +1,14 @@
 <?php
-//return all exams that need to be graded
-
-
 
 $servername = "sql2.njit.edu";
 $username = "ds547";
-$password = "ZvwiSKhG";
+$password = "zrwEzyTq";
 $databaseName = "ds547";
 //connecting to database
 $conn = new mysqli($servername, $username, $password, $databaseName);
 
 
-$allFinishedExams = mysqli_query($conn, "SELECT BETA_grades.examScore,BETA_questionBank.functionName,BETA_questionBank.parameters,BETA_questionBank.functionDescription,BETA_questionBank.output,BETA_rawExamData.userID,BETA_rawExamData.examID,BETA_rawExamData.questionID,BETA_rawExamData.studentResponse,BETA_rawExamData.questionScore FROM BETA_grades,BETA_questionBank,BETA_rawExamData WHERE BETA_rawExamData.userID=BETA_grades.userID AND BETA_rawExamData.examID=BETA_grades.examID AND BETA_rawExamData.questionID=BETA_questionBank.questionID ORDER BY BETA_rawExamData.userID");
+$allFinishedExams = mysqli_query($conn, "SELECT BETA_grades.examScore,BETA_questionBank.functionName,BETA_questionBank.parameters,BETA_questionBank.functionDescription,BETA_questionBank.output,BETA_rawExamData.userID,BETA_rawExamData.examID,BETA_rawExamData.questionID,BETA_rawExamData.studentResponse,BETA_rawExamData.questionScore,BETA_questionBank.testCases,BETA_rawExamData.testCasesPassFail FROM BETA_grades,BETA_questionBank,BETA_rawExamData WHERE BETA_rawExamData.userID=BETA_grades.userID AND BETA_rawExamData.examID=BETA_grades.examID AND BETA_rawExamData.questionID=BETA_questionBank.questionID ORDER BY BETA_rawExamData.userID");
 
 $examsTableData = mysqli_query($conn, "SELECT * FROM BETA_exams");
 
@@ -32,8 +29,9 @@ if($allFinishedExams->num_rows!=0)
     $tempArray['does']=$row['functionDescription'];
     $tempArray['prints']=$row['output'];
     $tempArray['points']=(int)$row['questionScore'];
+    $tempArray['testCases']=explode(':',$row['testCases']);
+    $tempArray['testCasesPassFail']=explode(',',$row['testCasesPassFail']);
     $tempArray['examScore']=(int)$row['examScore'];
-    
     array_push($returnArrayRAW,$tempArray);
   }
   $myObj->raw=$returnArrayRAW;
@@ -51,7 +49,6 @@ if($examsTableData->num_rows!=0)
     $tempArray['examName']=$row['examName'];
     $tempArray['qIDs']=explode(',',$row['questionIDs']);
     $tempArray['points']=explode(',',$row['points']);
-    
     array_push($returnArrayEXAMS,$tempArray);
   }
   $myObj->exam=$returnArrayEXAMS;
@@ -63,7 +60,5 @@ else
 
 $myJSON=json_encode($myObj);
 echo $myJSON;
-
-
 
 ?>

@@ -5,7 +5,7 @@
 
 $servername = "sql2.njit.edu";
 $username = "ds547";
-$password = "ZvwiSKhG";
+$password = "zrwEzyTq";
 $databaseName = "ds547";
 //connecting to database
 $conn = new mysqli($servername, $username, $password, $databaseName);
@@ -28,7 +28,9 @@ if($result->num_rows!=0)
     $tempArray["params"]=explode(',',$row['parameters']);
     $tempArray["does"]=$row['functionDescription'];
     $tempArray["prints"]=$row['output'];
+    $tempArray["topic"]=$row['topic'];
     $tempArray["difficulty"]=$row['difficulty'];
+    $tempArray["constraints"]=$row['constraints'];
     //echo(var_dump($tempArray));
     array_push($returnToMiddle["raw"],$tempArray);
   }
