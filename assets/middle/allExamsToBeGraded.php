@@ -1,4 +1,4 @@
-<?
+<?php
 
 /*
 $funcName = string
@@ -32,15 +32,23 @@ function constructQuestion($funcName, $params, $does, $returns) {
 // get front json request // WON'T need
 // $jsonrequest = file_get_contents('php://input');
 $backfile = "allExamsToBeGraded.php";
+// $backfile = "test.php";
 $url = "https://web.njit.edu/~ds547/CS490-Project/assets/back/".$backfile;
 
 $curl_opts = array(CURLOPT_POST => 1,
 	CURLOPT_URL => $url,
+	CURLOPT_POSTFIELDS => "",
 	CURLOPT_RETURNTRANSFER => 1);
 $ch = curl_init();
 curl_setopt_array($ch, $curl_opts);
 $result = curl_exec($ch);
+// echo "RESULT\n";
+// var_dump($result);
+
+// exit();
+
 $examsdata = json_decode($result, true);
+// echo "DATA DECODEd\n";
 // var_dump($examsdata);
 
 $raw = $examsdata["raw"];
@@ -63,11 +71,16 @@ foreach ($raw as $r_elem){
 	$params = $r_elem["parameters"];
 	$does = $r_elem["does"];
 	$returns = $r_elem["prints"];
+	$testCases = $r_elem["testCases"];
+	$testCasesPassFail = $r_elem["testCasesPassFail"];
 	$constructed = constructQuestion($funcName, $params, $does, $returns);
 	$questioninfo_arr = array(	"questionID"		=> $qid, 
 								"points" 			=> $qpoints, 
 								"constructed"		=> $constructed,
-								"studentResponse"	=> $studentResponse);
+								"studentResponse"	=> $studentResponse,
+								"testCases"			=> $testCases,
+								"testCasesPassFail" => $testCasesPassFail
+								);
 	if ($detailed_info["$userid"]["$examid"]){ // same student same exam NEW question
 		array_push($detailed_info["$userid"]["$examid"][1], $questioninfo_arr);
 	}
