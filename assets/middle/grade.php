@@ -131,13 +131,13 @@ function gradeAll($grading_data) {
 // Main stuff
 
 //* get front's grading request 							F -> M
-// $jsonrequest = file_get_contents('php://input');
+$jsonrequest = file_get_contents('php://input');
 // extract examID and userID
-// $decoded = json_decode($jsonrequest, true);
+$decoded = json_decode($jsonrequest, true);
 
 //* testing without front input
-$decoded = array("examID" => 49, "userID" => "mscott");
-// // $decoded = array("examID" => 49, "userID" => "mscott");
+// $decoded = array("examID" => 49, "userID" => "mscott");
+// $decoded = array("examID" => 46, "userID" => "jsnow");
 $jsonrequest = json_encode($decoded);
 
 $examID = $decoded["examID"];
@@ -178,7 +178,6 @@ if ($decoded["examID"] && $decoded["userID"]) {
 						"scores" => $grades);
 
 	// var_dump($grades_pack);
-
 	$grades_encoded = json_encode($grades_pack);
 	//	send
 	$backfile = "update_grade.php";
@@ -203,6 +202,19 @@ if ($decoded["examID"] && $decoded["userID"]) {
 	}
 }
 exit(); // everthing after this is test data and test scripts
+
+// sample $grades_output_decoded
+// {"userID":"mscott","examID":49,"scores":[{"questionID":45,"qScore":25,"testcases":[1,0]},{"questionID":48,"qScore":0,"testcases":[0,0]}]}
+$grades_output_decoded = array("userID" => "mscott",
+								"examID" => 49,
+								"scores" => array(array("questionID" => 45,
+														"qScore" => 25,
+														"testcases" => array(1, 0)),
+												array("questionID" => 48,
+														"qScore" => 0,
+														"testcases" => array(0, 0))
+											)
+							);
 
 /*--------------------------------------------------------------------------------------*/
 //SAMPLE DATA AND TESTING
