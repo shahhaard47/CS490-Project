@@ -18,9 +18,10 @@ $myObj->conn=true;
 $myObj->error=null;
 echo json_encode($myObj);
 
-$release = file_get_contents('php://input'); 
-$data = json_decode($release, true); 
-$releaseInfo = array('userID' => $data['userID'], 'examID' => $data['examID']); 
+$rawDeleteRequest = file_get_contents('php://input');
+$data = json_decode($rawDeleteRequest, true);
+$deleteRequest = array('questionID' => $data['questionID']);
 
-$update_release = mysqli_query($conn, "UPDATE BETA_grades SET released=TRUE WHERE userID='".$releaseInfo['userID']."' AND examID='".$releaseInfo['examID']."'");
+$delete = mysqli_query($conn, "DELETE FROM BETA_questionBank WHERE questionID='".$$deleteRequest['questionID']."'");
+
 ?>

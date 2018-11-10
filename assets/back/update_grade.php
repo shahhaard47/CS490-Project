@@ -10,6 +10,16 @@ $databaseName = "ds547";
 //connecting to database
 $conn = new mysqli($servername, $username, $password, $databaseName);
 
+if ($conn->connect_error) 
+{
+    $myObj->conn=false;
+    $myObj->error=$conn->connect_error;
+    echo json_encode($myObj);
+    die();
+} 
+$myObj->conn=true;
+$myObj->error=null;
+echo json_encode($myObj);
 
 
 //receiving json request from Haard (middle) to update questionScore

@@ -1,5 +1,5 @@
 <?php
-//return all exams currently available/in the exams table
+//return exam that has been marked as published for the student to take
 
 
 
@@ -10,42 +10,48 @@ $databaseName = "ds547";
 //connecting to database
 $conn = new mysqli($servername, $username, $password, $databaseName);
 
-
+if ($conn->connect_error) 
+{
+    $myObj->conn=false;
+    $myObj->error=$conn->connect_error;
+    echo json_encode($myObj);
+    die();
+} 
+$myObj->conn=true;
+$myObj->error=null;
+echo json_encode($myObj);
 
 $exams = array();
 
-$allExamRecords = mysqli_query($conn, "SELECT * FROM BETA_exams");
-if($allExamRecords->num_rows!=0)
+$allExamRecord = mysqli_query($conn, "SELECT * FROM BETA_exams WHERE published=TRUE");
+
+if($allExamRecord->num_rows!=0)
 {
-  while($row_i = $allExamRecords->fetch_assoc())
-  {
-    //$examRecordArray=array("$row_i['examID']"=>array());
-    
-    foreach((explode(',',$row_i['questionIDs'])) as $question)
+  $tempArray = array();
+  while($row = $allExamRecord->fetch_assoc())
+  {      
+    $questionIDs = explode(',',$row['questionIDs']);
+    $points = explode(',',$row['questionIDs']);
+    array_push($exams,$row['examName']);
+    array_push($exams,$row['examID']);  
+    for($i=0;sizeof($questionIDs);$i++)
     {
-      //query for information for each question in BETA_questionBank
-      $questionInfo = mysqli_query($conn, "SELECT functionName,parameters,functionDescription,output,points from BETA_questionBank WHERE questionID='".(int)$question."'");
-      $row_j=$questionInfo->fetch_assoc();
-      
-      //extract data and store in array
-      $tempArray=array();
-      $tempArray['examID']=(int)$row_i['examID'];
-      $tempArray['questionID']=(int)$question;
-      //var_dump($tempArray['questionID']);
-      $tempArray['functionName']=$row_j['functionName'];
-      $tempArray['parameters']=explode(',',$row_j['parameters']);
-      $tempArray['functionDescription']=$row_j['functionDescription'];
-      $tempArray['output']=$row_j['output'];
-      $tempArray['points']=(int)$row_j['points'];
-      //var_dump($tempArray);
-      array_push($exams,$tempArray);
+      $tempArray['questionID']=$questionIDs[$i];
+      $questionInfo = mysqli_query($conn,"SELECT functionName,parameters,functionDescription,output FROM BETA_questionBank WHERE questionID='".$questionIDs[$i]"'");
+      $tempArray['points']=$points[$i];
+      $tempArray['functionName']=$questionInfo['functionName'];
+      $tempArray['params']=explode(',',$questionInfo['parameters']);
+      $tempArray['functionDescription']=$questionInfo['functionDescription'];
+      $tempArray['return']=$questionInfo['output']; 
+      array_push($exams,$tempArray);     
+      }
     }
   }
   //var_dump($exams);
   $myJSON=json_encode($exams);
   echo($myJSON);
 }
-else //meaning, no exams were found in the table
+else //meaning, no exams were found in the table that have been published
 {
   $myJSON=json_encode($exams);
   echo($myJSON);

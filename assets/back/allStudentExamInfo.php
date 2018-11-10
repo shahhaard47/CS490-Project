@@ -7,42 +7,78 @@ $databaseName = "ds547";
 //connecting to database
 $conn = new mysqli($servername, $username, $password, $databaseName);
 
+if ($conn->connect_error) 
+{
+    $myObj->conn=false;
+    $myObj->error=$conn->connect_error;
+    echo json_encode($myObj);
+    die();
+} 
+$myObj->conn=true;
+$myObj->error=null;
+echo json_encode($myObj);
+
 $rawStuExamData = file_get_contents('php://input'); 
 $data = json_decode($rawStuExamData, true); 
 $requestInfo = array('userID' => $data['userID'], 'examID' => $data['examID']); 
 
-$returnArray = array();
-if(mysqli_query($conn, "SELECT released FROM BETA_grades WHERE userID='".$requestInfo['userID']."' AND examID='".$requestInfo['examID']."'")->fetch_assoc()['released'] == 1)
+if(mysqli_query($conn, "SELECT released FROM BETA_grades WHERE userID='".$requestInfo['userID']."' AND examID='".$requestInfo['examID']."'")==TRUE)
 {
-  $allStuExamData = mysqli_query($conn, "SELECT BETA_questionBank.questionID,BETA_questionBank.functionName,BETA_questionBank.parameters,BETA_questionBank.functionDescription,BETA_questionBank.output,BETA_rawExamData.studentResponse,BETA_rawExamData.questionScore,BETA_rawExamData.instructorComments FROM BETA_questionBank,BETA_rawExamData WHERE BETA_questionBank.questionID=BETA_rawExamData.questionID and BETA_rawExamData.userID='".$requestInfo['userID']."' AND BETA_rawExamData.examID='".$requestInfo['examID']."'");
-  $stuExamScore = mysqli_query($conn, "SELECT examScore FROM BETA_grades WHERE userID='".$requestInfo['userID']."' AND examID='".$requestInfo['examID']."'");
+  $info = mysqli_query($conn, "SELECT BETA_grades.examScore,BETA_questionBank.functionName,BETA_questionBank.parameters,BETA_questionBank.functionDescription,BETA_questionBank.output,BETA_rawExamData.questionID,BETA_rawExamData.studentResponse,BETA_rawExamData.questionScore,BETA_questionBank.testCases,BETA_rawExamData.testCasesPassFail,BETA_rawExamData.gradedComments,BETA_rawExamData.instructorComments FROM BETA_grades,BETA_questionBank,BETA_rawExamData WHERE BETA_rawExamData.userID=BETA_grades.userID AND BETA_grades.userID='".$requestInfo['userID']."' AND BETA_rawExamData.examID=BETA_grades.examID AND BETA_grades.examID='".$requestInfo['examID']."' AND BETA_rawExamData.questionID=BETA_questionBank.questionID ORDER BY BETA_rawExamData.userID");
 
-  if($allStuExamData->num_rows!=0){
-    $tempArray = array();
+  $examsTableData = mysqli_query($conn, "SELECT * FROM BETA_exams WHERE examID='".$requestInfo['examID']."'");
   
-    while($row = $allStuExamData->fetch_assoc()){
+  $returnArrayRAW=array();
+  $returnArrayEXAMS=array();
+  if($info->num_rows!=0 and $examsTableData->num_rows!=0)
+  {
+    $tempArray = array();
+    while($row = $info->fetch_assoc())
+    {
+      $tempArray['userID']=$row['userID'];
+      $tempArray['examID']=(int)$row['examID'];
       $tempArray['questionID']=(int)$row['questionID'];
+      $tempArray['studentResponse']=$row['studentResponse'];
       $tempArray['functionName']=$row['functionName'];
       $tempArray['parameters']=explode(',',$row['parameters']);
-      $tempArray['functionDescription']=$row['functionDescription'];
-      $tempArray['output']=$row['output'];
-      $tempArray['studentResponse']=$row['studentResponse'];
-      $tempArray['questionScore']=(int)$row['questionScore'];
-      $tempArray['instructorComments']=$row['instructorComments'];
-      array_push($returnArray,$tempArray);
+      $tempArray['does']=$row['functionDescription'];
+      $tempArray['prints']=$row['output'];
+      $tempArray['points']=(int)$row['questionScore'];
+      $tempArray['gradedComments']=$row['gradedComments'];
+      $tempArray['topic']=$row['topic'];
+      $tempArray['constraints']=$row['constraints'];
+      $tempArray['testCases']=explode(':',$row['testCases']);
+      $tempArray['testCasesPassFail']=explode(',',$row['testCasesPassFail']);
+      $tempArray['examScore']=(int)$row['examScore'];
+      $tempArray['released']=$row['released'];
+      array_push($returnArrayRAW,$tempArray);
     }
-    $returnArray["examScore"]=(int)($stuExamScore->fetch_row()[0]);
-    $myJSON=json_encode($returnArray);
-    echo $myJSON;
+    $myObj->raw=$returnArrayRAW;
+    
+    while($row = $examsTableData->fetch_assoc())
+    {
+      $tempArray['examID']=$row['examID'];
+      $tempArray['examName']=$row['examName'];
+      $tempArray['qIDs']=explode(',',$row['questionIDs']);
+      $tempArray['points']=explode(',',$row['points']);
+      array_push($returnArrayEXAMS,$tempArray);
+    }
+    $myObj->exam=$returnArrayEXAMS;
   }
-  else{
-    $myJSON=json_encode($returnArray);
-    echo $myJSON;
+  else
+  {
+    $myObj->raw=null;
+    $myObj->exam=null;
   }
 }
-else{ 
-  $myJSON=json_encode($returnArray);
+else //meaning the grade for the requested userID and examID has not been marked as released by the professor
+{
+  $myObj->raw=null;
+  $myObj->exam=null;
+  $myJSON=json_encode($myObj);
   echo $myJSON;
 }
+
+
 
 ?>

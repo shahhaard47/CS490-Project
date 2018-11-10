@@ -10,7 +10,16 @@ $databaseName = "ds547";
 //connecting to database
 $conn = new mysqli($servername, $username, $password, $databaseName);
 
-
+if ($conn->connect_error) 
+{
+    $myObj->conn=false;
+    $myObj->error=$conn->connect_error;
+    echo json_encode($myObj);
+    die();
+} 
+$myObj->conn=true;
+$myObj->error=null;
+echo json_encode($myObj);
 
 //receiving json data from Haard (middle) for creating an exam
 $rawCreateExam = file_get_contents('php://input'); //get JSON data for creating an exam
