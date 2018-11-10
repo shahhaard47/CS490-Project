@@ -5,12 +5,20 @@
 
 $servername = "sql2.njit.edu";
 $username = "ds547";
-$password = "zrwEzyTq";
+$password = "OVzSWetym";
 $databaseName = "ds547";
 //connecting to database
 $conn = new mysqli($servername, $username, $password, $databaseName);
 
-
+if ($conn->connect_error) 
+{
+    $myObj->conn=false;
+    $myObj->error=$conn->connect_error;
+    echo json_encode($myObj);
+    die();
+} 
+$myObj->conn=true;
+$myObj->error=null;
 
 //receiving json data from Haard (middle) for creating an exam
 $rawCreateExam = file_get_contents('php://input'); //get JSON data for creating an exam
@@ -26,11 +34,12 @@ $points=implode(',',$createExam['points']);
 $exam = "INSERT INTO BETA_exams (examName,questionIDs,points) VALUES ('".$createExam['examName']."','$questionIDs','$points')";
 
 if($conn->query($exam)===TRUE){
-  echo "exam created";
+  $myObj->examCreated=true;
 }
 else{
-  echo "error: exam not created";
+  $myObj->examCreated=false;
 }
+echo json_encode($myObj);
 
 
 
