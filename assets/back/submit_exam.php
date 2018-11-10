@@ -5,7 +5,7 @@
 
 $servername = "sql2.njit.edu";
 $username = "ds547";
-$password = "zrwEzyTq";
+$password = "OVzSWetym";
 $databaseName = "ds547";
 //connecting to database
 $conn = new mysqli($servername, $username, $password, $databaseName);
@@ -34,7 +34,7 @@ $responseInfo = array('userID' => $data['userID'], 'examID' => $data['examID'], 
 //extract questionID and instructorComments from $responseInfo['studentResponses']
 foreach($responseInfo['studentResponses'] as $arr)
 {
-  $insert_rawExamData = mysqli_query($conn, "INSERT INTO BETA_rawExamData (userID,examID,questionID,studentResponse) VALUES ('".$responseInfo['userID']."','".$responseInfo['examID']."','".$arr[0]."','".$arr[1]."')"); //$arr[0]=questionID and $arr[1]=studentResponse(python code)
+  $insert_rawExamData = mysqli_query($conn, "INSERT INTO BETA_rawExamData (userID,examID,questionID,studentResponse) VALUES ('".$responseInfo['userID']."','".$responseInfo['examID']."','".$arr['questionID']."','".$arr['studentResponse']."')"); //$arr[0]=questionID and $arr[1]=studentResponse(python code)
 }
 
 

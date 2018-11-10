@@ -5,7 +5,7 @@
 
 $servername = "sql2.njit.edu";
 $username = "ds547";
-$password = "zrwEzyTq";
+$password = "OVzSWetym";
 $databaseName = "ds547";
 //connecting to database
 $conn = new mysqli($servername, $username, $password, $databaseName);
@@ -19,7 +19,6 @@ if ($conn->connect_error)
 } 
 $myObj->conn=true;
 $myObj->error=null;
-echo json_encode($myObj);
 
 //create tables in database
 
