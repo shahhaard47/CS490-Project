@@ -50,6 +50,10 @@ $result = curl_exec($ch);
 $examsdata = json_decode($result, true);
 // echo "DATA DECODEd\n";
 // var_dump($examsdata);
+if ($decoded["conn"] && $decoded["conn"] == false) {
+	echo $result;
+	exit();
+}
 
 $raw = $examsdata["raw"];
 // var_dump($raw);

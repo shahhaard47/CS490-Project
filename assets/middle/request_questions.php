@@ -71,6 +71,14 @@ $ch = curl_init();
 curl_setopt_array($ch, $curl_opts);
 $result = curl_exec($ch);
 // echo $result;
+$decoded = json_decode($result, true);
+
+// var_dump($decoded);
+if ($decoded["conn"] && $decoded["conn"] == false) {
+	echo $result;
+	exit();
+}
+
 // ideally
 $ques_sendback = jsonConstructQuestion($result);
 echo $ques_sendback;

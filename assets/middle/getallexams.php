@@ -44,6 +44,11 @@ curl_setopt_array($ch, $curl_opts);
 $result = curl_exec($ch);
 
 $decoded = json_decode($result, true);
+if ($decoded["conn"] && $decoded["conn"] == false) {
+	echo $result;
+	exit();
+}
+
 constructQuestion($decoded);
 // foreach ($decoded as $exam) {
 // 	echo "------------------------------------------------------\n";
