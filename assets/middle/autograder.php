@@ -6,38 +6,57 @@ GRADING NOTES AND ASSUMPTIONS
 	- #def functionName()
 */
 
+function listifyOutput($output) {
+    $lbr_pos = strpos($output, "[");
+    if ($lbr_pos === false) {
+        // not a list
+        return $output;
+    }
+    else { // found list
+        $tmpSplit = preg_split('/("|,|\[|\])/', $output, -1, PREG_SPLIT_NO_EMPTY);
+        $type = array_shift($tmpSplit);
+        for ($i = 0; $i < count($tmpSplit); $i++) {
+            $tmpSplit[$i] = "$type(\"$tmpSplit[$i]\")";
+        }
+        $output = implode(", ", $tmpSplit);
+        $output = "list [$output]";
+    }
+    return $output;
+}
+
 function constructFunctionCalls($functionName, $testcases) {
     $functioncalls = array();
     foreach ($testcases as $case) {
         $tc = array();
-        // echo "case: $case\n";
         $call = "";
         $call = "$functionName(";
-        // $case = explode(",", $case);
-        $case = preg_split('/(,|;)/', $case, -1, PREG_SPLIT_NO_EMPTY);
-        // var_dump($case[count($case)-1]);
-        // echo "$functionName(";
-        if (count($case) == 1) {
-            $call .= ")";
-            // echo ")";
+//        $case = preg_split('/(,|;)/', $case, -1, PREG_SPLIT_NO_EMPTY);
+
+        $tmpCaseSplit = explode(";", $case);
+        $caseInput = $tmpCaseSplit[0];
+        $inputParams = explode(",", $caseInput);
+        $expectedOutput = $tmpCaseSplit[1]; // assuming size 2
+
+        for ($i = 0; $i < count($inputParams)-1; $i++) {
+            $tmp = explode(" ", $inputParams[$i]);
+            $type = array_shift($tmp); // pop first element
+            $param = implode(" ", $tmp);
+            $call .= "$type(\"$param\"), ";
         }
-        else {
-            for ($i = 0; $i < count($case)-2; $i++) {
-                $a = explode(" ", $case[$i]);
-                $call .= "$a[0]('$a[1]')".", ";
-                // echo "$case[$i], ";
-            }
-            $a = explode(" ", $case[$i]);
-            $call .= "$a[0]('$a[1]')".")";
-            // echo "$case[$i])";
-        }
-        // echo $call."\n";
+        $tmp = explode(" ", $inputParams[$i]);
+        $type = array_shift($tmp); // pop first element
+        $param = implode(" ", $tmp);
+        $call .= "$type(\"$param\"))";
+
         array_push($tc, $call);
-        array_push($tc, $case[count($case)-1]);
+        // if output is list
+        $expectedOutput = listifyOutput($expectedOutput);
+        array_push($tc, $expectedOutput);
         // var_dump($tc);
         array_push($functioncalls, $tc);
     }
-    // var_dump($functioncalls);
+
+//    var_dump($functioncalls); exit();
     return $functioncalls;
 }
 
@@ -173,10 +192,15 @@ function gradeQuestion($question_data) {
     foreach ($functioncalls as $call) {
         $callll = $call[0]; $correct_response = $call[1];
         $correct_response = explode(" ", $correct_response);
+        $type = array_shift($correct_response);
+        $returnValue = implode(" ", $correct_response);
+        if ($type != "list") { // if == list don't add QUOTES around returnValue
+            $returnValue = "\"$returnValue\"";
+        }
         // get students output
         $text = "from student import *\n";
         $text .= "response = $callll\n";
-        $text .= "correct = $correct_response[0]('$correct_response[1]')\n";
+        $text .= "correct = $type($returnValue)\n";
         $text .= "if (response == correct):\n";
         $text .= "\tprint('output is correct')\n";
         $text .= "else:\n";
@@ -203,6 +227,7 @@ function gradeQuestion($question_data) {
     if (count($TCresults) == $TCtotal) { // just a sanity to make sure everything went well
         $maxPoints = $question_data["points"];
         $rtn_package = constructCommentsAndPoints($maxPoints, $test_cases, $TCresults, $comments);
+//        var_dump($rtn_package); exit();
         return $rtn_package;
     }
     else {
