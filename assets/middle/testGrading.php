@@ -1,12 +1,20 @@
 <?php
 
 require_once ('autograder.php');
+//require_once ('testGetQuestion.php');
 
 /*--------------------------------------------------------------------------------------*/
 //SAMPLE DATA AND TESTING
 /*--------------------------------------------------------------------------------------*/
 /** @noinspection PhpUnreachableStatementInspection */
 $grading_data = array(
+    array(
+        "questionID" => 65,
+        "points" => 30,
+        "function_name" => "combineSorted",
+        "student_response" => "def combineSorte(lst1, lst2):\n\tnewlst = lst1 + lst2\n\tnewlst.sort()\n\treturn newlst",
+        "test_cases" => array("int [1,2,3,4,5],int [6,7,8,9,10];int [1,2,3,4,5,6,7,8,9,10]", "int [-2,-1,5,6],int [1,2,3,4];int [-2,-1,1,2,3,4,5,6]")
+    ),
     array(
         "questionID" => 62,
         "points" => 20,
@@ -19,7 +27,7 @@ $grading_data = array(
             "str My mom always said life was like a box of chocolates You never know what you're gonna get;str [always,a,of]",
             "str str Sally sells seashells by the seashore;str []"
             )
-    ),
+    )/*,
     array(
         "questionID" => 1,
         "points" => 20,
@@ -33,7 +41,7 @@ $grading_data = array(
         "function_name" => "roundNum",
         "student_response" => "def roundnum(num):\n\tnum=round(num)\n\treturn (3)",
         "test_cases" => array("float 3.14159;int 3", "float 2.7183;int 3", "float 1.5;int 2")
-    )
+    )*/
 );
 
 // $question_data = $grading_data[1];

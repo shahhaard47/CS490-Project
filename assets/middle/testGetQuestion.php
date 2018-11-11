@@ -1,6 +1,11 @@
 <?php
 
-$decoded = array("questionID" => 62);
+function getTestQuestionInGradingFormat($questionID) {
+
+}
+
+
+$decoded = array("questionID" => 65);
 $jsonrequest = json_encode($decoded);
 
 $backfile = "test.php";

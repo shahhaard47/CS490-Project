@@ -24,6 +24,36 @@ function listifyOutput($output) {
     return $output;
 }
 
+function listifyInput($inp) {
+    $lbr_pos = strpos($inp, "[");
+    if ($lbr_pos === false) {
+        $inp = str_replace(",",":", $inp);
+        return $inp;
+    }
+    else {
+        // replace ',' between params with ':'
+        $outside = true;
+        for ($i = 0; $i < strlen($inp); $i++) {
+            if ($outside == true && $inp[$i] == ',') {
+                $inp[$i] = ":"; continue;
+            }
+            if ($inp[$i] == '[') {
+                $outside = false; continue;
+            }
+            if ($inp[$i] == ']') {
+                $outside = true; continue;
+            }
+        }
+        $inps = explode(":", $inp);
+        for ($i = 0; $i < count($inps); $i++) {
+            $inps[$i] = listifyOutput($inps[$i]);
+        }
+        $inp = implode(":", $inps);
+//        var_dump($inp);
+    }
+    return $inp;
+}
+
 function constructFunctionCalls($functionName, $testcases) {
     $functioncalls = array();
     foreach ($testcases as $case) {
@@ -34,23 +64,31 @@ function constructFunctionCalls($functionName, $testcases) {
 
         $tmpCaseSplit = explode(";", $case);
         $caseInput = $tmpCaseSplit[0];
-        $inputParams = explode(",", $caseInput);
+        $caseInput = listifyInput($caseInput);
+        $inputParams = explode(":", $caseInput);
+
         $expectedOutput = $tmpCaseSplit[1]; // assuming size 2
+        $expectedOutput = listifyOutput($expectedOutput);
 
         for ($i = 0; $i < count($inputParams)-1; $i++) {
             $tmp = explode(" ", $inputParams[$i]);
             $type = array_shift($tmp); // pop first element
             $param = implode(" ", $tmp);
-            $call .= "$type(\"$param\"), ";
+            if ($type != 'list') {
+                $param = "\"$param\"";
+            }
+            $call .= "$type($param), ";
         }
         $tmp = explode(" ", $inputParams[$i]);
         $type = array_shift($tmp); // pop first element
         $param = implode(" ", $tmp);
-        $call .= "$type(\"$param\"))";
+        if ($type != 'list') {
+            $param = "\"$param\"";
+        }
+        $call .= "$type($param))";
 
         array_push($tc, $call);
         // if output is list
-        $expectedOutput = listifyOutput($expectedOutput);
         array_push($tc, $expectedOutput);
         // var_dump($tc);
         array_push($functioncalls, $tc);
@@ -174,6 +212,34 @@ function gradeQuestion($question_data) {
 
     // FIXME: check for restraints
 
+    $constraints = explode(" ", $question_data["constraints"]);
+    foreach ($constraints as $constraint) {
+        switch ($constraint) {
+            case "for":
+                // check for CONSTRAINT_FORLOOP
+                $for_pos = strpos($student_response, "for");
+                if ($for_pos === false) {
+                    array_push($comments, "CONSTRAINT_FORLOOP");
+                }
+                break;
+
+            case "while":
+                // check for CONSTRAINT_WHILELOOP
+                $while_pos = strpos($student_response, "while");
+                if ($while_pos === false) {
+                    array_push($comments, "CONSTRAINT_WHILELOOP");
+                }
+                break;
+
+            case "recursion":
+                // check for CONSTRAINT RECURSION
+                $functionNameCount = substr_count($student_response, $function_name);
+                if ($functionNameCount < 2) {
+                    array_push($comments, "CONSTRAINT_RECURSION");
+                }
+                break;
+        }
+    }
     //*	2. write student_response to py file
     $file = fopen($student_filename, 'w');
     if ($file) {
@@ -184,7 +250,6 @@ function gradeQuestion($question_data) {
     //*	5. get testcases from database
     $test_cases = $question_data["test_cases"];
     $functioncalls = constructFunctionCalls($function_name, $test_cases);
-    // echo var_dump($functioncalls)."\n";
 
     //*	6. compare student's to correct response's on individual testcases
     $TCresults = array(); // size should be count($functioncalls) RETURNING
@@ -194,6 +259,7 @@ function gradeQuestion($question_data) {
         $correct_response = explode(" ", $correct_response);
         $type = array_shift($correct_response);
         $returnValue = implode(" ", $correct_response);
+
         if ($type != "list") { // if == list don't add QUOTES around returnValue
             $returnValue = "\"$returnValue\"";
         }

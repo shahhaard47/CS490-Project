@@ -1,6 +1,6 @@
 from student import *
-response = roundNum(float("1.5"))
-correct = int("2")
+response = initialVowel(str("str Sally sells seashells by the seashore"))
+correct = list([])
 if (response == correct):
 	print('output is correct')
 else:
