@@ -42,9 +42,16 @@ function authenticateLogin() {
 
             /* Try to parse JSON */
             let json = parseJSON(xhr.responseText);
+            log(json);
 
             /* Check if json was successfully parsed */
             if (json === false) {
+                return;
+            }
+
+            /* Check to see if back-end connected to the database */
+            if (json.hasOwnProperty('conn') && !json.conn) {
+                changeInnerHTML('error', "Unable to access database. Please try again later.");
                 return;
             }
 
@@ -52,10 +59,10 @@ function authenticateLogin() {
             if (json.user === INVALID) {
                 changeInnerHTML('error', "Username or password is incorrect.");
             } else if (json.user === INSTRUCTOR) {
-                window.location = 'instructor-home.html?'+user;
+                window.location = 'instructor-home.html?user=' + user;
                 // changeInnerHTML('identity', "You are an instructor");
             } else if (json.user === STUDENT) {
-                window.location = 'student-home.html?ucid='+user;
+                window.location = 'student-home.html?ucid=' + user;
 
                 // changeInnerHTML('identity', "You are a student");
             }

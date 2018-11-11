@@ -1,15 +1,15 @@
 let examIDsArr = [];
 
-function getAvailableExams() {
+function getPublishedExam() {
     let obj = {};
-    obj.requestType = GET_AVAILABLE_EXAMS_RT;
+    obj.requestType = GET_AVAILABLE_EXAM_RT;
+    obj.userID = getURLParams(window.location.href).ucid;
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         /* Check if the xhr request was successful */
         if (this.readyState === 4) {
             if (this.status === 200) {
-                // log(xhr.responseText);
-                populateExamsArray(parseJSON(xhr.responseText));
+                log(parseJSON(xhr.responseText));
                 populateExamsTable(parseJSON(xhr.responseText));
             } else {
             }
@@ -26,36 +26,26 @@ function getAvailableExams() {
 
 function populateExamsTable(jsonObj) {
     let container = getelm('availableExamsContainer');
-    let table = appendNodeToNode('table', 'examsTable', 'examsTable', container);
+    let table = appendNodeToNode('table', 'table', 'table', container);
     let tr = appendNodeToNode('tr', '', '', table);
-    appendNodeToNode('th', '', '', tr).innerHTML = 'Exam ID';
-    log(examIDsArr);
+    appendNodeToNode('th', '', '', tr).innerHTML = 'Available to Take';
 
-
-    for (let i = 0; i < examIDsArr.length; i++) {
-        let examID = examIDsArr[i];
-        let tRow = appendNodeToNode('tr', examID, '', table);
-        let td = appendNodeToNode('td', '', '', tRow);
-        let btn = appendNodeToNode('button', '', 'examBtn', td);
-        btn.innerHTML = examID;
-        btn.onclick = function () {
-            openExam(examID);
-        }
-        // tRow.cells[0].onclick = function () {
-        //     log(`Clicked: ${this.innerHTML}`);
-        // }
+    // for (let i = 0; i < jsonObj.length; i++) {}
+    let tRow = appendNodeToNode('tr', 'examID' + jsonObj.examID, '', table);
+    let td = appendNodeToNode('td', '', '', tRow);
+    let btn = appendNodeToNode('button', '', 'examBtn', td);
+    btn.innerHTML = jsonObj.examName;
+    btn.onclick = function () {
+        openExam(jsonObj.examID);
     }
 }
 
 function populateExamsArray(jsonObj) {
-    log(jsonObj);
+    log(`In populateExamsArray. jsonObj= ${jsonObj}`);
     for (let i = 0; i < jsonObj.length; i++) {
-        // log('-----' + jsonObj[i].examID);
         if (!inArray(examIDsArr, jsonObj[i].examID)) {
-            log('-not in: ' + jsonObj[i].examID);
             examIDsArr.push(jsonObj[i].examID);
         } else {
-            log('in: ' + jsonObj[i].examID);
         }
     }
 
@@ -74,5 +64,5 @@ function takeToViewExamBH(url) {
 }
 
 window.onload = function () {
-    getAvailableExams();
+    getPublishedExam();
 };

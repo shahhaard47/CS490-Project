@@ -1,5 +1,5 @@
-const URL = 'https://web.njit.edu/~sk2283/assets/front/php/contact_middle.php',
-    GET_AVAILABLE_EXAMS_RT = 'getAvailableExams';
+const URL = 'https://web.njit.edu/~sk2283/assets/front/php/contact_middle.php';
+const GET_AVAILABLE_EXAM_RT = 'getAvailableExam';
 
 function loader(id, state) {
     getelm(id).style.visibility = state;
@@ -24,6 +24,17 @@ function getelm(id) {
 function chngClass(id, oldClass, newClass) {
     getelm(id).classList.remove(oldClass);
     getelm(id).classList.add(newClass);
+}
+
+function addClass(id, clss) {
+    getelm(id).classList.add(clss);
+}
+
+function removeClass(id, clss) {
+    let classList = getelm(id).classList;
+    if (classList.length > 0) {
+        classList.remove(clss);
+    }
 }
 
 function parseJSON(str) {
@@ -65,7 +76,7 @@ function appendNodeToNode(type, id, clss, addTo) {
     return newNode;
 }
 
-
+/* AJAX request when don't care about response */
 function sendAJAXReq(content) {
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
@@ -108,16 +119,35 @@ function inArray(arr, b) {
     return false;
 }
 
+function constructQuestion(questionsObj) {
+    let params = '', paramsList = questionsObj.params, i;
+
+    /* Construct parameter as a string */
+    for (i = 0; i < paramsList.length; i++) {
+        params += `<${paramsList[i]}>`;
+
+        if (i + 1 < paramsList.length)
+            params += ', ';
+
+    }
+
+    let str = `Write a function named ${questionsObj.functionName} that takes parameters ${params}, ${questionsObj.functionDescription} and returns ${questionsObj.output}`;
+
+    return str
+}
+
+
+/** A utility function to get the last number(s) from a string. Ex: 'button49' input will return 49 */
+function getLastNumbersFromString(str) {
+    let num = '';
+    for (let i in str) {
+        if (!isNaN(str[i])) {
+            num += str[i];
+        }
+    }
+    return parseInt(num);
+}
+
 function log(str) {
     console.log(str);
 }
-
-/*
-{
-  "qBank": "true",
-  "userid": "null",
-  "examid": "null",
-  "questionID": "null",
-  "difficulty": "'a'"
-}
-*/

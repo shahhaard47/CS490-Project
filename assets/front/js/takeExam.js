@@ -2,13 +2,13 @@ let questionIDsInExam = [], solutions = {}, examID = '', previousIDSelected = ''
 
 function getAvailableExams() {
     let obj = {};
-    obj.requestType = GET_AVAILABLE_EXAMS_RT;
+    obj.requestType = GET_AVAILABLE_EXAM_RT;
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         /* Check if the xhr request was successful */
         if (this.readyState === 4) {
             if (this.status === 200) {
-                // log(xhr.responseText);
+                log(parseJSON(xhr.responseText));
                 loadQuestions(parseJSON(xhr.responseText));
                 initView();
             } else {
@@ -49,42 +49,35 @@ function enableTab(id) {
 }
 
 
-function openQuestion(questionID, obj) {
-    for (let i = 0; i < obj.length; i++) {
-        let x = obj[i];
-        if (x.examID == examID && x.questionID == questionID) {
-            questionTextArea.innerHTML = x.constructed;
-        }
-    }
+function openQuestion(questionsObj) {
+    questionTextArea.innerHTML = questionsObj.constructed;
 }
 
 function loadQuestions(obj) {
-    log(obj);
-    let num = 1;
-    for (let i = 0; i < obj.length; i++) {
-        if (obj[i].examID == examID) {
-            questionIDsInExam.push(obj[i].questionID);
-            let btn = appendNodeToNode('button', obj[i].questionID, '', getelm('questions-in-exam'));
-            btn.innerHTML = num++;
-            btn.setAttribute('id', obj[i].questionID);
-            btn.setAttribute('style', 'width:100%');
-            btn.onclick = function () {
-                getelm('questionTitle').innerHTML = 'Question ' + btn.innerHTML;
-                saveSolution(previousIDSelected, solutionTextArea.value);
-                previousIDSelected = this.id;
-                openQuestion(this.id, obj);
-                fillSolutionTextArea(this.id);
-                log(solutions);
-            };
-            appendNodeToNode('br', '', '', getelm('questions-in-exam'));
-        }
+    let num = 1, questionsList = obj.questions;
+    for (let i = 0; i < questionsList.length; i++) {
+        questionIDsInExam.push(questionsList[i].questionID);
+        let btn = appendNodeToNode('button', `btn${questionsList[i].questionID}`, '', getelm('questions-in-exam'));
+        btn.innerHTML = `Question ${num++}`;
+        btn.setAttribute('style', 'width:100%');
+        btn.onclick = function () {
+            getelm('questionTitle').innerHTML = 'Question ' + btn.innerHTML;
+            saveSolution(previousIDSelected, solutionTextArea.value);
+
+            removeClass(`${previousIDSelected}`, 'btn-selected');
+            addClass(this.id, 'btn-selected');
+
+            previousIDSelected = this.id;
+            // log('questionsList[i]:' + questionsList[i].constructed)
+            openQuestion(questionsList[i]);
+            fillSolutionTextArea(this.id);
+            log(solutions);
+        };
+        appendNodeToNode('br', '', '', getelm('questions-in-exam'));
     }
-    log(questionIDsInExam);
 }
 
 function saveSolution(questionID, textareaValue) {
-    log('saving sol for qid: ' + questionID);
-    log('value: ' + textareaValue);
     if (textareaValue !== null || textareaValue !== '')
         solutions[questionID] = textareaValue;
     else
@@ -104,7 +97,7 @@ function getAnswers() {
     for (let i = 0; i < keys.length; i++) {
         if (solutions.hasOwnProperty(keys[i])) {
             let l2 = [];
-            l2.push(parseInt(keys[i]));
+            l2.push(parseInt(getLastNumbersFromString(keys[i])));
             l2.push(solutions[keys[i]]);
             list.push(l2);
         }
@@ -127,7 +120,7 @@ function submitExamBH() {
 
 function initView() {
     if (questionIDsInExam[0] !== null || questionIDsInExam !== '')
-        previousIDSelected = questionIDsInExam[0];
+        previousIDSelected = 'btn' + questionIDsInExam[0];
     let btn;
     if ((btn = getelm('left').getElementsByTagName('button')[0]) !== null)
         btn.click();
@@ -142,6 +135,7 @@ window.onload = function () {
     changeInnerHTML('header-examID', `Exam ID: ${params.id}`);
     getAvailableExams();
 };
+
 /*
 grade.php -> userID, examID
 

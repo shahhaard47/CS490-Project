@@ -6,6 +6,10 @@ textarea {
     width: 100%;
 }
 
+.btn-selected {
+    border-right: 10px #8DAFFF;
+}
+
 .solution-code {
     height: 100%;
 }

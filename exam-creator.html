@@ -18,18 +18,17 @@
         <span class="closeModal" id="close-modal" onclick="closeModalBH('addQuestionModal')">&times;</span>
         <h2>Add a question to the question bank</h2>
         <p>
-            Write a function named <input id="modal-fname"> that takes parameters
+            Write a function named <input id="modal-fname"> that takes parameter(s)
             <label id="modal-params">
                 <select id="modal-param-sel0" onchange="populateTestCaseType(this);">
-                    <!--<select id="modal-param-sel0">-->
                     <option>str</option>
                     <option>int</option>
                     <option>float</option>
                 </select>
                 <input id="param0" onkeyup="populateTestCaseName(this);">
             </label>
-            <button id="addParam" onclick="addParamBH()">+</button>
-            <button id="removeParam" onclick="removeLastParam()">-</button>
+            <button class="btn" id="addParam" onclick="addParamBH()">+</button>
+            <button class="btn" id="removeParam" onclick="removeLastParam()">-</button>
             and does <input id="modal-does"> and returns <input id="modal-returns">
         </p>
 
@@ -41,6 +40,14 @@
                     <option>Medium</option>
                     <option>Hard</option>
                 </select>
+            </label>
+        </p>
+        <p>
+            <label>
+                Topic
+                <label>
+                    <input id="modal-topic">
+                </label>
             </label>
         </p>
         <div id="all-testcases" style="padding-bottom: 10px">
@@ -68,11 +75,11 @@
             </select> Output <input id="modal-testcase-output1"><br>
 
         </div>
-        <button class="btn-add-testcase" onclick="addTestCaseBH()">Add Test Case</button>
-        <button class="btn-remove-testcase" onclick="removeLastTestCaseBH()">Remove Test Case</button>
+        <button class="btn btn-add-testcase" onclick="addTestCaseBH()">Add Test Case</button>
+        <button class="btn btn-remove-testcase" onclick="removeLastTestCaseBH()">Remove Test Case</button>
 
         <!--<button id="addTestCase" onclick="addTestCaseBH()">+</button>-->
-        <button class="modal-add-btn" onclick="addNewQuestionToBankBH()">Add</button>
+        <button class="btn modal-add-btn" onclick="addNewQuestionToBankBH()">Add</button>
     </div>
 </div>
 <!-- Left Side-->
@@ -90,6 +97,7 @@
                 <div class="row">
                     <label id="topic-options">
                         <select onchange="">
+                            <option>All</option>
                             <option>List</option>
                             <option>Dictionary</option>
                             <option>Recursion</option>
@@ -105,6 +113,7 @@
                     <label id="sorting-options">
                         <select onchange="sortQuestionBank(this)">
                             <optgroup label="Difficulty">
+                                <option>Select</option>
                                 <option>Easy</option>
                                 <option>Medium</option>
                                 <option>Hard</option>
@@ -120,7 +129,7 @@
     </div>
 
     <div class="bottom-bar">
-        <button class="btnAddQuestionToBank" id="addQuestionToBank" onclick="showModalBH('addQuestionModal')">Add
+        <button class="btn btnAddQuestionToBank" id="addQuestionToBank" onclick="showModalBH('addQuestionModal')">Add
             Question to Bank
         </button>
     </div>
@@ -135,7 +144,7 @@
                 <div class="row centered" style="width: 100%;">
                     <h3>Questions in the Exam</h3>
                     <span>
-                        Title <input id="exam-title">
+                        Exam Title <input id="exam-title">
                     </span>
                 </div>
 
@@ -145,7 +154,7 @@
     <div class="centered exam-questions" id="exam-questions">
     </div>
     <div class="bottom-bar">
-        <button class="createExamBtn" id="createExamBtn" onclick="createExamBH()">Create Exam</button>
+        <button class="btn createExamBtn" id="createExamBtn" onclick="createExamBH()">Create Exam</button>
     </div>
 </div>
 
