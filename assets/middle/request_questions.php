@@ -13,7 +13,7 @@ input param -> array
 returns -> array
 */
 
-function constructQuestion(&$rawArr) {
+function constructQuestions(&$rawArr) {
 	// $outputarr = array();
 	// foreach ($rawArr as $que) {
 	for ($a = 0; $a < count($rawArr); $a++) {
@@ -28,39 +28,33 @@ function constructQuestion(&$rawArr) {
 			$outparams = "parameters <$params[0]> and <$params[1]>";
 		}
 		else {
-			$outparams += "parameters ";
+			$outparams .= "parameters ";
 			for ($i = 0; $i < count($params)-2; $i++) {
-				$outparams += "<$params[$i]>, ";
+				$outparams .= "<$params[$i]>, ";
 			}
-			$outparams += "<$params[$i]> and "; $i++; 
-			$outparams += "<$params[$i]>";
+			$outparams .= "<$params[$i]> and "; $i++; 
+			$outparams .= "<$params[$i]>";
 		}
 		$does = $rawArr[$a]["does"];
 		$prints = $rawArr[$a]["prints"];
 		$tmp = "Write a function named \"$funcName\" that takes $outparams, $does and returns $prints.";
 		// add constructed question attribute
 		$rawArr[$a]["constructed"] = $tmp;
-
-		// $tmparr = array($tmp, $rawArr[$a]["difficulty"], $rawArr[$a]["points"], $rawArr[$a]["questionID"]);
-		// echo "$tmp\n";
-		// array_push($outputarr, $tmparr);
 	}
 	// return $outputarr;
 }
 // wrapper for constructQuestion just takes in json and returns json
-function jsonConstructQuestion(&$queJSON){
+function jsonConstructQuestions(&$queJSON){
 	$decJSON = json_decode($queJSON, true);
-	// $result = constructQuestion($decJSON["raw"]);
-	constructQuestion($decJSON["raw"]);
 
-	// $questionJSON = json_encode($questionsArr);
+	constructQuestions($decJSON["raw"]);
+	// var_dump($decJSON["raw"]); exit();
 	$questionJSON = json_encode($decJSON);
 	return $questionJSON;
 }
 
 // receive request from front
 $jsonrequest = file_get_contents('php://input');
-
 // send request to back
 //*	curl send to debbie
 $curl_opts = array(CURLOPT_POST => 1,
@@ -80,38 +74,7 @@ if ($decoded["conn"] && $decoded["conn"] == false) {
 }
 
 // ideally
-$ques_sendback = jsonConstructQuestion($result);
+$ques_sendback = jsonConstructQuestions($result);
 echo $ques_sendback;
-
-// testing
-	/*$sample = array(
-		"raw" => array(
-			array(
-				"questionID" => 0,
-				"functionName" => "add", 
-				"params" => array("num1", "num2"), 
-				"does" => "adds two numbers",
-				"prints" => "the sum",
-				"difficulty" => "m",
-				"points" => 20),
-			array(
-				"questionID" => 1,
-				"functionName" => "subtract",
-				"params" => array("num1", "num2"),
-				"does" => "subtracts second number from first number",
-				"prints" => "the result",
-				"difficulty" => "h",
-				"points" => 10)
-		)
-	);
-	$encodedSample = json_encode($sample);
-
-	$jsonEncodedQues = jsonConstructQuestion($encodedSample);
-	$decoded = json_decode($jsonEncodedQues, true);
-	// echo $decoded["questions"][0]."\n";
-	foreach ($decoded["raw"] as $que) {
-		$question = $que["constructed"];
-		print("$question\n");
-	}*/
 
 ?>

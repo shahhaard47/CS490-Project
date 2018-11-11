@@ -17,12 +17,12 @@ function constructQuestion($funcName, $params, $does, $returns) {
 		$outparams = "parameters <$params[0]> and <$params[1]>";
 	}
 	else {
-		$outparams += "parameters ";
+		$outparams .= "parameters ";
 		for ($i = 0; $i < count($params)-2; $i++) {
-			$outparams += "<$params[$i]>, ";
+			$outparams .= "<$params[$i]>, ";
 		}
-		$outparams += "<$params[$i]> and "; $i++; 
-		$outparams += "<$params[$i]>";
+		$outparams .= "<$params[$i]> and "; $i++;
+		$outparams .= "<$params[$i]>";
 	}
 
 	$constructed = "Write a function named \"$funcName\" that takes $outparams, $does and returns $returns.";

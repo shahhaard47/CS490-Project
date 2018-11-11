@@ -1,5 +1,7 @@
 <?php
 
+/// NOT USED
+
 function constructQuestion(&$rawArr) {
 	// $outputarr = array();
 	// foreach ($rawArr as $que) {
@@ -37,7 +39,7 @@ function constructQuestion(&$rawArr) {
 
 	//*	curl send to debbie
 $curl_opts = array(CURLOPT_POST => 1,
-	CURLOPT_URL => 'https://web.njit.edu/~ds547/CS490-Project/assets/back/getAvailableExams.php',
+	CURLOPT_URL => 'https://web.njit.edu/~ds547/CS490-Project/assets/back/getAllCreatedExams.php',
 	CURLOPT_RETURNTRANSFER => 1);
 $ch = curl_init();
 curl_setopt_array($ch, $curl_opts);

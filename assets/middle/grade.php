@@ -322,6 +322,7 @@ exit(); // everthing after this is test data and test scripts
 
 // sample $grades_output_decoded
 // {"userID":"mscott","examID":49,"scores":[{"questionID":45,"qScore":25,"testcases":[1,0]},{"questionID":48,"qScore":0,"testcases":[0,0]}]}
+/** @noinspection PhpUnreachableStatementInspection */
 $grades_output_decoded = array("userID" => "mscott",
 								"examID" => 49,
 								"scores" => array(array("questionID" => 45,
@@ -341,16 +342,12 @@ $grading_data = array(array(
 						"points" => 10,
 						"function_name" => "roundNum",
 						"student_response" => "def roundnum(num):\n\tnum=round(num)\n\treturn (3)",
-						"test_cases" => array("float 3.14159;int 3", "float 2.7183;int 3", "float 1.5;int 2")
-							),
-					array(
-						"questionID" => 1,
+						"test_cases" => array("float 3.14159;int 3", "float 2.7183;int 3", "float 1.5;int 2")),
+					array("questionID" => 1,
 						"points" => 20,
 						"function_name" => "printMe",
 						"student_response" => "def printMee(name, num):\n\tprint(name*num)\n\treturn (name*num)",
-						"test_cases" => array("str MAC,int 5;str MACMACMACMACMAC", "str CHEESE,int 2;str CHEESECHEESE")
-							)
-					);
+						"test_cases" => array("str MAC,int 5;str MACMACMACMACMAC", "str CHEESE,int 2;str CHEESECHEESE")));
 
 // $question_data = $grading_data[1];
 // $score = gradeQuestion($question_data);
@@ -362,93 +359,6 @@ echo "GradingData:\n";
 echo "-----------Final-----------\n";
 var_dump($grades);
 exit();
-
-/* same as gradeAll uncomment if that breaks and needs debugging with the following code that WORKS
-	$qidx = 0;
-	//*	1. sample student response
-	// $student_response =<<<END
-	// def printMe(name, num):
-	// 	for i in range(num):
-	// 		print(name, i+1)
-	// END;
-	$student_response = $grading_data[0]["student_response"];
-
-	//* 3. correct response
-	// $correct_response =<<<END
-	// def printMe(name, num):
-	// 	for i in range(num):
-	// 		print(name, i+1)
-	// END;
-	$correct_response = $grading_data[0]["correct_response"];
-
-	$student_filename = 'tmppy/student.py';
-	$correct_filename = 'tmppy/correct.py';
-	$test_file = 'tmppy/test.py';
-
-	// so something like the following
-	$functionName = $grading_data[$qidx]["function_name"];
-	$testcases = $grading_data[$qidx]["test_cases"]; // get array of test_cases
-	// echo var_dump($testcases)."\n";
-
-	//*	2. write student_response to py file
-	$file = fopen($student_filename, 'w');
-	if ($file) {
-		fwrite($file, $student_response);
-		fclose($file);
-	}
-
-	//*	4. write correct_response to py file
-	$file = fopen($correct_filename, 'w');
-	if ($file) {
-		fwrite($file, $correct_response);
-		fclose($file);
-	}
-
-	//*	5. get testcases from database
-	$functioncalls = constructFunctionCalls($functionName, $testcases);
-
-	//*	6. compare student's to correct response's on individual testcases
-	foreach ($functioncalls as $call) {
-		// get students output
-		$text = "from student import *\n";
-		$text .= "$call\n";
-		$file = fopen($test_file, 'w');
-		if ($file){
-			fwrite($file, $text);
-			fclose($file);
-		}
-		$command = escapeshellcmd("python $test_file");
-		$student_output = shell_exec($command);
-		print("Student output\n$student_output");
-
-		$text = "from correct import *\n";
-		$text .= "$call\n";
-		$file = fopen($test_file, 'w');
-		if ($file){
-			fwrite($file, $text);
-			fclose($file);
-		}
-		$command = escapeshellcmd("python ".$test_file);
-		$correct_output = shell_exec($command);
-		print("Correct output\n$correct_output");
-
-		// compare outputs
-		if ($student_output == $correct_output)
-			echo "MATCHED\n";
-		else
-			echo "NO MATCH\n";
-	}
-*/
-/* uses system() to run python and also allows you to get return value (might be useful if checking for returning function)
-	//*run the py file
-	// Outputs all the result of shellcommand "ls", and returns
-	// the last output line into $last_line. Stores the return value
-	// of the shell command in $retval.
-	$last_line = system('python tmppy/tmp.py', $retval);
-	// Printing additional info
-	echo "lastline: $last_line\n";
-	echo "retval: $retval\n";
-*/
 
 
 ?>
