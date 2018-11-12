@@ -1,4 +1,4 @@
-<?php
+<?php 
 //return whether the ucid and password entered are for a student, an instructor, or if the pair does not exist in the database
 
 
@@ -17,8 +17,6 @@ if ($conn->connect_error)
     echo json_encode($myObj);
     die();
 } 
-$myObj->conn=true;
-$myObj->error=null;
 
 //create tables in database
 

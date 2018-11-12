@@ -17,9 +17,6 @@ if ($conn->connect_error)
     echo json_encode($myObj);
     die();
 } 
-$myObj->conn=true;
-$myObj->error=null;
-echo json_encode($myObj);
 
 
 //receiving json request from Haard (middle) to add raw exam data for student
@@ -34,8 +31,18 @@ $responseInfo = array('userID' => $data['userID'], 'examID' => $data['examID'], 
 //extract questionID and instructorComments from $responseInfo['studentResponses']
 foreach($responseInfo['studentResponses'] as $arr)
 {
-  $insert_rawExamData = mysqli_query($conn, "INSERT INTO BETA_rawExamData (userID,examID,questionID,studentResponse) VALUES ('".$responseInfo['userID']."','".$responseInfo['examID']."','".$arr['questionID']."','".$arr['studentResponse']."')"); //$arr[0]=questionID and $arr[1]=studentResponse(python code)
+  //$insert_rawExamData = mysqli_query($conn, "INSERT INTO BETA_rawExamData (userID,examID,questionID,studentResponse) VALUES ('".$responseInfo['userID']."','".$responseInfo['examID']."','".$arr['questionID']."','".$arr['studentResponse']."')"); //$arr[0]=questionID and $arr[1]=studentResponse(python code)
+  
+  if($conn->query("INSERT INTO BETA_rawExamData (userID,examID,questionID,studentResponse) VALUES ('".$responseInfo['userID']."','".$responseInfo['examID']."','".$arr['questionID']."','".$arr['studentResponse']."')")===TRUE)
+  {
+    $myObj->query=true;
+  }
+  else
+  {
+    $myObj->query=false;
+  }
 }
+echo json_encode($myObj);
 
 
 

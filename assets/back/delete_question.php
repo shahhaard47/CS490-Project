@@ -14,14 +14,14 @@ if ($conn->connect_error)
     echo json_encode($myObj);
     die();
 } 
-$myObj->conn=true;
-$myObj->error=null;
-echo json_encode($myObj);
 
 $rawDeleteRequest = file_get_contents('php://input');
 $data = json_decode($rawDeleteRequest, true);
 $deleteRequest = array('questionID' => $data['questionID']);
+//$deleteRequest = array('questionID' => 44);
 
-$delete = mysqli_query($conn, "DELETE FROM BETA_questionBank WHERE questionID='".$$deleteRequest['questionID']."'");
+
+$delete = mysqli_query($conn, "DELETE FROM BETA_questionBank WHERE questionID='".$deleteRequest['questionID']."'");
+
 
 ?>

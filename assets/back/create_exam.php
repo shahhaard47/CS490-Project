@@ -17,13 +17,11 @@ if ($conn->connect_error)
     echo json_encode($myObj);
     die();
 } 
-$myObj->conn=true;
-$myObj->error=null;
 
 //receiving json data from Haard (middle) for creating an exam
 $rawCreateExam = file_get_contents('php://input'); //get JSON data for creating an exam
 $data = json_decode($rawCreateExam, true); //decode JSON data for creating an exam
-$createExam = array('examName' => $data['name'], 'questionIDs' => $data['questions'], 'points' => $data['points']); //store JSON data for creating an exam
+$createExam = array('examName' => $data['examName'], 'questionIDs' => $data['questions'], 'points' => $data['points']); //store JSON data for creating an exam
 //$createExam = array('examName' => 'Exam24', 'questionIDs' => array(1,3), 'points' => array(30,70)); //TEST
 
 //convert $qIDs from an array into a string

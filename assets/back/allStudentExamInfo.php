@@ -14,13 +14,11 @@ if ($conn->connect_error)
     echo json_encode($myObj);
     die();
 } 
-$myObj->conn=true;
-$myObj->error=null;
-echo json_encode($myObj);
 
 $rawStuExamData = file_get_contents('php://input'); 
 $data = json_decode($rawStuExamData, true); 
-$requestInfo = array('userID' => $data['userID'], 'examID' => $data['examID']); 
+$requestInfo = array('userID' => $data['userID'], 'examID' => $data['examID']);
+//$requestInfo = array('userID' => 'mscott', 'examID' => 49); //TEST
 
 if(mysqli_query($conn, "SELECT released FROM BETA_grades WHERE userID='".$requestInfo['userID']."' AND examID='".$requestInfo['examID']."'")==TRUE)
 {
@@ -30,7 +28,7 @@ if(mysqli_query($conn, "SELECT released FROM BETA_grades WHERE userID='".$reques
   
   $returnArrayRAW=array();
   $returnArrayEXAMS=array();
-  if($info->num_rows!=0 and $examsTableData->num_rows!=0)
+  if($info->num_rows!=0)
   {
     $tempArray = array();
     while($row = $info->fetch_assoc())
@@ -40,7 +38,7 @@ if(mysqli_query($conn, "SELECT released FROM BETA_grades WHERE userID='".$reques
       $tempArray['questionID']=(int)$row['questionID'];
       $tempArray['studentResponse']=$row['studentResponse'];
       $tempArray['functionName']=$row['functionName'];
-      $tempArray['parameters']=explode(',',$row['parameters']);
+      $tempArray['parameters']=explode(':',$row['parameters']);
       $tempArray['does']=$row['functionDescription'];
       $tempArray['prints']=$row['output'];
       $tempArray['points']=(int)$row['questionScore'];

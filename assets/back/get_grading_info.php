@@ -17,9 +17,6 @@ if ($conn->connect_error)
     echo json_encode($myObj);
     die();
 } 
-$myObj->conn=true;
-$myObj->error=null;
-echo json_encode($myObj);
 
 //receiving json request from Haard (middle) for grading info
 $rawGradingRequest = file_get_contents('php://input'); //get JSON request data for grading info
