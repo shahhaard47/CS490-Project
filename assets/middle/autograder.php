@@ -67,6 +67,7 @@ function constructFunctionCalls($functionName, $testcases) {
         $caseInput = listifyInput($caseInput);
         $inputParams = explode(":", $caseInput);
 
+//        echo "COUNT TMPCASESPLIT: ".count($tmpCaseSplit)."\n";
         $expectedOutput = $tmpCaseSplit[1]; // assuming size 2
         $expectedOutput = listifyOutput($expectedOutput);
 
@@ -263,22 +264,58 @@ function gradeQuestion($question_data) {
         if ($type != "list") { // if == list don't add QUOTES around returnValue
             $returnValue = "\"$returnValue\"";
         }
+
+//        $cmd = shell_exec(escapeshellcmd("touch littifworks.txt"));
+//        var_dump($cmd);
+//        exit();
+
+
         // get students output
-        $text = "from student import *\n";
+//        $text = "#!/usr/bin/env python\n";
+        /*$text .= "from student import *\n";
         $text .= "response = $callll\n";
         $text .= "correct = $type($returnValue)\n";
         $text .= "if (response == correct):\n";
         $text .= "\tprint('output is correct')\n";
         $text .= "else:\n";
-        $text .= "\tprint('wrong')\n";
+        $text .= "\tprint(response)\n";*/
+        $text = "print('YOOOOLLLLLOOOOO')\n";
+//        $cmd = shell_exec(escapeshellcmd("python -c \"".$text."\""));
+
+        echo "TESTING TEXT FILE\n";
+        var_dump($text);
+
+//        $cmd = shell_exec(escapeshellcmd("chmod 777 tmppy/*"));
+//        $cmd = shell_exec(escapeshellcmd(""));
+//        var_dump($cmd);
+
 
         $file = fopen($test_file, 'w');
+        $check = fopen($_SERVER['DOCUMENT_ROOT'].'test.txt','w');
+        if ($check) {
+            echo "FUCK YES\n";
+        }
+        else {
+            echo "FUCK YOU\n";
+        }
+        exit();
+
         if ($file){
+            echo "OPENED SUCCessfully\n";
             fwrite($file, $text);
             fclose($file);
         }
-        $command = escapeshellcmd("python $test_file");
+        else {
+            echo "(middle) grading could NOT open grading file.\n";
+        }
+
+        $command = escapeshellcmd("python ".$test_file);
+        echo "COMMAND\n";
+        var_dump($command);
         $student_output = shell_exec($command);
+
+        echo "TEST OUTPUT\n";
+        var_dump($student_output); exit();
 
         // compare outputs
         $outputpos = strpos($student_output, "output is correct");

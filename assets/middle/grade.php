@@ -1,5 +1,6 @@
 <?php
-
+echo exec('whoami'); exit();
+//ini_set('display_errors',1); error_reporting(E_ALL);
 /*
 1. get student response from database
 2. write student response to file
@@ -9,7 +10,7 @@
 6. compare student's to correct response's on individual testcases
 */
 
-require_once ('autograder.php');
+include ('autograder.php');
 
 // Main stuff
 
@@ -19,9 +20,13 @@ $jsonrequest = file_get_contents('php://input');
 $decoded = json_decode($jsonrequest, true);
 
 //* testing without front input
-// $decoded = array("examID" => 49, "userID" => "mscott");
-// $decoded = array("examID" => 46, "userID" => "jsnow");
+//$decoded = array("examID" => 62, "userID" => "mscott", "requestType" => "gradeExam");
+
+$decoded = array("examID" => 62, "userID" => "jsnow");
 $jsonrequest = json_encode($decoded);
+
+echo "INITIAL LETS FUCKING DO DIS\n";
+var_dump($jsonrequest);
 
 $examID = $decoded["examID"];
 $userID = $decoded["userID"];
@@ -41,6 +46,9 @@ if ($decoded["examID"] && $decoded["userID"]) {
 	//* extract the grading data from $result
 	$grading_data = json_decode($result, true);
 
+	echo "GRADING DATA\n";
+	var_dump($grading_data);
+
 	//check that the database is still up
 	if ($decoded["conn"] && $decoded["conn"] == false) {
 		echo $result;
@@ -48,10 +56,13 @@ if ($decoded["examID"] && $decoded["userID"]) {
 	}
 
 	// echo "Grading data received from debbie\n";
-	// var_dump($grading_data); exit();
+//    var_dump($grading_data); exit();
 
 	//* perform grading
-	$grades = gradeAll($grading_data); 
+//    var_dump($grading_data); exit();
+	$grades = gradeAll($grading_data);
+    echo "GRADESSSSSS\n";
+    var_dump($grades);
 
 	// check if grading worked
 	if (count($grades) != count($grading_data)) {
@@ -78,9 +89,11 @@ if ($decoded["examID"] && $decoded["userID"]) {
 	$ch = curl_init();
 	curl_setopt_array($ch, $curl_opts);
 	$result = curl_exec($ch); // should be string			B -> M
+    echo $result;
 
 	//* check update status and report back to front 		M -> F
-	if (strpos($result, "error") === false) { // SUCCESS
+    $result = json_decode($result, true);
+	if ($result["query"] == false) { // SUCCESS
 		// send the grades to front
 		// echo true;
 		echo $grades_encoded;

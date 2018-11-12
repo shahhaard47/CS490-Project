@@ -45,20 +45,18 @@ $result = curl_exec($ch);
 // echo "RESULT\n";
 // var_dump($result);
 
-// exit();
-
 $examsdata = json_decode($result, true);
 // echo "DATA DECODEd\n";
-// var_dump($examsdata);
-if ($decoded["conn"] && $decoded["conn"] == false) {
+// var_dump($examsdata); exit();
+if ($examsdata["conn"] && $examsdata["conn"] == false) {
 	echo $result;
 	exit();
 }
-
+//var_dump($examsdata);
 $raw = $examsdata["raw"];
-// var_dump($raw);
+// var_dump($raw); exit();
 $exams = $examsdata["exam"];
-// var_dump($exams);
+//var_dump($exams); exit();
 
 $detailed_info = array();
 $user_exam_ids = array();
@@ -124,6 +122,7 @@ foreach ($user_exam_ids as $elem) {
 								));
 }
 
+//var_dump($return_array);
 $encoded_return_array = json_encode($return_array);
 // var_dump($return_array);
 echo $encoded_return_array;

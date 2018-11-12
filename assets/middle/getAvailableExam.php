@@ -33,7 +33,9 @@ if ($decoded["questions"]) {
 	echo $encoded;
 }
 else {
-	echo "(middle) error: could not extract \"questions\" attribute from incoming json";
+    $decoded = array("error" => "no available exams");
+    $encoded = json_encode($decoded);
+	echo $encoded;
 	exit();
 }
 
