@@ -1,2 +1,2 @@
-def cube(num):
-	return num*num*num
+def backwards(a, b):
+	return (a in b)

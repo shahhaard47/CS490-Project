@@ -1,7 +1,7 @@
 <?php
-#echo exec('ps -up '.getmypid()); 
+//echo exec('ps -up '.getmypid());
 #exit();
-#ini_set('display_errors',1); error_reporting(E_ALL);
+//ini_set('display_errors',1); error_reporting(E_ALL);
 /*
 1. get student response from database
 2. write student response to file
@@ -11,26 +11,20 @@
 6. compare student's to correct response's on individual testcases
 */
 
-#$path = './autograder.php';
-#echo 'Path: '.$path;
-#include ($path);
 include ('autograder.php');
 
 
-// Main stuff
 
 //* get front's grading request 							F -> M
 $jsonrequest = file_get_contents('php://input');
 // extract examID and userID
 $decoded = json_decode($jsonrequest, true);
 
+//echo "REQUEST: $jsonrequest\n";
 //* testing without front input
-//$decoded = array("examID" => 62, "userID" => "mscott", "requestType" => "gradeExam");
+//$decoded = array("examID" => 72, "userID" => "mscott", "requestType" => "gradeExam");
 
-$decoded = array("examID" => 62, "userID" => "jsnow");
-$jsonrequest = json_encode($decoded);
-
-//var_dump($jsonrequest);
+//$decoded = array("examID" => 80, "userID" => "jsnow"); $jsonrequest = json_encode($decoded);
 
 $examID = $decoded["examID"];
 $userID = $decoded["userID"];
@@ -50,12 +44,11 @@ if ($decoded["examID"] && $decoded["userID"]) {
 	//* extract the grading data from $result
 	$grading_data = json_decode($result, true);
 
-	//echo "GRADING DATA\n";
-	//var_dump($grading_data);
+//    echo "GRADING DATA\n"; var_dump($grading_data);
 
 	//check that the database is still up
 	if ($decoded["conn"] && $decoded["conn"] == false) {
-		echo $result;
+		echo "(back)".$result;
 		exit();
 	}
 
@@ -65,8 +58,6 @@ if ($decoded["examID"] && $decoded["userID"]) {
 	//* perform grading
 //    var_dump($grading_data); exit();
 	$grades = gradeAll($grading_data);
-    //echo "GRADESSSSSS\n";
-   var_dump($grades);
 
 	// check if grading worked
 	if (count($grades) != count($grading_data)) {
@@ -81,7 +72,7 @@ if ($decoded["examID"] && $decoded["userID"]) {
 						"examID" => $examID,
 						"scores" => $grades);
 
-	// var_dump($grades_pack);
+//	var_dump($grades_pack);
 	$grades_encoded = json_encode($grades_pack);
 	//	send
 	$backfile = "update_grade.php";
@@ -93,7 +84,7 @@ if ($decoded["examID"] && $decoded["userID"]) {
 	$ch = curl_init();
 	curl_setopt_array($ch, $curl_opts);
 	$result = curl_exec($ch); // should be string			B -> M
-    echo $result;
+//    echo $result;
 
 	//* check update status and report back to front 		M -> F
     $result = json_decode($result, true);
