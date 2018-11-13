@@ -1,0 +1,32 @@
+[
+  {
+    "userID":null,
+    "examID":0,
+    "examName":"combineLst",
+    "overallScore":100,
+    "examQuestions":[
+      {
+        "questionID":65,
+        "points":100,
+        "constructed":"Write a function named \"combineSorted\" that takes parameters <int list1> and <int list2>, combines the two list of integers in ascending order and returns the new sorted list.",
+        "studentResponse":"def combineSorted(list1,list2):\n\tlist3=list1+list2\n\tlist3.sort()\n\treturn list3",
+        "testCases":[
+          "int [1,2,3,4,5],int [6,7,8,9,10];int [1,2,3,4,5,6,7,8,9,10]",
+          "int [-2,-1,5,6],int [1,2,3,4];int [-2,-1,1,2,3,4,5,6]"
+        ],
+        "testCasesPassFail":[
+          "1",
+          "1"
+        ],
+        "constraints":null,
+        "topic":null,
+        "gradedComments":[
+          "Testcases passed",
+          " 2\/2",
+          "Final score",
+          " 100\/100"
+        ]
+      }
+    ]
+  }
+]

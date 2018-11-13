@@ -1,4 +1,7 @@
------ Middle Files ------
+-------------------------
+Haard Shah
+Middle Files
+-------------------------
 
 -------------------------
 auth_login.php
@@ -28,7 +31,6 @@ else
 }
 
 ?>
-
 
 -------------------------
 comms.php
@@ -64,8 +66,6 @@ if ($decoded["requestType"]) {
 
 ?>
 
-
-
 -------------------------
 getallexams.php
 -------------------------
@@ -90,7 +90,7 @@ function constructQuestion(&$rawArr) {
 			for ($i = 0; $i < count($params)-2; $i++) {
 				$outparams += "<$params[$i]>, ";
 			}
-			$outparams += "<$params[$i]> and "; $i++; 
+			$outparams += "<$params[$i]> and "; $i++;
 			$outparams += "<$params[$i]>";
 		}
 		$does = $rawArr[$a]["functionDescription"];
@@ -125,13 +125,13 @@ echo $encoded;
 
 ?>
 
-
-
 -------------------------
 grade.php
 -------------------------
 <?php
-
+//echo exec('ps -up '.getmypid());
+#exit();
+//ini_set('display_errors',1); error_reporting(E_ALL);
 /*
 1. get student response from database
 2. write student response to file
@@ -141,118 +141,8 @@ grade.php
 6. compare student's to correct response's on individual testcases
 */
 
-function constructFunctionCalls($functionName, $testcases) {
-	$functioncalls = array();
-	foreach ($testcases as $case) {
-		// echo "case: $case\n";
-		$call = "";
-		$call = "$functionName(";
-		$case = explode(",", $case);
-		// echo "$functionName(";
-		if (count($case) == 0) {
-			$call .= ")";
-			// echo ")";
-		}
-		else {
-			for ($i = 0; $i < count($case)-1; $i++) {
-				$a = explode(" ", $case[$i]);
-				$call .= "$a[0]('$a[1]')".", ";
-				// echo "$case[$i], ";
-			}
-			$a = explode(" ", $case[$i]);
-			$call .= "$a[0]('$a[1]')".")";
-			// echo "$case[$i])";
-		}
-		// echo $call."\n";
-		array_push($functioncalls, $call);
-	}
-	return $functioncalls;
-}
+include ('autograder.php');
 
-function gradeQuestion($question_data) {
-	$student_filename = 'tmppy/student.py';
-	$correct_filename = 'tmppy/correct.py';
-	$test_file = 'tmppy/test.py';
-	//*	1. sample student response
-	$student_response = $question_data["student_response"];
-	//*	2. write student_response to py file
-	$file = fopen($student_filename, 'w');
-	if ($file) {
-		fwrite($file, $student_response);
-		fclose($file);
-	}
-	//* 3. correct response
-	$correct_response = $question_data["correct_response"];
-	//*	4. write correct_response to py file
-	$file = fopen($correct_filename, 'w');
-	if ($file) {
-		fwrite($file, $correct_response);
-		fclose($file);
-	}
-	//*	5. get testcases from database
-	$function_name = $question_data["function_name"];
-	$test_cases = $question_data["test_cases"];
-	$functioncalls = constructFunctionCalls($function_name, $test_cases);
-	// echo var_dump($functioncalls)."\n";
-
-	//*	6. compare student's to correct response's on individual testcases
-	$correct = 0;
-	foreach ($functioncalls as $call) {
-	// get students output
-		$text = "from student import *\n";
-		$text .= "$call\n";
-		$file = fopen($test_file, 'w');
-		if ($file){
-			fwrite($file, $text);
-			fclose($file);
-		}
-		$command = escapeshellcmd("python $test_file");
-		$student_output = shell_exec($command);
-		// print("Student output\n$student_output");
-
-		$text = "from correct import *\n";
-		$text .= "$call\n";
-		$file = fopen($test_file, 'w');
-		if ($file){
-			fwrite($file, $text);
-			fclose($file);
-		}
-		$command = escapeshellcmd("python $test_file");
-		$correct_output = shell_exec($command);
-		// print("Correct output\n$correct_output");
-
-		// compare outputs
-		if ($student_output == $correct_output && $student_output != "") {
-			// echo "MATCH\n";
-			$correct++;
-		} 
-		// else {
-		// 	echo "NOT MATCHED\n";
-		// }
-	}
-	$ratio = $correct / count($test_cases);
-	$points = $question_data["points"];
-	$score = $points * $ratio;
-	$id = $question_data["questionID"];
-	echo "$id: $score\n";
-	return $score;
-}
-
-/* returns 2D array of dims (questionID, 2)
-
-example: [[questionID, score],
-			[1, 17],
-			[3, 3]]
-*/
-function gradeAll($grading_data) {
-	$final_grades = array();
-	foreach ($grading_data as $question_data) {
-		$score = gradeQuestion($question_data);
-		$score = round($score);
-		array_push($final_grades, array($question_data["questionID"], (int)$score));
-	}
-	return $final_grades;
-}
 
 
 //* get front's grading request 							F -> M
@@ -260,10 +150,11 @@ $jsonrequest = file_get_contents('php://input');
 // extract examID and userID
 $decoded = json_decode($jsonrequest, true);
 
+//echo "REQUEST: $jsonrequest\n";
 //* testing without front input
-/*$decoded = array("examID" => 34, "userID" => "jsnow");
-// $decoded = array("examID" => 32, "userID" => "mscott");
-$jsonrequest = json_encode($decoded);*/
+//$decoded = array("examID" => 72, "userID" => "mscott", "requestType" => "gradeExam");
+
+//$decoded = array("examID" => 80, "userID" => "jsnow"); $jsonrequest = json_encode($decoded);
 
 $examID = $decoded["examID"];
 $userID = $decoded["userID"];
@@ -283,9 +174,19 @@ if ($decoded["examID"] && $decoded["userID"]) {
 	//* extract the grading data from $result
 	$grading_data = json_decode($result, true);
 
-	var_dump($grading_data);
+//    echo "GRADING DATA\n"; var_dump($grading_data);
+
+	//check that the database is still up
+	if ($decoded["conn"] && $decoded["conn"] == false) {
+		echo "(back)".$result;
+		exit();
+	}
+
+	// echo "Grading data received from debbie\n";
+//    var_dump($grading_data); exit();
 
 	//* perform grading
+//    var_dump($grading_data); exit();
 	$grades = gradeAll($grading_data);
 
 	// check if grading worked
@@ -301,8 +202,7 @@ if ($decoded["examID"] && $decoded["userID"]) {
 						"examID" => $examID,
 						"scores" => $grades);
 
-	var_dump($grades_pack); /*exit();*/
-
+//	var_dump($grades_pack);
 	$grades_encoded = json_encode($grades_pack);
 	//	send
 	$backfile = "update_grade.php";
@@ -314,89 +214,558 @@ if ($decoded["examID"] && $decoded["userID"]) {
 	$ch = curl_init();
 	curl_setopt_array($ch, $curl_opts);
 	$result = curl_exec($ch); // should be string			B -> M
+//    echo $result;
 
 	//* check update status and report back to front 		M -> F
-	if (strpos($result, "error") === false) { // SUCCESS
+    $result = json_decode($result, true);
+	if ($result["query"] == false) { // SUCCESS
 		// send the grades to front
-		echo true;
+		// echo true;
+		echo $grades_encoded;
 	}
 	else {
 		// unsuccessful grading or updating report error to front
 		echo "(back)".$result."\n";
 	}
 }
-exit(); // everthing after this is test data and test scripts
+exit();
+
+
 ?>
 
 
 -------------------------
-request_question.php
+autograder.php
+-------------------------
+<?php
+/*
+GRADING NOTES AND ASSUMPTIONS
+- assuming that there isn't a comment line before function title that has the actual function name
+	- #def functionName()
+*/
+function listifyOutput($output) {
+    $lbr_pos = strpos($output, "[");
+    if ($lbr_pos === false) {
+        // not a list
+        return $output;
+    }
+    else { // found list
+        $tmpSplit = preg_split('/("|,|\[|\])/', $output, -1, PREG_SPLIT_NO_EMPTY);
+        $type = array_shift($tmpSplit);
+        for ($i = 0; $i < count($tmpSplit); $i++) {
+            $tmpSplit[$i] = "$type(\"$tmpSplit[$i]\")";
+        }
+        $output = implode(", ", $tmpSplit);
+        $output = "list [$output]";
+    }
+    return $output;
+}
+function listifyInput($inp) {
+    $lbr_pos = strpos($inp, "[");
+    if ($lbr_pos === false) {
+        $inp = str_replace(",",":", $inp); //FIXME: tmp did this for some functionality when iwas doing lists
+        return $inp;
+    }
+    else {
+        // replace ',' between params with ':'
+        $outside = true;
+        for ($i = 0; $i < strlen($inp); $i++) {
+            if ($outside == true && $inp[$i] == ',') {
+                $inp[$i] = ":"; continue;
+            }
+            if ($inp[$i] == '[') {
+                $outside = false; continue;
+            }
+            if ($inp[$i] == ']') {
+                $outside = true; continue;
+            }
+        }
+        $inps = explode(":", $inp);
+        for ($i = 0; $i < count($inps); $i++) {
+            $inps[$i] = listifyOutput($inps[$i]);
+        }
+        $inp = implode(":", $inps);
+//        var_dump($inp);
+    }
+    return $inp;
+}
+function constructFunctionCalls($functionName, $testcases) {
+    $functioncalls = array();
+//    echo "TESTCASES\n";var_dump($testcases);
+    foreach ($testcases as $case) {
+        $tc = array();
+        $call = "";
+        $call = "$functionName(";
+//        $case = preg_split('/(,|;)/', $case, -1, PREG_SPLIT_NO_EMPTY);
+        $tmpCaseSplit = explode(";", $case);
+
+        if (count($tmpCaseSplit) != 2) {
+            // assuming size 2 everywhere (make sure its size 2)
+        }
+
+        $caseInput = $tmpCaseSplit[0]; $caseInput = trim($caseInput);
+//        echo "TRIMMED:"; var_dump($caseInput);
+        $caseInput = listifyInput($caseInput);
+//        echo "LISTIFIED:"; var_dump($caseInput);
+        $inputParams = explode(":", $caseInput);
+//        var_dump($inputParams);
+
+        for ($i = 0; $i < count($inputParams)-1; $i++) {
+            $inputParams[$i] = trim($inputParams[$i]);
+            $tmp = explode(" ", $inputParams[$i]);
+            $type = array_shift($tmp); // pop first element
+            $param = implode(" ", $tmp);
+//            if ($type != 'list') {
+//                $param = "\"$param\"";
+//            }
+            if ($type == 'list' || $type == 'bool') {
+                $param = "$param";
+            } else {
+                $param = "\"$param\"";
+            }
+            $call .= "$type($param), ";
+        }
+        $inputParams[$i] = trim($inputParams[$i]);
+        $tmp = explode(" ", $inputParams[$i]);
+//        var_dump($tmp);
+        $type = array_shift($tmp); // pop first element
+        $param = implode(" ", $tmp);
+        if ($type == 'list' || $type == 'bool') {
+            $param = "$param";
+        } else {
+            $param = "\"$param\"";
+        }
+        $call .= "$type($param))";
+
+        array_push($tc, $call);
+        // if output is list
+
+        $expectedOutput = $tmpCaseSplit[1]; // assuming size 2
+        $expectedOutput = listifyOutput($expectedOutput);
+//        var_dump($expectedOutput);
+        array_push($tc, $expectedOutput);
+        // var_dump($tc);
+        array_push($functioncalls, $tc);
+    }
+//    echo "FUNCTIONCALLS: ".$functionName."\n";
+//    var_dump($functioncalls); exit();
+    return $functioncalls;
+}
+
+/*
+@arg $testCasesPassFail = [1, 0, 0 ...]
+@arg $otherComments = ["WRONG_HEADER", "NOT_RETURNING", "CONSTRAINT_FORLOOP", ..., "CONSTRAINT_WHILELOOP"]
+*/
+function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, $otherComments) {
+    $finalComments = array();
+    $individualTCpoints = $maxPoints / count($testCases);
+    $passedTC = 0;
+    $totalPoints = $maxPoints;
+    for ($i = 0; $i < count($testCases); $i++) {
+        if ($testCasesPassFail[$i] != 1) {
+            $studentOutput = $testCasesPassFail[$i];
+            $currentTC = explode(";", $testCases[$i]);
+            $TCnumber = $i + 1;
+            $tmp = "Failed testcase$TCnumber: "."input(".$currentTC[0]."), expected_output(".$currentTC[1]."), student_output(".$studentOutput.")\t[-".round($individualTCpoints, 2)." points]";
+            array_push($finalComments, $tmp);
+            $totalPoints -= $individualTCpoints;
+
+            $testCasesPassFail[$i] = 0; // change back to 0 to be sure nothing breaks
+        }
+        else {
+            $passedTC++;
+        }
+    }
+    $TCsummary = "Testcases passed: ".$passedTC."/".count($testCases);
+    array_unshift($finalComments, $TCsummary);
+    // otherComments
+    $deductCustomPoints = $deduction = 2.0;
+    foreach ($otherComments as $c) {
+        if ($totalPoints < $deductCustomPoints) {
+            $deduction = 0;
+            $totalPoints = 0;
+        }
+        switch ($c) {
+            case "WRONG_HEADER":
+                $tmp = "Used incorrect function header.\t[-".$deductCustomPoints."]";
+                array_push($finalComments, $tmp);
+                break;
+            case "NOT_RETURNING":
+                $tmp = "Function is not returning anything.\t[-".$deductCustomPoints."]";
+                array_push($finalComments, $tmp);
+                break;
+            case "CONSTRAINT_WHILELOOP":
+                $tmp = "Function is not using while loop.\t[-".$deductCustomPoints."]";
+                array_push($finalComments, $tmp);
+                break;
+            case "CONSTRAINT_FORLOOP":
+                $tmp = "Function is not using for loop.\t[-".$deductCustomPoints."]";
+                array_push($finalComments, $tmp);
+                break;
+            case "CONSTRAINT_RECURSION":
+                $tmp = "Function is not using recursion.\t[-".$deductCustomPoints."]";
+                array_push($finalComments, $tmp);
+                break;
+        }
+        $totalPoints -= $deduction;
+    }
+    $totalPoints = round($totalPoints, 2);
+    $tmp = "Final score: ".$totalPoints."/".$maxPoints;
+    array_push($finalComments, $tmp);
+    $final_package = array("qScore" => $totalPoints,
+        "testCasesPassFail" => $testCasesPassFail,
+        "comments" => $finalComments
+    );
+    // var_dump($final_package);
+    return $final_package;
+}
+
+
+function gradeQuestion($question_data) {
+    $student_filename = 'tmppy/student.py';
+    $test_file = 'tmppy/test.py';
+    //*	1. sample student response
+    $student_response = $question_data["student_response"];
+    $function_name = $question_data["function_name"];
+    $comments = array(); // strings of comments
+    // check if function title in named properly
+    $lines = explode("\n", $student_response);
+    // echo "BEFORE: \n$student_response\n";
+    $functionHeaderFound = false;
+
+    for ($i = 0; $i < count($lines); $i++) {
+        $line = $lines[$i];
+        $def_pos = strpos($line, "def");
+        // echo "defpos ";
+        // var_dump($def_pos);
+        if ($def_pos !== false) {
+            $l_par = strpos($line, "(");
+            // FIXME: what to do when l_par is false
+            if ($l_par === false) { continue; }
+
+            $functionHeaderFound = true;
+
+            $func_title = substr($line, $def_pos, $l_par - $def_pos);
+            $tmp = explode(" ", $func_title);
+            $student_function_name = $tmp[count($tmp) - 1];
+            if ($student_function_name != $function_name){
+                // replace
+                $lines[$i] = str_replace("$student_function_name", "$function_name", $line);
+                array_push($comments, "WRONG_HEADER");
+            }
+            break; // func header is good
+        }
+    }
+    $student_response = implode("\n", $lines);
+
+    if ($functionHeaderFound == false) {
+//        echo "DID NOT FIND\n"; exit();
+    }
+
+
+//    echo "AFTER: \n$student_response\n";
+//    exit();
+    // check for "return"
+    $return_pos = strpos($student_response, "return");
+    if ($return_pos === false) {
+        array_push($comments, "NOT_RETURNING");
+    }
+    // FIXME: check for restraints
+    $constraints = explode(" ", $question_data["constraints"]);
+    foreach ($constraints as $constraint) {
+        switch ($constraint) {
+            case "for":
+                // check for CONSTRAINT_FORLOOP
+                $for_pos = strpos($student_response, "for");
+                if ($for_pos === false) {
+                    array_push($comments, "CONSTRAINT_FORLOOP");
+                }
+                break;
+            case "while":
+                // check for CONSTRAINT_WHILELOOP
+                $while_pos = strpos($student_response, "while");
+                if ($while_pos === false) {
+                    array_push($comments, "CONSTRAINT_WHILELOOP");
+                }
+                break;
+            case "recursion":
+                // check for CONSTRAINT RECURSION
+                $functionNameCount = substr_count($student_response, $function_name);
+                if ($functionNameCount < 2) {
+                    array_push($comments, "CONSTRAINT_RECURSION");
+                }
+                break;
+        }
+    }
+    //*	2. write student_response to py file
+//    $file = fopen($student_filename, 'w');
+//    if ($file) {
+//        fwrite($file, $student_response);
+//        fclose($file);
+//        echo "WROTE STUDENT FILE\n";
+//    }
+    //*	5. get testcases from database
+    $test_cases = $question_data["test_cases"];
+    $functioncalls = constructFunctionCalls($function_name, $test_cases);
+//    var_dump($functioncalls); exit();
+    //*	6. compare student's to correct response's on individual testcases
+    $TCresults = array(); // size should be count($functioncalls) RETURNING
+    $TCtotal = count($functioncalls);
+    foreach ($functioncalls as $call) {
+        $callll = $call[0]; $correct_response = $call[1];
+        $correct_response = explode(" ", $correct_response);
+        $type = array_shift($correct_response);
+        $expectedValue = implode(" ", $correct_response);
+//        if ($type != "list") { // if == list don't add QUOTES around expectedValue
+//            $expectedValue = "\"$expectedValue\"";
+//        }
+        if ($type == "bool" || $type == 'list') {
+            // don't need to do anything
+            $expectedValue = "$expectedValue"; // this doesn't do anything but makes the logic looks symmetric
+        }
+        else {
+            $expectedValue = "\"$expectedValue\"";
+        }
+        // get students output
+//        $text = "from student import *\n";
+        $text = $student_response."\n";
+        $text .= "response = $callll\n";
+        $text .= "correct = $type($expectedValue)\n";
+        $text .= "if (response == correct):\n";
+        $text .= "\tprint('output is correct')\n";
+        $text .= "else:\n";
+        $text .= "\tprint(response)";
+
+//        echo "TEST FILE\n";
+//        echo $text."\n";
+
+        $file = fopen($test_file, 'w');
+        if ($file){
+//            echo "OPENED FILE SUCCESSFULLY\n";
+            fwrite($file, $text);
+            fclose($file);
+//            echo "WROTE TEST FILE\n";
+        }
+        else {
+//            echo "COULD NOT OPEN FILE\n";
+        }
+        $command = escapeshellcmd("python $test_file");
+        $student_output = shell_exec($command);
+
+//        echo "RAN TEST FILE... Student output:";
+//        var_dump($student_output);
+        // compare outputs
+        $outputpos = strpos($student_output, "output is correct");
+        if ($outputpos !== false){
+            array_push($TCresults, 1);
+        }
+        else {
+            // attach the output here (extract from $student_output string between 'Oi' and 'Of')
+//            $startPos = strpos($student_output, 'Oi');
+//            if ($startPos !== false) {
+//                $startPos += 2; // length of 'Oi' = 2
+//                $endPos = strpos($student_output, 'Of');
+//                $lengthOfOutput = $endPos - $startPos;
+//                $outputString = substr($student_output, $startPos, $lengthOfOutput);
+//            }
+            if ($student_output) {
+                $outputString = $student_output;
+            }
+            else {
+                $outputString = "RUNTIME_ERROR";
+            }
+            array_push($TCresults, $outputString);
+        }
+    }
+//    exit();
+    if (count($TCresults) == $TCtotal) { // just a sanity to make sure everything went well
+        $maxPoints = $question_data["points"];
+        $rtn_package = constructCommentsAndPoints($maxPoints, $test_cases, $TCresults, $comments);
+//        var_dump($rtn_package); exit();
+        return $rtn_package;
+    }
+    else {
+        // something went wrong
+        echo "(middle): error while grading. Testcase and function calls mismatch. Terminating.";
+        exit();
+    }
+}
+function gradeAll($grading_data) {
+    $final_grades = array();
+    foreach ($grading_data as $question_data) {
+        $pkg = gradeQuestion($question_data);
+        $pkg["questionID"] = (int)$question_data["questionID"];
+        array_push($final_grades, $pkg);
+    }
+//    echo $final_grades;
+    return $final_grades;
+}
+?>
+
+-------------------------
+constructQuestionInPlace.php
 -------------------------
 <?php
 
-// returns array of questions encoded in json format
-/*
-questionJSON = {
-	"queArr" : array(array(question, difficulty, points))
-}
-constructedQuestions = {
-	"queArr" : array(array("Write a function named 'add' that takes parameters <num1> and <num2>, adds the 				two numbers and prints out the sum.", 'h', 20),
-					"Write a function named "subtract" that takes parameters <num1> and <num2>, subtracts the second number from first number and prints out the result"),
-};
-input param -> array
-returns -> array
-*/
+/*function constructQuestions(&$rawArr) {
+    // $outputarr = array();
+    // foreach ($rawArr as $que) {
+    for ($a = 0; $a < count($rawArr); $a++) {
+        $que = $rawArr[$a];
+        $funcName = $rawArr[$a]["functionName"];
+        $params = $rawArr[$a]["params"]; // array
 
-function constructQuestion(&$rawArr) {
-	// $outputarr = array();
-	// foreach ($rawArr as $que) {
-	for ($a = 0; $a < count($rawArr); $a++) {
-		$que = $rawArr[$a];
-		$funcName = $rawArr[$a]["functionName"];
-		$params = $rawArr[$a]["params"]; // array
-		$outparams = "";
-		if (count($params) == 1) {
-			$outparams = "parameter <$params[0]>";
-		}
-		elseif (count($params) == 2) {
-			$outparams = "parameters <$params[0]> and <$params[1]>";
-		}
-		else {
-			$outparams += "parameters ";
-			for ($i = 0; $i < count($params)-2; $i++) {
-				$outparams += "<$params[$i]>, ";
-			}
-			$outparams += "<$params[$i]> and "; $i++; 
-			$outparams += "<$params[$i]>";
-		}
-		$does = $rawArr[$a]["does"];
-		$prints = $rawArr[$a]["prints"];
-		$tmp = "Write a function named \"$funcName\" that takes $outparams, $does and prints $prints.";
-		// add constructed question attribute
-		$rawArr[$a]["constructed"] = $tmp;
+        $outparams = "";
+        if (count($params) == 1) {
+            $ptmp = $params[0];
+            $outparams = "parameter <$ptmp>";
+        }
+        elseif (count($params) == 2) {
+            $ptmp0 = $params[0]; $ptmp1 = $params[1];
+            $outparams = "parameters <$ptmp0> and <$ptmp1>";
+        }
+        else {
+            $outparams .= "parameters ";
+            for ($i = 0; $i < count($params)-2; $i++) {
+                $outparams .= "<$params[$i]>, ";
+            }
+            $outparams .= "<$params[$i]> and "; $i++;
+            $outparams .= "<$params[$i]>";
+        }
+        $does = $rawArr[$a]["functionDescription"];
+        $prints = $rawArr[$a]["output"];
+        $tmp = "Write a function named \"$funcName\" that takes $outparams, $does and prints $prints.";
 
-		// $tmparr = array($tmp, $rawArr[$a]["difficulty"], $rawArr[$a]["points"], $rawArr[$a]["questionID"]);
-		// echo "$tmp\n";
-		// array_push($outputarr, $tmparr);
-	}
-	// return $outputarr;
+        // add constructed question attribute
+        $rawArr[$a]["constructed"] = $tmp;
+    }
+}*/
+
+function constructQuestions(&$rawArr) {
+    // $outputarr = array();
+    // foreach ($rawArr as $que) {
+
+    for ($a = 0; $a < count($rawArr); $a++) {
+        $que = $rawArr[$a];
+        $funcName = $rawArr[$a]["functionName"];
+        $params = $rawArr[$a]["params"]; // array
+        $outparams = "";
+        if (count($params) == 1) {
+            $outparams = "parameter <$params[0]>";
+        }
+        elseif (count($params) == 2) {
+            $outparams = "parameters <$params[0]> and <$params[1]>";
+        }
+        else {
+            $outparams .= "parameters ";
+            for ($i = 0; $i < count($params)-2; $i++) {
+                $outparams .= "<$params[$i]>, ";
+            }
+            $outparams .= "<$params[$i]> and "; $i++;
+            $outparams .= "<$params[$i]>";
+        }
+        $does = "";
+        if ($rawArr[$a]["functionDescription"]) {
+            $does = $rawArr[$a]["functionDescription"];
+        }
+        else if ($rawArr[$a]["does"]) {
+            $does = $rawArr[$a]["does"];
+        }
+        else {
+//            echo "(middle) error while constructing. No function description attribute found";
+//            exit();
+        }
+
+        if ($rawArr[$a]["output"]) {
+            $returns = $rawArr[$a]["output"];
+        }
+        else if ($rawArr[$a]["prints"]) {
+            $returns = $rawArr[$a]["prints"];
+        }
+        else {
+//            echo "(middle) error while constructing. No \"returns\" attribute found";
+//            exit();
+        }
+//        $prints = $rawArr[$a]["output"];
+        $tmp = "Write a function named \"$funcName\" that takes $outparams, $does and returns $returns.";
+        // add constructed question attribute
+        $rawArr[$a]["constructed"] = $tmp;
+    }
+    // return $outputarr;
 }
+
+?>
+
+-------------------------
+getAvailableExam.php
+-------------------------
+<?php
+
+require_once('constructQuestionsInPlace.php');
+
+$jsonrequest = file_get_contents('php://input');
+
+//$decjson = array("userID" => "mscott");
+//$jsonrequest = json_encode($decjson);
+
+$backfile = "getAvailableExam.php";
+$url = "https://web.njit.edu/~ds547/CS490-Project/assets/back/".$backfile;
+$curl_opts = array(CURLOPT_POST => 1,
+	CURLOPT_URL => $url,
+	CURLOPT_POSTFIELDS => $jsonrequest,
+	CURLOPT_RETURNTRANSFER => 1);
+$ch = curl_init();
+curl_setopt_array($ch, $curl_opts);
+$result = curl_exec($ch);
+// var_dump($result);
+
+$decoded = json_decode($result, true);
+//var_dump($decoded);
+
+// check connection
+if ($decoded["conn"] && $decoded["conn"] == false) {
+	echo $result;
+	exit();
+}
+
+if ($decoded["questions"]) {
+	$questions = $decoded["questions"];
+
+	constructQuestions($questions); // passing as reference so it changes $questions
+
+	$decoded["questions"] = $questions;
+	$encoded = json_encode($decoded);
+	echo $encoded;
+}
+else {
+    $decoded = array("error" => "no available exams");
+    $encoded = json_encode($decoded);
+	echo $encoded;
+	exit();
+}
+
+
+?>
+
+-------------------------
+request_questions.php
+-------------------------
+<?php
+
+require_once ('constructQuestionsInPlace.php');
+
 // wrapper for constructQuestion just takes in json and returns json
-function jsonConstructQuestion(&$queJSON){
+function jsonConstructQuestions(&$queJSON){
 	$decJSON = json_decode($queJSON, true);
-	// $result = constructQuestion($decJSON["raw"]);
-	constructQuestion($decJSON["raw"]);
 
-	// echo "YOOOconstructed: ".$decJSON["raw"][1]["constructed"]."\n";
-	// $questionsArr = array("questions" => $result);
-	// $questionJSON = json_encode($questionsArr);
+	constructQuestions($decJSON["raw"]);
+//	 var_dump($decJSON["raw"]); exit();
 	$questionJSON = json_encode($decJSON);
 	return $questionJSON;
 }
 
 // receive request from front
 $jsonrequest = file_get_contents('php://input');
-
 // send request to back
 //*	curl send to debbie
 $curl_opts = array(CURLOPT_POST => 1,
@@ -407,9 +776,18 @@ $ch = curl_init();
 curl_setopt_array($ch, $curl_opts);
 $result = curl_exec($ch);
 // echo $result;
+$decoded = json_decode($result, true);
+
+// var_dump($decoded);
+if ($decoded["conn"] && $decoded["conn"] == false) {
+	echo $result;
+	exit();
+}
+
 // ideally
-$ques_sendback = jsonConstructQuestion($result);
+$ques_sendback = jsonConstructQuestions($result);
 echo $ques_sendback;
+
 ?>
 
 

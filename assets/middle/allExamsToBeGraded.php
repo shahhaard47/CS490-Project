@@ -32,11 +32,13 @@ function constructQuestion($funcName, $params, $does, $returns) {
 function constructExams($raw, $exams){
     $detailed_info = array();
     $user_exam_ids = array();
-
+    //var_dump($raw);exit();
     foreach ($raw as $r_elem){
+//        var_dump('relm!------');
+//        var_dump($r_elem);exit();
         $userid = $r_elem["userID"];
         $examid = $r_elem["examID"];
-
+        
         $examScore= $r_elem["examScore"];
         $qid = $r_elem["questionID"];
         $qpoints = $r_elem["points"];
@@ -47,10 +49,14 @@ function constructExams($raw, $exams){
         $returns = $r_elem["prints"];
         $testCases = $r_elem["testCases"];
         $testCasesPassFail = $r_elem["testCasesPassFail"];
+	      
+	//echo "------".$r_elem["released"]."\n";
+	//exit();
         // new stuff
         $constraints = $r_elem["constraints"];
         $topic = $r_elem["topic"];
         $gradedComments = $r_elem["gradedComments"];
+        $instructorComments = $r_elem["instructorComments"];
         $constructed = constructQuestion($funcName, $params, $does, $returns);
         $questioninfo_arr = array(	"questionID"		=> $qid,
             "points" 			=> $qpoints,
@@ -60,7 +66,8 @@ function constructExams($raw, $exams){
             "testCasesPassFail" => $testCasesPassFail,
             "constraints"		=> $constraints,
             "topic"				=> $topic,
-            "gradedComments" 	=> $gradedComments
+            "gradedComments" 	=> $gradedComments,
+            "instructorComments" => $instructorComments
         );
         if ($detailed_info["$userid"]["$examid"]){ // same student same exam NEW question
             array_push($detailed_info["$userid"]["$examid"][1], $questioninfo_arr);
@@ -70,6 +77,7 @@ function constructExams($raw, $exams){
             $detailed_info["$userid"]["$examid"] = array($examScore, array($questioninfo_arr));
         }
     }
+    //var_dump();exit();
 
 // var_dump($user_exam_ids);
 // var_dump($detailed_info);
@@ -100,6 +108,7 @@ function constructExams($raw, $exams){
             "examQuestions" => $examQuestions
         ));
     }
+    //var_dump($return_array);exit();
     return $return_array;
 }
 
@@ -117,7 +126,8 @@ $ch = curl_init();
 curl_setopt_array($ch, $curl_opts);
 $result = curl_exec($ch);
 // echo "RESULT\n";
-// var_dump($result);
+//var_dump($result);
+//exit();
 
 $examsdata = json_decode($result, true);
 // echo "DATA DECODEd\n";
@@ -128,7 +138,7 @@ if ($examsdata["conn"] && $examsdata["conn"] == false) {
 }
 //var_dump($examsdata);
 $raw = $examsdata["raw"];
-//var_dump($raw);
+//var_dump($raw); exit();
 $exams = $examsdata["exam"];
 //var_dump($exams); exit();
 
