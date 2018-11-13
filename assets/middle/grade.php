@@ -1,6 +1,7 @@
 <?php
-echo exec('whoami'); exit();
-//ini_set('display_errors',1); error_reporting(E_ALL);
+#echo exec('ps -up '.getmypid()); 
+#exit();
+#ini_set('display_errors',1); error_reporting(E_ALL);
 /*
 1. get student response from database
 2. write student response to file
@@ -10,7 +11,11 @@ echo exec('whoami'); exit();
 6. compare student's to correct response's on individual testcases
 */
 
+#$path = './autograder.php';
+#echo 'Path: '.$path;
+#include ($path);
 include ('autograder.php');
+
 
 // Main stuff
 
@@ -25,8 +30,7 @@ $decoded = json_decode($jsonrequest, true);
 $decoded = array("examID" => 62, "userID" => "jsnow");
 $jsonrequest = json_encode($decoded);
 
-echo "INITIAL LETS FUCKING DO DIS\n";
-var_dump($jsonrequest);
+//var_dump($jsonrequest);
 
 $examID = $decoded["examID"];
 $userID = $decoded["userID"];
@@ -46,8 +50,8 @@ if ($decoded["examID"] && $decoded["userID"]) {
 	//* extract the grading data from $result
 	$grading_data = json_decode($result, true);
 
-	echo "GRADING DATA\n";
-	var_dump($grading_data);
+	//echo "GRADING DATA\n";
+	//var_dump($grading_data);
 
 	//check that the database is still up
 	if ($decoded["conn"] && $decoded["conn"] == false) {
@@ -61,8 +65,8 @@ if ($decoded["examID"] && $decoded["userID"]) {
 	//* perform grading
 //    var_dump($grading_data); exit();
 	$grades = gradeAll($grading_data);
-    echo "GRADESSSSSS\n";
-    var_dump($grades);
+    //echo "GRADESSSSSS\n";
+   var_dump($grades);
 
 	// check if grading worked
 	if (count($grades) != count($grading_data)) {

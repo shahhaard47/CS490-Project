@@ -1,11 +1,9 @@
 <?php
-
 /*
 GRADING NOTES AND ASSUMPTIONS
 - assuming that there isn't a comment line before function title that has the actual function name
 	- #def functionName()
 */
-
 function listifyOutput($output) {
     $lbr_pos = strpos($output, "[");
     if ($lbr_pos === false) {
@@ -23,7 +21,6 @@ function listifyOutput($output) {
     }
     return $output;
 }
-
 function listifyInput($inp) {
     $lbr_pos = strpos($inp, "[");
     if ($lbr_pos === false) {
@@ -53,7 +50,6 @@ function listifyInput($inp) {
     }
     return $inp;
 }
-
 function constructFunctionCalls($functionName, $testcases) {
     $functioncalls = array();
     foreach ($testcases as $case) {
@@ -61,16 +57,12 @@ function constructFunctionCalls($functionName, $testcases) {
         $call = "";
         $call = "$functionName(";
 //        $case = preg_split('/(,|;)/', $case, -1, PREG_SPLIT_NO_EMPTY);
-
         $tmpCaseSplit = explode(";", $case);
         $caseInput = $tmpCaseSplit[0];
         $caseInput = listifyInput($caseInput);
         $inputParams = explode(":", $caseInput);
-
-//        echo "COUNT TMPCASESPLIT: ".count($tmpCaseSplit)."\n";
         $expectedOutput = $tmpCaseSplit[1]; // assuming size 2
         $expectedOutput = listifyOutput($expectedOutput);
-
         for ($i = 0; $i < count($inputParams)-1; $i++) {
             $tmp = explode(" ", $inputParams[$i]);
             $type = array_shift($tmp); // pop first element
@@ -87,18 +79,15 @@ function constructFunctionCalls($functionName, $testcases) {
             $param = "\"$param\"";
         }
         $call .= "$type($param))";
-
         array_push($tc, $call);
         // if output is list
         array_push($tc, $expectedOutput);
         // var_dump($tc);
         array_push($functioncalls, $tc);
     }
-
 //    var_dump($functioncalls); exit();
     return $functioncalls;
 }
-
 /*
 @arg $testCasesPassFail = [1, 0, 0 ...]
 @arg $otherComments = ["WRONG_HEADER", "NOT_RETURNING", "CONSTRAINT_FORLOOP", ..., "CONSTRAINT_WHILELOOP"]
@@ -122,7 +111,6 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
     }
     $TCsummary = "Testcases passed: ".$passedTC."/".count($testCases);
     array_unshift($finalComments, $TCsummary);
-
     // otherComments
     $deductCustomPoints = $deduction = 2.0;
     foreach ($otherComments as $c) {
@@ -130,7 +118,6 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
             $deduction = 0;
             $totalPoints = 0;
         }
-
         switch ($c) {
             case "WRONG_HEADER":
                 $tmp = "Used incorrect function header.\t[-".$deductCustomPoints."]";
@@ -155,29 +142,23 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
         }
         $totalPoints -= $deduction;
     }
-
     $totalPoints = round($totalPoints, 2);
     $tmp = "Final score: ".$totalPoints."/".$maxPoints;
     array_push($finalComments, $tmp);
-
     $final_package = array("qScore" => $totalPoints,
         "testCasesPassFail" => $testCasesPassFail,
         "comments" => $finalComments
     );
     // var_dump($final_package);
-
     return $final_package;
 }
-
 function gradeQuestion($question_data) {
     $student_filename = 'tmppy/student.py';
     $test_file = 'tmppy/test.py';
     //*	1. sample student response
     $student_response = $question_data["student_response"];
     $function_name = $question_data["function_name"];
-
     $comments = array(); // strings of comments
-
     // check if function title in named properly
     $lines = explode("\n", $student_response);
     // echo "BEFORE: \n$student_response\n";
@@ -192,7 +173,6 @@ function gradeQuestion($question_data) {
             if ($l_par === false) { continue; }
             $func_title = substr($line, $def_pos, $l_par - $def_pos);
             $tmp = explode(" ", $func_title);
-
             $student_function_name = $tmp[count($tmp) - 1];
             if ($student_function_name != $function_name){
                 // replace
@@ -204,15 +184,12 @@ function gradeQuestion($question_data) {
     }
     $student_response = implode("\n", $lines);
     // echo "AFTER: \n$student_response\n";
-
     // check for "return"
     $return_pos = strpos($student_response, "return");
     if ($return_pos === false) {
         array_push($comments, "NOT_RETURNING");
     }
-
     // FIXME: check for restraints
-
     $constraints = explode(" ", $question_data["constraints"]);
     foreach ($constraints as $constraint) {
         switch ($constraint) {
@@ -223,7 +200,6 @@ function gradeQuestion($question_data) {
                     array_push($comments, "CONSTRAINT_FORLOOP");
                 }
                 break;
-
             case "while":
                 // check for CONSTRAINT_WHILELOOP
                 $while_pos = strpos($student_response, "while");
@@ -231,7 +207,6 @@ function gradeQuestion($question_data) {
                     array_push($comments, "CONSTRAINT_WHILELOOP");
                 }
                 break;
-
             case "recursion":
                 // check for CONSTRAINT RECURSION
                 $functionNameCount = substr_count($student_response, $function_name);
@@ -247,11 +222,9 @@ function gradeQuestion($question_data) {
         fwrite($file, $student_response);
         fclose($file);
     }
-
     //*	5. get testcases from database
     $test_cases = $question_data["test_cases"];
     $functioncalls = constructFunctionCalls($function_name, $test_cases);
-
     //*	6. compare student's to correct response's on individual testcases
     $TCresults = array(); // size should be count($functioncalls) RETURNING
     $TCtotal = count($functioncalls);
@@ -260,63 +233,24 @@ function gradeQuestion($question_data) {
         $correct_response = explode(" ", $correct_response);
         $type = array_shift($correct_response);
         $returnValue = implode(" ", $correct_response);
-
         if ($type != "list") { // if == list don't add QUOTES around returnValue
             $returnValue = "\"$returnValue\"";
         }
-
-//        $cmd = shell_exec(escapeshellcmd("touch littifworks.txt"));
-//        var_dump($cmd);
-//        exit();
-
-
         // get students output
-//        $text = "#!/usr/bin/env python\n";
-        /*$text .= "from student import *\n";
+        $text = "from student import *\n";
         $text .= "response = $callll\n";
         $text .= "correct = $type($returnValue)\n";
         $text .= "if (response == correct):\n";
         $text .= "\tprint('output is correct')\n";
         $text .= "else:\n";
-        $text .= "\tprint(response)\n";*/
-        $text = "print('YOOOOLLLLLOOOOO')\n";
-//        $cmd = shell_exec(escapeshellcmd("python -c \"".$text."\""));
-
-        echo "TESTING TEXT FILE\n";
-        var_dump($text);
-
-//        $cmd = shell_exec(escapeshellcmd("chmod 777 tmppy/*"));
-//        $cmd = shell_exec(escapeshellcmd(""));
-//        var_dump($cmd);
-
-
+        $text .= "\tprint('wrong')\n";
         $file = fopen($test_file, 'w');
-        $check = fopen($_SERVER['DOCUMENT_ROOT'].'test.txt','w');
-        if ($check) {
-            echo "FUCK YES\n";
-        }
-        else {
-            echo "FUCK YOU\n";
-        }
-        exit();
-
         if ($file){
-            echo "OPENED SUCCessfully\n";
             fwrite($file, $text);
             fclose($file);
         }
-        else {
-            echo "(middle) grading could NOT open grading file.\n";
-        }
-
-        $command = escapeshellcmd("python ".$test_file);
-        echo "COMMAND\n";
-        var_dump($command);
+        $command = escapeshellcmd("python $test_file");
         $student_output = shell_exec($command);
-
-        echo "TEST OUTPUT\n";
-        var_dump($student_output); exit();
-
         // compare outputs
         $outputpos = strpos($student_output, "output is correct");
         if ($outputpos !== false){
@@ -326,7 +260,6 @@ function gradeQuestion($question_data) {
             array_push($TCresults, 0);
         }
     }
-
     if (count($TCresults) == $TCtotal) { // just a sanity to make sure everything went well
         $maxPoints = $question_data["points"];
         $rtn_package = constructCommentsAndPoints($maxPoints, $test_cases, $TCresults, $comments);
@@ -339,7 +272,6 @@ function gradeQuestion($question_data) {
         exit();
     }
 }
-
 function gradeAll($grading_data) {
     $final_grades = array();
     foreach ($grading_data as $question_data) {
@@ -347,7 +279,7 @@ function gradeAll($grading_data) {
         $pkg["questionID"] = (int)$question_data["questionID"];
         array_push($final_grades, $pkg);
     }
+    echo $final_grades;
     return $final_grades;
 }
-
 ?>
