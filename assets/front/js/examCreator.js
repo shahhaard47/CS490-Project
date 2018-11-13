@@ -2,7 +2,8 @@ const RT_GETQBANK = 'getqbank';
 const DIF_EASY = 'e', DIF_MED = 'm', DIF_HARD = 'h';
 const CREATEEXAM_RT = 'create_exam';
 const ADDQUESTION_RT = 'add_question';
-const EASY_QUESTION_CLASS = 'question-easy', MEDIUM_QUESTION_CLASS = 'question-medium',
+const EASY_QUESTION_CLASS = 'question-easy',
+    MEDIUM_QUESTION_CLASS = 'question-medium',
     HARD_QUESTION_CLASS = 'question-hard',
     ERR_MODAL_CONTENT = 'errorModalContent';
 
@@ -14,10 +15,23 @@ let testCasesNum = 2;
 
 /** Lists to track the questions added to exam, easy difficulty questions, medium difficulty questions, and
  hard difficulty questions */
-let questionIDsInExam = [], easyQuestionNodes = [], medQuestionNodes = [], hardQuestionNodes = [];
+let questionIDsInExam = [], questionIDsInBank = [], easyQuestionNodes = [], medQuestionNodes = [],
+    hardQuestionNodes = [];
+
+let topicQuestions = {};
 
 /** Used to keep track of node elements in question bank view (left side of screen). Used for sorting */
 let nodesInQuestionBank = [];
+
+
+function loadTopicsSelectElement(obj) {
+    let topicsSelectElement = getelm('topicSelect');
+
+    for (i in obj) {
+        let optionElement = appendNodeToNode('option', '', '', topicsSelectElement);
+        optionElement.innerHTML = obj[i];
+    }
+}
 
 /** Loads questions to the question bank view on the left side of screen */
 function loadQuestionBank(xhrResponseText) {
@@ -26,6 +40,8 @@ function loadQuestionBank(xhrResponseText) {
     for (let i = 0; i < questionArray.length; i++) {
         if (!questionIdInExam(questionArray[i].questionID)) {
             let qid = questionArray[i].questionID;
+            questionIDsInBank.push(qid);
+
             let row = appendNodeToNode('div', qid, 'row', getelm('question-bank'));
 
             let questionContent = appendNodeToNode('div', '', 'question-content', row);
@@ -33,6 +49,7 @@ function loadQuestionBank(xhrResponseText) {
             textarea.setAttribute('style', 'width:100%');
             textarea.setAttribute('rows', '6');
             textarea.setAttribute('wrap', 'soft');
+            textarea.disabled = true;
             textarea.innerHTML = questionArray[i].constructed;
 
             let options = appendNodeToNode('div', '', 'options centered', row);
@@ -41,6 +58,7 @@ function loadQuestionBank(xhrResponseText) {
             lblDifficulty.innerHTML = 'Difficulty';
             let inputDifficulty = appendNodeToNode('input', '', '', lblDifficulty);
             inputDifficulty.setAttribute('size', '4');
+            inputDifficulty.disabled = true;
 
             let dif = '';
             switch (questionArray[i].difficulty) {
@@ -78,25 +96,36 @@ function loadQuestionBank(xhrResponseText) {
 
             /* Add node to the array which is used to sort nodes later */
             nodesInQuestionBank.push(row);
-        }
 
+            /* Add node to topics object */
+            let topic = questionArray[i].topic;
+            if (topicQuestions.hasOwnProperty(topic))
+                topicQuestions[topic].push(qid);
+            else {
+                topicQuestions[topic] = [qid];
+            }
+        }
     }
+
+    // log('topic')
+    log(topicQuestions);
 }
 
 /** Reloads question bank. */
 function reloadQuestionBank() {
     getelm('question-bank').innerHTML = '';
-    getQuestionBank();
+    submitGetQuestionBankRequest();
 }
 
 /** Remove a question that was added to the exam (right side of screen) and place it back into the bank (left side) */
 function deleteQuestionFromExam(btnNode) {
     let node = findParent(btnNode, 'row');
-    addQuestionToBank(node);
-    updateExamQuestionsArray(node.getAttribute('id'), true);
+    // addQuestionToBank(node);
+    updateExamQuestionsArray(getLastNumbersFromString(node.id), true);
 
     node.parentNode.removeChild(node);
 
+    showElement(getelm(getLastNumbersFromString(node.id)));
 }
 
 /** Add a question from bank (left side of screen) to the exam (right side of screen) */
@@ -106,9 +135,9 @@ function addQuestionToExam(btnNode) {
 
     let questionText = parentRow.getElementsByTagName('textarea')[0].value;
     let inputs = parentRow.getElementsByTagName('input');
-    let questionsDifficulty = inputs[0].value;
+    let questionDifficulty = inputs[0].value;
 
-    let row = appendNodeToNode('div', parentRow.id, 'row', getelm('exam-questions'));
+    let row = appendNodeToNode('div', `question${parentRow.id}`, 'row', getelm('exam-questions'));
 
     let questionLeft = appendNodeToNode('div', '', 'col question-left', row);
     let del = appendNodeToNode('div', '', '', questionLeft);
@@ -125,6 +154,7 @@ function addQuestionToExam(btnNode) {
     textarea.setAttribute('style', 'width:100%');
     textarea.setAttribute('rows', '6');
     textarea.setAttribute('wrap', 'soft');
+    textarea.disabled = true;
 
     let options = appendNodeToNode('div', '', 'options centered', row);
 
@@ -132,7 +162,10 @@ function addQuestionToExam(btnNode) {
     lblDifficulty.innerHTML = 'Difficulty';
     let inputDifficulty = appendNodeToNode('input', '', '', lblDifficulty);
     inputDifficulty.setAttribute('size', '4');
-    inputDifficulty.setAttribute('value', questionsDifficulty);
+    inputDifficulty.setAttribute('value', questionDifficulty);
+    inputDifficulty.disabled = true;
+
+    inputDifficulty.setAttribute('class', `question-${questionDifficulty.toLowerCase()}`);
 
     let lblPoints = appendNodeToNode('label', '', '', options);
     lblPoints.innerHTML = 'Points';
@@ -140,10 +173,24 @@ function addQuestionToExam(btnNode) {
     inputPoints.setAttribute('size', '1');
     inputPoints.setAttribute('placeholder', 'Value');
 
-    removeNode(parentRow);
+    /* Add change listener to points to change total points in exam input element */
+    let pointsElement = getelm('pointsInExam');
+    inputPoints.onkeyup = function () {
+        let pts = getPoints(), sum = 0;
+        for (let i in pts) {
+            if (!isNaN(pts[i]))
+                sum += pts[i];
+        }
+
+        pointsElement.value = sum;
+        log(sum)
+    };
+
+    hideElement(parentRow);
 }
 
-/** Add a new question to the question bank */
+
+/** Add a question to the question bank */
 function addQuestionToBank(node) {
     let questionText = node.getElementsByTagName('textarea')[0].value;
     let inputs = node.getElementsByTagName('input');
@@ -156,6 +203,7 @@ function addQuestionToBank(node) {
     textarea.setAttribute('style', 'width:100%');
     textarea.setAttribute('rows', '6');
     textarea.setAttribute('wrap', 'soft');
+    textarea.disabled = true;
     textarea.innerHTML = questionText;
 
     let options = appendNodeToNode('div', '', 'options centered', row);
@@ -165,6 +213,7 @@ function addQuestionToBank(node) {
     let inputDifficulty = appendNodeToNode('input', '', '', lblDifficulty);
     inputDifficulty.setAttribute('size', '4');
     inputDifficulty.setAttribute('value', questionsDifficulty);
+    inputDifficulty.disabled = true;
 
     switch (questionsDifficulty) {
         case 'Easy':
@@ -180,6 +229,12 @@ function addQuestionToBank(node) {
 
     }
 
+    let btnRemove = appendNodeToNode('button', 'btnRemove' + qid, 'btn-remove', options);
+    btnRemove.innerHTML = 'Remove';
+    btnRemove.onclick = function () {
+        deleteQuestionFromQBankDatabase(getelm(this.id).id.split('btnRemove')[1]);
+    };
+
     let btnAdd = appendNodeToNode('button', 'btnAdd' + qid, 'btn-add', options);
     btnAdd.innerHTML = 'Add';
     btnAdd.onclick = function () {
@@ -188,7 +243,7 @@ function addQuestionToBank(node) {
 }
 
 /** Get all the questions from the database */
-function getQuestionBank() {
+function submitGetQuestionBankRequest() {
     nodesInQuestionBank = [];
     easyQuestionNodes = [];
     medQuestionNodes = [];
@@ -224,6 +279,32 @@ function getQuestionBank() {
 
 }
 
+function submitGetTopicsRequest() {
+    /* Construct obj for JSON */
+    let x = {
+        'requestType': 'returnTopics'
+    };
+
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        /* Check if the xhr request was successful */
+        if (this.readyState === 4) {
+            if (this.status === 200) {
+                log(parseJSON(xhr.responseText));
+                loadTopicsSelectElement(parseJSON(xhr.responseText));
+            } else {
+            }
+        }
+    };
+
+    /* Open a POST request */
+    xhr.open("POST", URL, true);
+    /* Encode the data properly. Otherwise, php will not be able to get the values */
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    /* Send the POST request with the data */
+    xhr.send(JSON.stringify(x));
+}
+
 /** Helper function to find the parent of an element */
 function findParent(elm, cls) {
     while ((elm = elm.parentElement) && !elm.classList.contains(cls)) ;
@@ -233,13 +314,22 @@ function findParent(elm, cls) {
 /** Add or remove a question ID from the array that keeps track of the questions added to the exam */
 function updateExamQuestionsArray(questionId, removeId) {
     if (removeId) {
-        let idx = questionIDsInExam.indexOf(questionId);
+        // log(`-Removing ID ${questionId}`);
+        // log(`-Question IDs in exam: ${questionIDsInExam}`);
+
+        let idx = questionIDsInExam.indexOf(questionId.toString());
         if (idx > -1) {
             questionIDsInExam.splice(idx, 1);
-            return true;
+            // log(`-Removed index: ${idx}`);
+            // return true;
         }
+        // log('Did not remove')
+    } else {
+        questionIDsInExam.push(questionId);
     }
-    questionIDsInExam.push(questionId);
+
+    getelm('questionsInExam').value = questionIDsInExam.length;
+    // log(`+QID added to array. questionIDsInExam= ${questionIDsInExam}`)
 }
 
 /** Remove a node from DOM */
@@ -271,6 +361,9 @@ function addParamBH() {
     optInt.innerHTML = 'int';
     let optFloat = appendNodeToNode('option', '', '', sel);
     optFloat.innerHTML = 'float';
+    let optBool = appendNodeToNode('option', '', '', sel);
+    optBool.innerHTML = 'bool';
+
     let input = appendNodeToNode('input', 'param' + paramsNum++, 'modal-param', modalParams);
     input.onkeyup = function () {
         populateTestCaseName(this);
@@ -305,8 +398,11 @@ function addParamToTestCase() {
 function getPoints() {
     let points = [];
 
+    log('Question IDs in exam: ' + questionIDsInExam);
     for (let i in questionIDsInExam) {
-        let pointsElement = getelm(questionIDsInExam[i]).getElementsByTagName('input')[1];
+        // log('---:' + `question${questionIDsInExam[i]}`);
+        let pointsElement = getelm(`question${questionIDsInExam[i]}`).getElementsByTagName('input')[1];
+        // log(pointsElement)
         points.push(parseInt(pointsElement.value));
     }
 
@@ -385,6 +481,8 @@ function addTestCaseBH() {
     optInt.innerHTML = 'int';
     let optFloat = appendNodeToNode('option', '', '', sel);
     optFloat.innerHTML = 'float';
+    let optBool = appendNodeToNode('option', '', '', sel);
+    optBool.innerHTML = 'bool';
 
     // allTestCasesNode.innerHTML += '  Output ';
     allTestCasesNode.appendChild(document.createTextNode(" Output "));
@@ -450,8 +548,16 @@ function deleteQuestionFromQBankDatabase(qid) {
     xhr.send(JSON.stringify(obj));
 }
 
+function clearModalFieldsBH() {
+    let inputElements = getelm('addQuestionModal').getElementsByTagName('input');
+
+    for (let i in inputElements) {
+        inputElements[i].value = '';
+    }
+}
+
 /** Sends an add question to the bank request to middle-end */
-function addNewQuestionToBankBH() {
+function submitAddNewQuestionToBankRequestBH() {
     //TODO: Check for empty fields
     let obj = {
         'functionName': getelm('modal-fname').value,
@@ -464,12 +570,27 @@ function addNewQuestionToBankBH() {
         'examTitle': getelm('exam-title').value,
         'requestType': ADDQUESTION_RT
     };
-    sendAJAXReq(JSON.stringify(obj));
+
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        /* Check if the xhr request was successful */
+        if (this.readyState === 4) {
+            if (this.status === 200) {
+                /* Reload question bank once a response is received */
+                reloadQuestionBank();
+            } else {
+            }
+        }
+    };
+
+    /* Open a POST request */
+    xhr.open("POST", URL, true);
+    /* Encode the data properly. Otherwise, php will not be able to get the values */
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    /* Send the POST request with the data */
+    xhr.send(JSON.stringify(obj));
+
     log(obj);
-    getelm('question-bank').innerHTML = '';
-    //TODO: reload question bank after response received
-    getQuestionBank();
-    // location.reload();
 
     closeModalBH('addQuestionModal');
 }
@@ -547,9 +668,44 @@ function createExamBH() {
     obj.points = getPoints();
 
     log(obj);
-    sendAJAXReq(JSON.stringify(obj));
-    // alert('Exam was created!');
-    // window.location = 'instructor-home.html';
+    submitCreateExamRequest(JSON.stringify(obj));
+}
+
+/* AJAX request when don't care about response */
+function submitCreateExamRequest(content) {
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        /* Check if the xhr request was successful */
+        if (this.readyState === 4) {
+            if (this.status === 200) {
+                log(xhr.responseText);
+                let response = parseJSON(xhr.responseText);
+                if (response.examCreated) {
+                    let d = showDialog(document.body, 'Exam was created!');
+                    d.show();
+                    let btn = d.getElementsByTagName('button');
+
+                    btn[0].onclick = function () {
+                        dialog.close();
+                        dialog.remove();
+                        window.location = 'instructor-home.html';
+
+                    }
+                } else {
+                    showDialog(document.body, 'Something went wrong. Please try again.');
+                }
+
+            } else {
+            }
+        }
+    };
+
+    /* Open a POST request */
+    xhr.open("POST", URL, true);
+    /* Encode the data properly. Otherwise, php will not be able to get the values */
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    /* Send the POST request with the data */
+    xhr.send(content);
 }
 
 function checkQuestionNodesSame(a, b) {
@@ -696,12 +852,54 @@ function sortQuestionBank(selectElm) {
 
 }
 
+function filterQuestionBankTopic(selectElm) {
+    let option = selectElm.value;
+    log(`option: ${option}`);
+
+    if (option === 'None') {
+        for (let i in questionIDsInBank) {
+            if (!inArray(questionIDsInExam, questionIDsInBank[i])) {
+
+                let elm = getelm(questionIDsInBank[i]);
+                elm.style = 'display:block';
+            }
+        }
+        return;
+    }
+
+//TODO: filter bank on topic
+    let keys = Object.keys(topicQuestions);
+    log(`keys:`);
+    log(keys);
+
+    for (let i in keys) {
+        log(`keys[i] = ${keys[i]}`);
+        if (keys[i] !== option) {
+            log(`${keys[i]} != ${option}`);
+            for (let j in topicQuestions[keys[i]]) {
+                let elm = getelm(topicQuestions[keys[i]][j]);
+                elm.style = 'display:none';
+            }
+        } else {
+            log(`${keys[i]} == ${option}`);
+            for (let j in topicQuestions[keys[i]]) {
+                if (!inArray(questionIDsInExam, topicQuestions[keys[i]][j])) {
+                    log(topicQuestions[keys[i]][j]);
+                    let elm = getelm(topicQuestions[keys[i]][j]);
+                    elm.style = 'display:block';
+                }
+            }
+        }
+    }
+}
+
 /* Initialize some things when the DOM tree loads */
 window.onload = function () {
-    getQuestionBank();
+    submitGetQuestionBankRequest();
     showEasyQuestionDifficulties();
     populateTestCaseType(getelm('modal-param-sel0'));
     populateTestCaseName(getelm('param0'));
+    submitGetTopicsRequest();
     window.onclick = function (event) {
         let errModal = getelm("modalError");
         if (event.target == errModal) {
