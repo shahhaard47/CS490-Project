@@ -14,8 +14,6 @@ if ($conn->connect_error)
     echo json_encode($myObj);
     die();
 } 
-$myObj->conn=true;
-$myObj->error=null;
 
 $rawCreateQuestion = file_get_contents('php://input');
 $data = json_decode($rawCreateQuestion, true);
@@ -27,7 +25,7 @@ $params=implode(':',$newExamQuestion['parameters']);
 $newQuestion = "INSERT INTO BETA_questionBank (functionName,parameters,functionDescription,output,topic,difficulty,constraints,testCases) VALUES ('".$newExamQuestion['functionName']."','".$params."','".$newExamQuestion['functionDescription']."','".$newExamQuestion['output']."','".$newExamQuestion['topic']."','".$newExamQuestion['difficulty']."','".$newExamQuestion['constraints']."','".$newExamQuestion['testCases']."')";
 
 if($conn->query($newQuestion)===TRUE){
-  
+  $myObj->query=true;
 }
 else{
   $myObj->query=false;

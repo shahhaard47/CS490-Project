@@ -1,0 +1,256 @@
+CS 490-001 
+Project
+Question Bank | all question solutions
+
+
+----------------------------------------------------------------------------------------------
+(01)  functionName: cube
+----------------------------------------------------------------------------------------------
+
+def cube(num):
+	return (num**3)
+
+
+----------------------------------------------------------------------------------------------
+(02)  functionName: isSubstring
+----------------------------------------------------------------------------------------------
+
+def isSubstring(str1,str2):
+	if(str1 in str2):
+		return True
+	else:
+		return False
+
+
+----------------------------------------------------------------------------------------------
+(03)  functionName: initialVowels --> topic: Strings
+----------------------------------------------------------------------------------------------
+
+def initialVowels(text):
+	count=0
+	for word in text.split(' '):
+		if(word[0] in 'aeiouAEIOU'):
+			count=count+1
+	return count
+
+
+----------------------------------------------------------------------------------------------
+(04)  functionName: mathOperations
+----------------------------------------------------------------------------------------------
+
+def mathOperations(operation,int1,int2):
+	if(operation=='-'):
+		return(int1-int2)
+	elif(operation=='+'):
+		return(int1+int2)
+	elif(operation=='*'):
+		return(int1*int2)
+	elif(operation=='/'):
+		return(int1/int2)
+	elif(operation=='%'):
+		return(int1%int2)
+	else:
+		return 0
+
+
+----------------------------------------------------------------------------------------------
+(05)  functionName: fibonacci
+----------------------------------------------------------------------------------------------
+
+def fibonacci(num):
+	if(num==0):
+		return '0'
+	elif(num==1):
+		return '0'
+	elif(num==2):
+		return '0,1'
+	else:
+		nums=['0','1']
+		for i in range(num-2):
+			nextNum=int(nums[i])+int(nums[i+1])
+			nums.append(str(nextNum))
+	return ','.join(nums)
+
+
+----------------------------------------------------------------------------------------------
+(06)  functionName: backwards
+----------------------------------------------------------------------------------------------
+
+def backwards(word):
+	revWord=''
+	for char in word:
+		revWord=char+revWord
+	return revWord
+
+
+----------------------------------------------------------------------------------------------
+(07)  functionName: initialVowels --> topic: Lists
+----------------------------------------------------------------------------------------------
+
+def initialVowels(text):
+	words=[]
+	for word in text.split(' '):
+		if(word[0] in 'aeiouAEIOU'):
+			words.append(word)
+	return words
+
+
+----------------------------------------------------------------------------------------------
+(08)  functionName: combineSorted
+----------------------------------------------------------------------------------------------
+
+def combineSorted(list1,list2):
+	list3=list1+list2
+	list3.sort()
+	return list3
+
+
+----------------------------------------------------------------------------------------------
+(09)  functionName: doubleIt
+----------------------------------------------------------------------------------------------
+
+def doubleIt(num):
+	return (num*2)
+
+
+----------------------------------------------------------------------------------------------
+(10)  functionName: lessThanX
+----------------------------------------------------------------------------------------------
+
+def lessThanX(listOfNums,x):
+	nums=[]
+	for num in listOfNums:
+		if(num<x):
+			nums.append(num)
+	return nums
+
+
+----------------------------------------------------------------------------------------------
+(11)  functionName: listOverlap
+----------------------------------------------------------------------------------------------
+
+def listOverlap(listOfNumsA,listOfNumsB):
+	overlap=[]
+	for num in listOfNumsA:
+		if(num in listOfNumsB and num not in overlap):
+			overlap.append(num)
+	for num in listOfNumsB:
+		if(num in listOfNumsA and num not in overlap):
+			overlap.append(num)
+	return overlap
+
+
+----------------------------------------------------------------------------------------------
+(12)  functionName: isPal
+----------------------------------------------------------------------------------------------
+
+def isPal(word):
+	revWord=word[::-1]
+	print(word+' '+revWord)
+	if(revWord==word):
+		return True
+	else:
+		return False
+
+
+----------------------------------------------------------------------------------------------
+(13)  functionName: caesarEncrypt
+----------------------------------------------------------------------------------------------
+
+def caesarEncrypt(text):
+	alpha='abcdefghijklmnopqrstuvwxyz'
+	APLPHA=alpha.upper()
+	encryptedText=''
+	for char in text:
+		if(char.isupper()):
+			index=ALPHA.find(char)
+			encryptedText=encryptedText+ALPHA[index+3]
+		else:
+			index=alpha.find(char)
+			encryptedText=encryptedText+alpha[index+3]
+	return encryptedText
+
+
+----------------------------------------------------------------------------------------------
+(14)  functionName: inRange
+----------------------------------------------------------------------------------------------
+
+def inRange(testNum,floor,ceiling):
+	if(testNum>floor and testNum<ceiling):
+		return True
+	else:
+		return False
+
+
+----------------------------------------------------------------------------------------------
+(15)  functionName: containsLetter
+----------------------------------------------------------------------------------------------
+
+def containsLetter(char,text):
+	words=[]
+	for word in text.split(' '):
+		if(char in word):
+			words.append(word)
+	return words
+
+
+----------------------------------------------------------------------------------------------
+(16)  functionName: wordCount
+----------------------------------------------------------------------------------------------
+
+def wordCount(maxWordLen,text):
+	count=0
+	for word in text.split(' '):
+		if(len(word)<=maxWordLen):
+			count=count+1
+	return count
+
+
+----------------------------------------------------------------------------------------------
+(17)  functionName: generateInitials
+----------------------------------------------------------------------------------------------
+
+def generateInitials(fullName):
+	initials=''
+	for name in fullName.split(' '):
+		initials=initials+name[0]+'.'
+	return initials
+
+
+----------------------------------------------------------------------------------------------
+(18)  functionName: isAMinHeap
+----------------------------------------------------------------------------------------------
+def isAMinHeap(A):
+	j=len(A)-1
+	if((j+1)==1 or (j+1)==0):
+		return True
+	k=int((j-1)/2)
+	if(A[j]>A[k]):
+		return(isAMinHeap(A[0:j]))
+	else:
+		return False
+
+
+----------------------------------------------------------------------------------------------
+(19)  functionName: allOdds
+----------------------------------------------------------------------------------------------
+
+def allOdds(n):
+	i=0
+	nums=[]
+	while(i<=n):
+		if(i % 2 != 0):
+			nums.append(i)
+		i=i+1
+	return nums
+
+
+----------------------------------------------------------------------------------------------
+(20)  functionName: factorial
+----------------------------------------------------------------------------------------------
+
+def factorial(num):
+	val=1
+	for i in range(1,num+1):
+		val=val*i
+	return val

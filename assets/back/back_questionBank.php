@@ -17,9 +17,6 @@ if ($conn->connect_error)
     echo json_encode($myObj);
     die();
 } 
-$myObj->conn=true;
-$myObj->error=null;
-echo json_encode($myObj);
 
 $result = mysqli_query($conn, "SELECT * FROM BETA_questionBank");
 
@@ -34,7 +31,7 @@ if($result->num_rows!=0)
     
     $tempArray["questionID"]=$row['questionID'];
     $tempArray["functionName"]=$row['functionName'];
-    $tempArray["params"]=explode(',',$row['parameters']);
+    $tempArray["params"]=explode(':',$row['parameters']);
     $tempArray["does"]=$row['functionDescription'];
     $tempArray["prints"]=$row['output'];
     $tempArray["topic"]=$row['topic'];
