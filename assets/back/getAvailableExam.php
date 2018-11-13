@@ -23,7 +23,6 @@ if ($conn->connect_error)
 $rawRequest = file_get_contents('php://input'); 
 $data = json_decode($rawRequest, true); 
 $request = array('userID' => $data['userID']); 
-//$request = array('userID' => 'mscott'); //TEST
 
 
 $exam = array();
@@ -48,17 +47,26 @@ if($examRecord->num_rows!=0)
   for($i=0;$i<sizeof($questionIDs);$i++)
   {
     $tempArray['questionID']=$questionIDs[$i];
+
     $tempArray['points']=$points[$i];
     $questionRecord = mysqli_query($conn, "SELECT functionName,parameters,functionDescription,output,topic,constraints FROM BETA_questionBank WHERE questionID=$questionIDs[$i]");
-    $questionInfo = $questionRecord->fetch_assoc();
-    $tempArray['functionName']=$questionInfo['functionName'];
-    $tempArray['params']=explode(':',$questionInfo['parameters']);
-    $tempArray['functionDescription']=$questionInfo['functionDescription'];
-    $tempArray['output']=$questionInfo['output'];
-    $tempArray['topic']=$questionInfo['topic'];
-    $tempArray['constraints']=$questionInfo['constraints'];
-    array_push($questionData,$tempArray);              
+    if($questionRecord!=FALSE)
+    {
+      $questionInfo = $questionRecord->fetch_assoc(); 
+      $tempArray['functionName']=$questionInfo['functionName'];
+      $tempArray['params']=explode(':',$questionInfo['parameters']);
+      $tempArray['functionDescription']=$questionInfo['functionDescription'];
+      $tempArray['output']=$questionInfo['output'];
+      $tempArray['topic']=$questionInfo['topic'];
+      $tempArray['constraints']=$questionInfo['constraints'];
+      array_push($questionData,$tempArray);      
+    }
+    else
+    {
+      $exam['warning']='unexpected boolean value, false';
+    }       
   }
+  $exam['count']=sizeof($questionData);
   $exam['questions']=$questionData;
   echo json_encode($exam);
 }

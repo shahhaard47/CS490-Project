@@ -23,7 +23,6 @@ if ($conn->connect_error)
 $publish = file_get_contents('php://input'); //get JSON request data to update released
 $data = json_decode($publish, true); //decode JSON request data to update released
 $publishInfo = array('examID' => $data['examID']); //store JSON request data to update released
-//$publishInfo = array('examID' => 49); //TEST
 
 
 
