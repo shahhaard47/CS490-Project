@@ -4,7 +4,9 @@ let questionIDsInExam = [], solutions = {}, previousIDSelected = '', currentSele
 
 function submitGetAvailableExamsRequest() {
     let obj = {};
+    // obj.userID = userID;
     obj.requestType = GET_AVAILABLE_EXAM_RT;
+
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         /* Check if the xhr request was successful */
@@ -26,8 +28,37 @@ function submitGetAvailableExamsRequest() {
     xhr.send(JSON.stringify(obj));
 }
 
+/* Grade exam request */
+function submitGradeExamRequest() {
+    x = {};
+    x.examID = parseInt(examID);
+    x.userID = getURLParams(window.location.href).userid;
+    x.requestType = GRADE_EXAM_RT;
+    log(x);
+
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        /* Check if the xhr request was successful */
+        if (this.readyState === 4) {
+            if (this.status === 200) {
+                log(xhr.responseText);
+            } else {
+            }
+        }
+    };
+
+    /* Open a POST request */
+    xhr.open("POST", URL, true);
+    /* Encode the data properly. Otherwise, php will not be able to get the values */
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    /* Send the POST request with the data */
+    xhr.send(JSON.stringify(x));
+
+}
+
 /* AJAX request to submit exam */
 function submitExamRequest(obj) {
+    getelm('submitBtn').disabled = true;
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         /* Check if the xhr request was successful */
@@ -36,25 +67,18 @@ function submitExamRequest(obj) {
                 /* Check if e   xam was successfully submitted */
                 let response = parseJSON(xhr.responseText);
                 log(`Response from back after submitting exam: ${response.query}`);
-
+                log(response);
                 if (response.query == true) {
                     let d = showDialog(document.body, 'Exam was submitted successfully!');
                     d.show();
                     let btn = d.getElementsByTagName('button');
 
                     btn[0].onclick = function () {
-                        dialog.close();
-                        dialog.remove();
                         window.location = 'student-home.html?ucid=' + userID;
                     };
 
                     /* When the submit request is good, send a auto grade exam request */
-                    x = {};
-                    x.examID = parseInt(examID);
-                    x.userID = getURLParams(window.location.href).userid;
-                    x.requestType = GRADE_EXAM_RT;
-                    log(x);
-                    sendAJAXReq(JSON.stringify(x));
+                    submitGradeExamRequest();
 
                     // window.history.back();
                     // window.location.reload();
@@ -167,6 +191,7 @@ function submitExamBH() {
     obj.examID = parseInt(examID);
     obj.userID = getURLParams(window.location.href).userid;
     obj.answers = getAnswers();
+    obj.totalQuestions = obj.answers.length;
     obj.requestType = SUBMIT_EXAM_RT;
 
     log();

@@ -9,7 +9,18 @@ function getPublishedExam() {
         /* Check if the xhr request was successful */
         if (this.readyState === 4) {
             if (this.status === 200) {
-                log(parseJSON(xhr.responseText));
+                let response = parseJSON(xhr.responseText);
+                if (!window.location.href.includes('student-home.html') && (response.length === 0 || response.error)) {
+                    let d = showDialog(document.body, 'There are no exams available to take at this moment.');
+                    d.show();
+                    let btn = d.getElementsByTagName('button');
+
+                    // btn[0].onclick = function () {
+                    //     window.history.back();
+                    // window.location = 'student-home.html?ucid=' + userID;
+                    // };
+                    return;
+                }
                 populateExamsTable(parseJSON(xhr.responseText));
             } else {
             }
@@ -94,6 +105,16 @@ function takeToViewExamBH(url) {
     let ucid = getURLParams(window.location.href).ucid;
     // prevUrl = url;
     window.location = 'view-exams.html?ucid=' + ucid;
+}
+
+function takeToViewExamsBH() {
+    let ucid = getURLParams(window.location.href).ucid;
+    window.location = 'view-all-graded-exams.html?ucid=' + ucid;
+}
+
+function btnGoBack() {
+    window.history.back();
+
 }
 
 window.onload = function () {

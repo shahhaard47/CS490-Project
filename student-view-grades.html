@@ -2,13 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>[Student] - View Grades</title>
-    <link rel="stylesheet" href="assets/front/stylesheets/student-view-graded-exam.css"
+    <title>View Grade</title>
+    <link rel="stylesheet" href="assets/front/stylesheets/gradeAnExam.css">
 </head>
 <body>
+<div class="header centered">
+    <label>
+        <strong>User ID</strong> <input id="userID"> <strong>Exam Name</strong> <input id="examName"><br><br>
+        <strong>Overall Grade</strong> <input id="overallGrade">
+    </label>
+</div>
+
+<div class="allQuestionsContainer centered" id="allQuestionsContainer">
+</div>
+
+<div class="bottom-bar centered">
+    <button id="btnBack" onclick="btnGoBack()">Back</button>
+</div>
 
 </body>
 
-<script type="application/javascript" src="assets/front/js/handyMethods.js"></script>
-<script type="application/javascript" src="assets/front/js/studentViewGrades.js"></script>
+
+<script src="assets/front/js/handyMethods.js"></script>
+<script src="assets/front/js/studentViewGrades.js"></script>
 </html>

@@ -32,9 +32,7 @@ function showExams(obj) {
     let th2 = appendNodeToNode('th', '', '', tr);
     th2.innerHTML = 'UCID';
     let th3 = appendNodeToNode('th', '', '', tr);
-    th3.innerHTML = 'Autograde/Change Grade';
-    let th4 = appendNodeToNode('th', '', '', tr);
-    th4.innerHTML = 'Comments';
+    th3.innerHTML = 'Overall Score';
 
     for (let i = 0; i < obj.length; i++) {
         let tr = appendNodeToNode('tr', `row${i}`, '', table);
@@ -48,35 +46,32 @@ function showExams(obj) {
         let td3 = appendNodeToNode('td', '', '', tr);
         let inputScore = appendNodeToNode('input', '', '', td3);
         inputScore.setAttribute('value', obj[i].overallScore);
+        inputScore.disabled = true;
+        inputScore.style = 'text-align: center;background-color:white;'
 
-        let td4 = appendNodeToNode('td', '', '', tr);
-        appendNodeToNode('input', '', '', td4);
-
-        let td5 = appendNodeToNode('td', '', '', tr);
-        let changeGradeBtn = appendNodeToNode('button', 'b' + (i + 1), '', td5);
-        changeGradeBtn.innerHTML = 'Change Grade';
+        // let td5 = appendNodeToNode('td', '', '', tr);
+        // let changeGradeBtn = appendNodeToNode('button', 'b' + (i + 1), '', td5);
+        // changeGradeBtn.innerHTML = 'Change Grade';
 
         let td6 = appendNodeToNode('td', '', '', tr);
-        let viewExamBtn = appendNodeToNode('button', 'b' + (i + 1), '', td6);
+        let viewExamBtn = appendNodeToNode('button', 'b' + (i), '', td6);
         viewExamBtn.innerHTML = 'View Exam';
 
         viewExamBtn.onclick = function () {
             let id = this.id.split('b')[1];
+            log(id)
             let tbl = getelm('table');
-            let examID = obj[id - 1].examID,
-                userID = tbl.rows[id].cells[1].innerHTML,
-                score = tbl.rows[id].cells[2].childNodes[0].value,
-                comments = tbl.rows[id].cells[3].childNodes[0].value;
+            let examID = obj[id].examID,
+                userID = tbl.rows[id].cells[1].innerHTML;
+                // score = tbl.rows[id].cells[2].childNodes[0].value,
+                // comments = tbl.rows[id].cells[3].childNodes[0].value;
 
             window.location = `grade-an-exam.html?user=${userID}&examID=${examID}`;
         };
 
+        //TODO: CHANGE GRADE
+        /*
         changeGradeBtn.onclick = function () {
-            let tbl = getelm('table');
-            let examID = tbl.rows[this.id].cells[0].innerHTML,
-                userID = tbl.rows[this.id].cells[1].innerHTML,
-                score = tbl.rows[this.id].cells[2].childNodes[0].value,
-                comments = tbl.rows[this.id].cells[3].childNodes[0].value;
             sendObj = {};
             sendObj.examID = examID;
             sendObj.userID = userID;
@@ -84,7 +79,7 @@ function showExams(obj) {
             sendObj.requestType = 'sendGradeRequest';
             sendObj.comments = comments;
 
-        }
+        }*/
     }
 }
 

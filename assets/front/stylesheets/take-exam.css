@@ -93,12 +93,14 @@ dialog {
 }
 
 .bottom-bar {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    z-index: 2;
     width: 100%;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    z-index: 2;
     text-align: center;
-    background-color: lightblue;
-    min-height: 50px;
+    min-height: 40px;
+    border: solid 1px lightgray;
+    background-color: #40434E;
+    padding: 10px;
 }

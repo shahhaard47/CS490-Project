@@ -8,8 +8,9 @@
 <body>
 <div class="header centered">
     <label>
-        <strong>User ID</strong> <input id="userID"> <strong>Exam Name</strong> <input id="examName"><br><br>
-        <strong>Overall Grade</strong> <input id="overallGrade">
+        <strong>User ID</strong> <input id="userID" disabled="disabled"> <strong>Exam Name</strong> <input id="examName"
+                                                                                                           disabled="disabled"><br><br>
+        <strong>Overall Grade</strong> <input id="overallGrade" disabled="disabled">
     </label>
 </div>
 
@@ -18,6 +19,7 @@
 
 <div class="bottom-bar centered">
     <button id="btnBack" onclick="btnGoBack()">Back</button>
+    <button id="btnSaveExam" onclick="submitSaveExamRequest()">Save Exam</button>
     <button id="btnGradeExam" onclick="btnGradeExam()">Grade Exam</button>
     <button id="btnReleaseGrade" onclick="btnReleaseGrade()">Release Grade</button>
 </div>

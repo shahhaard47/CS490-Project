@@ -128,6 +128,32 @@ function sendAJAXReq(content) {
     xhr.send(content);
 }
 
+function submitUpdateOverallGradeRequest(grade, userID, examID) {
+    obj = {};
+    obj.userID = userID;
+    obj.examID = examID;
+    obj.score = parseInt(grade);
+    obj.requestType = 'update_overallScore';
+    log(obj);
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        /* Check if the xhr request was successful */
+        if (this.readyState === 4) {
+            if (this.status === 200) {
+                log(xhr.responseText);
+            } else {
+            }
+        }
+    };
+
+    /* Open a POST request */
+    xhr.open("POST", URL, true);
+    /* Encode the data properly. Otherwise, php will not be able to get the values */
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    /* Send the POST request with the data */
+    xhr.send(JSON.stringify(obj));
+}
+
 function getURLParams(url) {
     let params = {};
     let x = url.split('&');

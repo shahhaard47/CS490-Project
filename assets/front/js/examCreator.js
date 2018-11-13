@@ -82,6 +82,13 @@ function loadQuestionBank(xhrResponseText) {
             }
             inputDifficulty.setAttribute('value', dif);
 
+            let label = appendNodeToNode('label', '', '', options);
+            label.innerHTML = 'Contraints';
+            let constraintsInput = appendNodeToNode('input', '', '', label);
+            constraintsInput.setAttribute('size', '4');
+            constraintsInput.disabled = true;
+            constraintsInput.value = questionArray[i].constraints;
+
             let btnRemove = appendNodeToNode('button', 'btnRemove' + qid, 'btn-remove', options);
             btnRemove.innerHTML = 'Remove';
             btnRemove.onclick = function () {
@@ -156,6 +163,7 @@ function addQuestionToExam(btnNode) {
     textarea.setAttribute('wrap', 'soft');
     textarea.disabled = true;
 
+
     let options = appendNodeToNode('div', '', 'options centered', row);
 
     let lblDifficulty = appendNodeToNode('label', '', '', options);
@@ -166,6 +174,13 @@ function addQuestionToExam(btnNode) {
     inputDifficulty.disabled = true;
 
     inputDifficulty.setAttribute('class', `question-${questionDifficulty.toLowerCase()}`);
+
+    let label = appendNodeToNode('label', '', '', options);
+    label.innerHTML = 'Contraints';
+    let constraintsInput = appendNodeToNode('input', '', '', label);
+    constraintsInput.setAttribute('size', '4');
+    constraintsInput.disabled = true;
+    constraintsInput.value = parentRow.getElementsByTagName('input')[1].value;
 
     let lblPoints = appendNodeToNode('label', '', '', options);
     lblPoints.innerHTML = 'Points';
@@ -228,6 +243,13 @@ function addQuestionToBank(node) {
         default:
 
     }
+
+    let label = appendNodeToNode('label', '', '', options);
+    label.innerHTML = 'Contraints';
+    let constraintsInput = appendNodeToNode('input', '', '', label);
+    constraintsInput.setAttribute('size', '4');
+    constraintsInput.disabled = true;
+    constraintsInput.value = node.getElementsByTagName('input')[1].value;
 
     let btnRemove = appendNodeToNode('button', 'btnRemove' + qid, 'btn-remove', options);
     btnRemove.innerHTML = 'Remove';
@@ -401,7 +423,7 @@ function getPoints() {
     log('Question IDs in exam: ' + questionIDsInExam);
     for (let i in questionIDsInExam) {
         // log('---:' + `question${questionIDsInExam[i]}`);
-        let pointsElement = getelm(`question${questionIDsInExam[i]}`).getElementsByTagName('input')[1];
+        let pointsElement = getelm(`question${questionIDsInExam[i]}`).getElementsByTagName('input')[2];
         // log(pointsElement)
         points.push(parseInt(pointsElement.value));
     }
@@ -568,6 +590,7 @@ function submitAddNewQuestionToBankRequestBH() {
         'topic': getelm('modal-topic').value,
         'testCases': getTestCases(),
         'examTitle': getelm('exam-title').value,
+        'constraints': getelm('modal-constraints').value,
         'requestType': ADDQUESTION_RT
     };
 
@@ -867,7 +890,6 @@ function filterQuestionBankTopic(selectElm) {
         return;
     }
 
-//TODO: filter bank on topic
     let keys = Object.keys(topicQuestions);
     log(`keys:`);
     log(keys);
