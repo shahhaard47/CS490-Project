@@ -18,7 +18,6 @@ if ($conn->connect_error)
 $rawDeleteRequest = file_get_contents('php://input');
 $data = json_decode($rawDeleteRequest, true);
 $deleteRequest = array('examID' => $data['examID']);
-//$deleteRequest = array('examID' => 44);
 
 
 $delete = mysqli_query($conn, "DELETE FROM BETA_exams WHERE examID='".$deleteRequest['examID']."'");

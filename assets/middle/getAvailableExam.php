@@ -3,6 +3,10 @@
 require_once('constructQuestionsInPlace.php');
 
 $jsonrequest = file_get_contents('php://input');
+
+//$decjson = array("userID" => "mscott");
+//$jsonrequest = json_encode($decjson);
+
 $backfile = "getAvailableExam.php";
 $url = "https://web.njit.edu/~ds547/CS490-Project/assets/back/".$backfile;
 $curl_opts = array(CURLOPT_POST => 1,
@@ -15,7 +19,7 @@ $result = curl_exec($ch);
 // var_dump($result);
 
 $decoded = json_decode($result, true);
-// var_dump($decoded);
+//var_dump($decoded);
 
 // check connection
 if ($decoded["conn"] && $decoded["conn"] == false) {

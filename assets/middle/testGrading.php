@@ -44,6 +44,21 @@ $grading_data = array(
     )*/
 );
 
+
+// test grading with all questions in question bank with correct solutions
+// get all questions (same as request_questions.php)
+$curl_opts = array(CURLOPT_POST => 1,
+    CURLOPT_URL => 'https://web.njit.edu/~ds547/CS490-Project/assets/back/back_questionBank.php',
+    CURLOPT_POSTFIELDS => $jsonrequest,
+    CURLOPT_RETURNTRANSFER => 1);
+$ch = curl_init();
+curl_setopt_array($ch, $curl_opts);
+$result = curl_exec($ch);
+$questionDecoded = json_decode($result, true);
+$questionsList = $questionDecoded["raw"];
+
+$custom_points = 20;
+
 // $question_data = $grading_data[1];
 // $score = gradeQuestion($question_data);
 // echo "Score: $score\n";

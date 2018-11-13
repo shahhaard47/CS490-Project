@@ -1,0 +1,274 @@
+{
+  "raw":[
+    {
+      "questionID":"54",
+      "functionName":"cube",
+      "params":[
+        "int num"
+      ],
+      "does":"take third power of input",
+      "prints":"the result of performing cubing operation",
+      "topic":"math",
+      "difficulty":"e",
+      "constraints":"",
+      "constructed":"Write a function named \"cube\" that takes parameter <int num>, take third power of input and returns the result of performing cubing operation."
+    },
+    {
+      "questionID":"55",
+      "functionName":"isSubstring",
+      "params":[
+        "str str1",
+        "str str2"
+      ],
+      "does":"determines whether str1 is a substring of str2",
+      "prints":"True if str1 is a substring of str2, and False otherwise",
+      "topic":"Strings",
+      "difficulty":"e",
+      "constraints":"",
+      "constructed":"Write a function named \"isSubstring\" that takes parameters <str str1> and <str str2>, determines whether str1 is a substring of str2 and returns True if str1 is a substring of str2, and False otherwise."
+    },
+    {
+      "questionID":"56",
+      "functionName":"initialVowels",
+      "params":[
+        "str text"
+      ],
+      "does":"searches through the string, text, and counts the number of words that begin with a vowel, whether uppercase or lowercase",
+      "prints":"the count value",
+      "topic":"Strings",
+      "difficulty":"m",
+      "constraints":"",
+      "constructed":"Write a function named \"initialVowels\" that takes parameter <str text>, searches through the string, text, and counts the number of words that begin with a vowel, whether uppercase or lowercase and returns the count value."
+    },
+    {
+      "questionID":"57",
+      "functionName":"mathOperations",
+      "params":[
+        "str operation",
+        "int int1",
+        "int int2"
+      ],
+      "does":"performs a calculation using int1 and int2 based on what operation the str operation variable is (+,-,*,\/,%)",
+      "prints":"the value calculated by the performed operation on the two integers",
+      "topic":"math",
+      "difficulty":"e",
+      "constraints":"",
+      "constructed":"Write a function named \"mathOperations\" that takes parameters <str operation>, <int int1> and <int int2>, performs a calculation using int1 and int2 based on what operation the str operation variable is (+,-,*,\/,%) and returns the value calculated by the performed operation on the two integers."
+    },
+    {
+      "questionID":"58",
+      "functionName":"fibonacci",
+      "params":[
+        "int num"
+      ],
+      "does":"generates num Fibonacci numbers",
+      "prints":"the Fibonacci numbers generated in a string with comma-separated values",
+      "topic":"math",
+      "difficulty":"h",
+      "constraints":"",
+      "constructed":"Write a function named \"fibonacci\" that takes parameter <int num>, generates num Fibonacci numbers and returns the Fibonacci numbers generated in a string with comma-separated values."
+    },
+    {
+      "questionID":"59",
+      "functionName":"backwards",
+      "params":[
+        "str word"
+      ],
+      "does":"sorts the characters in the word in reverse order",
+      "prints":"the generated reverse string",
+      "topic":"Strings",
+      "difficulty":"e",
+      "constraints":"",
+      "constructed":"Write a function named \"backwards\" that takes parameter <str word>, sorts the characters in the word in reverse order and returns the generated reverse string."
+    },
+    {
+      "questionID":"62",
+      "functionName":"initialVowels",
+      "params":[
+        "str text"
+      ],
+      "does":"searches through a string, text, and adds all words that begin with a vowel, both uppercase and lower case, to a list",
+      "prints":"that list of words",
+      "topic":"Lists",
+      "difficulty":"m",
+      "constraints":"",
+      "constructed":"Write a function named \"initialVowels\" that takes parameter <str text>, searches through a string, text, and adds all words that begin with a vowel, both uppercase and lower case, to a list and returns that list of words."
+    },
+    {
+      "questionID":"65",
+      "functionName":"combineSorted",
+      "params":[
+        "int list1",
+        "int list2"
+      ],
+      "does":"combines the two list of integers in ascending order",
+      "prints":"the new sorted list",
+      "topic":"Lists",
+      "difficulty":"m",
+      "constraints":"",
+      "constructed":"Write a function named \"combineSorted\" that takes parameters <int list1> and <int list2>, combines the two list of integers in ascending order and returns the new sorted list."
+    },
+    {
+      "questionID":"72",
+      "functionName":"doubleIt",
+      "params":[
+        "int num"
+      ],
+      "does":"doubles the value of the int, num",
+      "prints":"the calculated value",
+      "topic":"math",
+      "difficulty":"e",
+      "constraints":"",
+      "constructed":"Write a function named \"doubleIt\" that takes parameter <int num>, doubles the value of the int, num and returns the calculated value."
+    },
+    {
+      "questionID":"73",
+      "functionName":"lessThanX",
+      "params":[
+        "int listOfNums[]",
+        "int x"
+      ],
+      "does":"searches through the listOfNums and adds all numbers from that list that are less than int x into a list",
+      "prints":"that list of numbers",
+      "topic":"Lists",
+      "difficulty":"e",
+      "constraints":"",
+      "constructed":"Write a function named \"lessThanX\" that takes parameters <int listOfNums[]> and <int x>, searches through the listOfNums and adds all numbers from that list that are less than int x into a list and returns that list of numbers."
+    },
+    {
+      "questionID":"74",
+      "functionName":"listOverlap",
+      "params":[
+        "int listOfNumsA",
+        "int listOfNumsB"
+      ],
+      "does":"add all common elements between listOfNumsA and listOfNumsB, with both lists of the same or different lengths, to a list, with no duplicates,",
+      "prints":"the list of common elements",
+      "topic":"Lists",
+      "difficulty":"m",
+      "constraints":"",
+      "constructed":"Write a function named \"listOverlap\" that takes parameters <int listOfNumsA> and <int listOfNumsB>, add all common elements between listOfNumsA and listOfNumsB, with both lists of the same or different lengths, to a list, with no duplicates, and returns the list of common elements."
+    },
+    {
+      "questionID":"75",
+      "functionName":"isPal",
+      "params":[
+        "str word"
+      ],
+      "does":"checks whether the given word is a palindrome or not",
+      "prints":"True if it is, and False if it is not",
+      "topic":"Strings",
+      "difficulty":"e",
+      "constraints":"",
+      "constructed":"Write a function named \"isPal\" that takes parameter <str word>, checks whether the given word is a palindrome or not and returns True if it is, and False if it is not."
+    },
+    {
+      "questionID":"76",
+      "functionName":"caesarEncrypt",
+      "params":[
+        "str text"
+      ],
+      "does":"generates the encryption of the original string, text",
+      "prints":"the encryption as a string",
+      "topic":"Strings",
+      "difficulty":"h",
+      "constraints":"for loop",
+      "constructed":"Write a function named \"caesarEncrypt\" that takes parameter <str text>, generates the encryption of the original string, text and returns the encryption as a string."
+    },
+    {
+      "questionID":"77",
+      "functionName":"inRange",
+      "params":[
+        "int testNum",
+        "int floor",
+        "int ceiling"
+      ],
+      "does":"tests whether the given number, testNum, falls within the specified range given by floor and ceiling",
+      "prints":"True if testNum does fall within the range, and false otherwise",
+      "topic":"math",
+      "difficulty":"e",
+      "constraints":"",
+      "constructed":"Write a function named \"inRange\" that takes parameters <int testNum>, <int floor> and <int ceiling>, tests whether the given number, testNum, falls within the specified range given by floor and ceiling and returns True if testNum does fall within the range, and false otherwise."
+    },
+    {
+      "questionID":"78",
+      "functionName":"containsLetter",
+      "params":[
+        "str char",
+        "str text"
+      ],
+      "does":"identifies all of the strings text that contain the specified letter, char,",
+      "prints":"a list of those strings",
+      "topic":"Strings",
+      "difficulty":"m",
+      "constraints":"",
+      "constructed":"Write a function named \"containsLetter\" that takes parameters <str char> and <str text>, identifies all of the strings text that contain the specified letter, char, and returns a list of those strings."
+    },
+    {
+      "questionID":"79",
+      "functionName":"wordCount",
+      "params":[
+        "int maxWordLen",
+        "str text"
+      ],
+      "does":"searches through the string, text, to find all words that are of length less than or equal to the specified maxWordLen",
+      "prints":"the number of words found that meet the criteria",
+      "topic":"Strings",
+      "difficulty":"e",
+      "constraints":"",
+      "constructed":"Write a function named \"wordCount\" that takes parameters <int maxWordLen> and <str text>, searches through the string, text, to find all words that are of length less than or equal to the specified maxWordLen and returns the number of words found that meet the criteria."
+    },
+    {
+      "questionID":"80",
+      "functionName":"generateInitials",
+      "params":[
+        "str fullName"
+      ],
+      "does":"extracts the first letter of each name in the string",
+      "prints":"the initials of the provided full name string",
+      "topic":"Strings",
+      "difficulty":"e",
+      "constraints":"",
+      "constructed":"Write a function named \"generateInitials\" that takes parameter <str fullName>, extracts the first letter of each name in the string and returns the initials of the provided full name string."
+    },
+    {
+      "questionID":"83",
+      "functionName":"isAMinHeap",
+      "params":[
+        "int listOfNums"
+      ],
+      "does":"determines whether the list of integers provided, listOfNums, is a valid representation of a min heap",
+      "prints":"True if it is and False otherwise",
+      "topic":"Lists",
+      "difficulty":"h",
+      "constraints":"recursion",
+      "constructed":"Write a function named \"isAMinHeap\" that takes parameter <int listOfNums>, determines whether the list of integers provided, listOfNums, is a valid representation of a min heap and returns True if it is and False otherwise."
+    },
+    {
+      "questionID":"84",
+      "functionName":"allOdds",
+      "params":[
+        "int n"
+      ],
+      "does":"adds to a list all odd numbers that fall within the specified range, from 0 to n,",
+      "prints":"that list of odd numbers",
+      "topic":"math",
+      "difficulty":"e",
+      "constraints":"while loop",
+      "constructed":"Write a function named \"allOdds\" that takes parameter <int n>, adds to a list all odd numbers that fall within the specified range, from 0 to n, and returns that list of odd numbers."
+    },
+    {
+      "questionID":"85",
+      "functionName":"factorial",
+      "params":[
+        "int num"
+      ],
+      "does":"calculates the factorial of num",
+      "prints":"the calculated value",
+      "topic":"math",
+      "difficulty":"e",
+      "constraints":"",
+      "constructed":"Write a function named \"factorial\" that takes parameter <int num>, calculates the factorial of num and returns the calculated value."
+    }
+  ]
+}

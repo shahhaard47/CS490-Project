@@ -22,18 +22,18 @@ if ($conn->connect_error)
 //receiving json request from Haard (middle) to add raw exam data for student
 $rawComments = file_get_contents('php://input'); //get JSON request data to add raw exam data for student
 $data = json_decode($rawComments, true); //decode JSON request data to add raw exam data for student
-$responseInfo = array('userID' => $data['userID'], 'examID' => $data['examID'], 'studentResponses' => $data['answers']); //store JSON request data to add raw exam data for student
-//$responseInfo = array('userID' => 'mscott', 'examID' => 5, 'studentResponses' => [[1,'(student response to question)']]); //TEST
-//$responseInfo = array('userID' => 'jsnow', 'examID' => 6, 'studentResponses' => [[1,'(student response to question1)'],[2,'(student response to question2)']]); //TEST
-
+$responseInfo = array('userID' => $data['userID'], 'examID' => $data['examID'], 'studentResponses' => $data['answers']); 
 
 
 //extract questionID and instructorComments from $responseInfo['studentResponses']
+$i=array();
+$ids=array();
 foreach($responseInfo['studentResponses'] as $arr)
 {
-  //$insert_rawExamData = mysqli_query($conn, "INSERT INTO BETA_rawExamData (userID,examID,questionID,studentResponse) VALUES ('".$responseInfo['userID']."','".$responseInfo['examID']."','".$arr['questionID']."','".$arr['studentResponse']."')"); //$arr[0]=questionID and $arr[1]=studentResponse(python code)
-  
-  if($conn->query("INSERT INTO BETA_rawExamData (userID,examID,questionID,studentResponse) VALUES ('".$responseInfo['userID']."','".$responseInfo['examID']."','".$arr['questionID']."','".$arr['studentResponse']."')")===TRUE)
+  $insert=mysqli_real_escape_string($conn, $arr['studentResponse']);
+  //$insert_rawExamData = mysqli_query($conn, "INSERT INTO BETA_rawExamData (userID,examID,questionID,studentResponse) VALUES ('".$responseInfo['userID']."','".$responseInfo['examID']."','".$arr['questionID']."','".$insert."')"); //$arr[0]=questionID and $arr[1]=studentResponse(python code)
+  array_push($ids,$arr['questionID']);
+  if($conn->query("INSERT INTO BETA_rawExamData (userID,examID,questionID,studentResponse) VALUES ('".$responseInfo['userID']."','".$responseInfo['examID']."','".$arr['questionID']."','".$insert."')")===TRUE)
   {
     $myObj->query=true;
   }
