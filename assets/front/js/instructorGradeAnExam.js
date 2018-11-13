@@ -1,3 +1,9 @@
+/**
+ * This file is used for an instructor to grade a specific exam they clicked on in 'view-completed-exams.html'
+ *
+ **/
+
+
 const RELEASE_GRADE_RT = 'release_grade',
     GRADE_EXAM_RT = 'gradeExam';
 /* The current exam as an object */

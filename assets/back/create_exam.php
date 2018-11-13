@@ -22,7 +22,6 @@ if ($conn->connect_error)
 $rawCreateExam = file_get_contents('php://input'); //get JSON data for creating an exam
 $data = json_decode($rawCreateExam, true); //decode JSON data for creating an exam
 $createExam = array('examName' => $data['examName'], 'questionIDs' => $data['questions'], 'points' => $data['points']); //store JSON data for creating an exam
-//$createExam = array('examName' => 'Exam24', 'questionIDs' => array(1,3), 'points' => array(30,70)); //TEST
 
 //convert $qIDs from an array into a string
 $questionIDs=implode(',',$createExam['questionIDs']);

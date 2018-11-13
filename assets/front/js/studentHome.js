@@ -24,6 +24,38 @@ function getPublishedExam() {
     xhr.send(JSON.stringify(obj));
 }
 
+function submitCheckIfExamPublishedRequest(examID, examName) {
+    let obj = {};
+    obj.examID = examID;
+    obj.requestType = 'isPublished';
+    obj.userID = getURLParams(window.location.href).ucid;
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        /* Check if the xhr request was successful */
+        if (this.readyState === 4) {
+            if (this.status === 200) {
+                let response = parseJSON(xhr.responseText);
+                log(response);
+                /* Check to see if response was true or false */
+                if (response.published) {
+                    openExam(examID, examName);
+                } else {
+                    showDialog(document.body, 'This exam is no longer available to take. Please refresh and try again.').show();
+                }
+            } else {
+            }
+        }
+    };
+
+    /* Open a POST request */
+    xhr.open("POST", URL, true);
+    /* Encode the data properly. Otherwise, php will not be able to get the values */
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    /* Send the POST request with the data */
+    xhr.send(JSON.stringify(obj));
+}
+
+
 function populateExamsTable(jsonObj) {
     let container = getelm('availableExamsContainer');
     let table = appendNodeToNode('table', 'table', 'table', container);
@@ -36,7 +68,7 @@ function populateExamsTable(jsonObj) {
     let btn = appendNodeToNode('button', '', 'examBtn', td);
     btn.innerHTML = jsonObj.examName;
     btn.onclick = function () {
-        openExam(jsonObj.examID);
+        submitCheckIfExamPublishedRequest(jsonObj.examID, jsonObj.examName);
     }
 }
 
@@ -52,9 +84,10 @@ function populateExamsArray(jsonObj) {
     log(examIDsArr);
 }
 
-function openExam(examID) {
+function openExam(examID, examName) {
     let ucid = getURLParams(window.location.href).ucid;
-    window.location = `take-exam.html?userid=${ucid}&id=${examID}`;
+    window.location = `take-exam.html?userid=${ucid}&id=${examID}&examName=${examName}`;
+
 }
 
 function takeToViewExamBH(url) {

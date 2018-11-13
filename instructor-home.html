@@ -3,23 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>Instructor Home</title>
+    <link rel="stylesheet" href="assets/front/stylesheets/instructor-home.css">
 </head>
 <body id="body">
-<header class="header">
+<header class="centered header">
     <div class="title">
-        <span>Welcome Instructor!</span>
+        <h3>Welcome Instructor!</h3>
         <!--<button>Logout</button>-->
     </div>
 </header>
-<section class="options-section">
-    <div class="options">
+<section class="centered options-section">
+    <div class="centerd options">
         <button onclick="window.location = 'exam-creator.html';">Exam Creator</button>
-        <button onclick="window.location = 'publish-exam.html';">Publish Exam</button>
-        <button onclick="window.location = 'view-completed-exams.html';">View Exams Completed Students</button>
+        <br>
+        <button onclick="window.location = 'publish-exam.html';">View Created Exam</button>
+        <br>
+        <button onclick="window.location = 'view-completed-exams.html';">View Exams Completed By Students</button>
+        <br>
         <button onclick="window.location = '/~sk2283';" id="exitBtn">Logout</button>
+        <br>
     </div>
 </section>
 </body>
+<script src="assets/front/js/instructorHome.js"></script>
 <script src="assets/front/js/examCreator.js"></script>
 <script src="assets/front/js/handyMethods.js"></script>
 </html>

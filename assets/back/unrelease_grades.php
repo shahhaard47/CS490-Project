@@ -18,8 +18,7 @@ if ($conn->connect_error)
 $release = file_get_contents('php://input'); 
 $data = json_decode($release, true); 
 $releaseInfo = array('userID' => $data['userID'], 'examID' => $data['examID']);
+$releaseInfo = array('userID' => 'jsnow', 'examID' => 63);
 
-
-$update_release = mysqli_query($conn, "UPDATE BETA_grades SET released=TRUE WHERE userID='".$releaseInfo['userID']."' AND examID='".$releaseInfo['examID']."'");
-echo "done";
+$update_release = mysqli_query($conn, "UPDATE BETA_grades SET released=FALSE WHERE userID='".$releaseInfo['userID']."' AND examID='".$releaseInfo['examID']."'");
 ?>

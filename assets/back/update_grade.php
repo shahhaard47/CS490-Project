@@ -38,7 +38,7 @@ foreach($scoreInfo['scores'] as $arr)
 {
   if(sizeOf($arr)>2)
   {
-    $update_testCases = mysqli_query($conn, "UPDATE BETA_rawExamData SET testCasesPassFail='".implode(',',$arr["testCasesPassFail"])."',gradedComments='".implode(',',$arr["comments"])."' WHERE userID='".$scoreInfo['userID']."' AND examID='".$scoreInfo['examID']."' AND questionID='".$arr["questionID"]."'");
+    $update_testCases = mysqli_query($conn, "UPDATE BETA_rawExamData SET testCasesPassFail='".implode(',',$arr["testCasesPassFail"])."',gradedComments='".implode(':',$arr["comments"])."' WHERE userID='".$scoreInfo['userID']."' AND examID='".$scoreInfo['examID']."' AND questionID='".$arr["questionID"]."'");
   }
   $update_scores = mysqli_query($conn, "UPDATE BETA_rawExamData SET questionScore='".$arr["qScore"]."' WHERE userID='".$scoreInfo['userID']."' AND examID='".$scoreInfo['examID']."' AND questionID='".$arr["questionID"]."'"); 
   $totalExamScore+=$arr["qScore"];

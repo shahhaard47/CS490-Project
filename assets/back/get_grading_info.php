@@ -22,7 +22,6 @@ if ($conn->connect_error)
 $rawGradingRequest = file_get_contents('php://input'); //get JSON request data for grading info
 $data = json_decode($rawGradingRequest, true); //decode JSON request data for grading info
 $requestInfo = array('examID' => $data['examID'], 'userID' => $data['userID']); //store JSON request data for grading info
-//$requestInfo = array('examID' => 49, 'userID' => "mscott"); //store JSON request data for grading info
 
 
 

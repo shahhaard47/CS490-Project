@@ -37,6 +37,37 @@ function removeClass(id, clss) {
     }
 }
 
+function hideElement(element) {
+    element.style = 'display:none';
+}
+
+
+function showElement(element) {
+    element.style = 'display:block'
+
+}
+
+function showDialog(elementToAddTo, bodyText) {
+    let dialog = appendNodeToNode('dialog', 'dialog', 'dialog', elementToAddTo);
+    // dialog.innerHTML = 'This exam is no longer available to take. Please refresh and try again.';
+    dialog.innerHTML = bodyText;
+    dialog.style = 'text-align:center; background-color:whitesmoke;';
+    appendNodeToNode('br', '', '', dialog);
+
+    let btnCloseDialog = appendNodeToNode('button', 'button', 'button', dialog);
+    btnCloseDialog.innerHTML = 'Close';
+
+    btnCloseDialog.onclick = function () {
+        dialog.close();
+        dialog.remove();
+    };
+
+    return dialog;
+}
+
+// function showInfoModal() {
+// }
+
 function parseJSON(str) {
     let json = '';
     try {
@@ -135,7 +166,6 @@ function constructQuestion(questionsObj) {
 
     return str
 }
-
 
 /** A utility function to get the last number(s) from a string. Ex: 'button49' input will return 49 */
 function getLastNumbersFromString(str) {

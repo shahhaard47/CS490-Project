@@ -23,7 +23,7 @@ if ($conn->connect_error)
 $rawComments = file_get_contents('php://input'); //get JSON request data to update instructorComments
 $data = json_decode($rawComments, true); //decode JSON request data to update instructorComments
 $commentInfo = array('userID' => $data['userID'], 'examID' => $data['examID'], 'comments' => $data['comments']); //store JSON request data to update instructorComments
-//$commentInfo = array('userID' => 'jsnow', 'examID' => 34, 'comments' => [[30,'bad'],[31,'try again'],[32,'not good']]); //TEST
+
 
 
 

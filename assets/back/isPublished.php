@@ -21,7 +21,6 @@ if ($conn->connect_error)
 $rawRequest = file_get_contents('php://input');
 $data = json_decode($rawRequest, true); 
 $info = array('examID' => $data['examID']);
-//$info = array('examID' => 57); //TEST
 
 if(mysqli_query($conn, "SELECT published FROM BETA_exams WHERE examID='".$info['examID']."'")->fetch_assoc()['published']==true)
 {

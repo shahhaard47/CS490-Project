@@ -9,20 +9,28 @@ SUBMIT_EXAM_RT = 'submit_exam',
 REMOVE_QUESTION_FROM_BANK_RT = 'delete_question',
 RELEASE_GRADE_RT = 'release_grade',
 GRADE_EXAM_RT = 'gradeExam',
-GET_ALL_CREATED_EXAMS = 'getAllCreatedExams';
+GET_ALL_CREATED_EXAMS = 'getAllCreatedExams',
+PUBLISH_EXAM_RT = 'publish_exam',
+UNPUBLISH_EXAM_RT = 'unpublish_exam',
+IS_PUBLISHED_RT = 'isPublished',
+DELETE_EXAM_RT = 'delete_exam',
+RETURN_TOPICS_RT = 'returnTopics';
 
 $json = file_get_contents('php://input');
 $json_decoded = json_decode($json);
-//echo "json: ", $json; exit();
 
 $url = '';
 $req = $json_decoded->requestType;
+//if ($req == GRADE_EXAM_RT) {
+//    echo "json: ", $json;
+//    exit();
+//}
 
 if ($req == LOGIN_RT) {
     $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/auth_login.php';
 } elseif ($req == GETQBANK_RT) {
     $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/request_questions.php';
-} elseif ($req == CREATE_EXAM_RT) { //TODO
+} elseif ($req == CREATE_EXAM_RT) {
     $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/comms.php';
 } elseif ($req == ADD_QUESTION_RT) {
     $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/comms.php';
@@ -36,10 +44,12 @@ if ($req == LOGIN_RT) {
     $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/comms.php';
 } elseif ($req == GET_ALL_CREATED_EXAMS) {
     $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/comms.php';
-} elseif ($req == 'allExamsToBeGraded') {
-    $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/allExamsToBeGraded.php';
 } elseif ($req == GRADE_EXAM_RT) {
     $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/grade.php';
+} elseif ($req == PUBLISH_EXAM_RT || $req == UNPUBLISH_EXAM_RT || $req == IS_PUBLISHED_RT || $req == DELETE_EXAM_RT || $req = RETURN_TOPICS_RT) {
+    $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/comms.php';
+} elseif ($req == 'allExamsToBeGraded') {
+    $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/allExamsToBeGraded.php';
 }
 
 $curl_opts = array(
@@ -49,6 +59,7 @@ $curl_opts = array(
     CURLOPT_RETURNTRANSFER => 1
 
 );
+
 $ch = curl_init();
 curl_setopt_array($ch, $curl_opts);
 $result = curl_exec($ch);

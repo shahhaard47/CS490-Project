@@ -1,6 +1,8 @@
-let questionIDsInExam = [], solutions = {}, examID = '', previousIDSelected = '';
+const SUBMIT_EXAM_RT = 'submit_exam',
+    GRADE_EXAM_RT = 'gradeExam';
+let questionIDsInExam = [], solutions = {}, previousIDSelected = '', currentSelectedID = '';
 
-function getAvailableExams() {
+function submitGetAvailableExamsRequest() {
     let obj = {};
     obj.requestType = GET_AVAILABLE_EXAM_RT;
     let xhr = new XMLHttpRequest();
@@ -22,6 +24,57 @@ function getAvailableExams() {
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     /* Send the POST request with the data */
     xhr.send(JSON.stringify(obj));
+}
+
+/* AJAX request to submit exam */
+function submitExamRequest(obj) {
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        /* Check if the xhr request was successful */
+        if (this.readyState === 4) {
+            if (this.status === 200) {
+                /* Check if e   xam was successfully submitted */
+                let response = parseJSON(xhr.responseText);
+                log(`Response from back after submitting exam: ${response.query}`);
+
+                if (response.query == true) {
+                    let d = showDialog(document.body, 'Exam was submitted successfully!');
+                    d.show();
+                    let btn = d.getElementsByTagName('button');
+
+                    btn[0].onclick = function () {
+                        dialog.close();
+                        dialog.remove();
+                        window.location = 'student-home.html?ucid=' + userID;
+                    };
+
+                    /* When the submit request is good, send a auto grade exam request */
+                    x = {};
+                    x.examID = parseInt(examID);
+                    x.userID = getURLParams(window.location.href).userid;
+                    x.requestType = GRADE_EXAM_RT;
+                    log(x);
+                    sendAJAXReq(JSON.stringify(x));
+
+                    // window.history.back();
+                    // window.location.reload();
+                } else {
+                    let d = showDialog(document.body, 'Exam was not submitted. Please try again.');
+                    d.show();
+                }
+
+            } else {
+            }
+        }
+    };
+
+    /* Open a POST request */
+    xhr.open("POST", URL, true);
+    /* Encode the data properly. Otherwise, php will not be able to get the values */
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    /* Send the POST request with the data */
+    xhr.send(JSON.stringify(obj));
+
 }
 
 /* src: https://jsfiddle.net/2wAzx/13/ */
@@ -48,7 +101,6 @@ function enableTab(id) {
     };
 }
 
-
 function openQuestion(questionsObj) {
     questionTextArea.innerHTML = questionsObj.constructed;
 }
@@ -61,7 +113,7 @@ function loadQuestions(obj) {
         btn.innerHTML = `Question ${num++}`;
         btn.setAttribute('style', 'width:100%');
         btn.onclick = function () {
-            getelm('questionTitle').innerHTML = 'Question ' + btn.innerHTML;
+            getelm('questionTitle').innerHTML = `${btn.innerHTML}<br>Points: ${questionsList[i].points}`;
             saveSolution(previousIDSelected, solutionTextArea.value);
 
             removeClass(`${previousIDSelected}`, 'btn-selected');
@@ -96,10 +148,11 @@ function getAnswers() {
     let list = [], keys = Object.keys(solutions);
     for (let i = 0; i < keys.length; i++) {
         if (solutions.hasOwnProperty(keys[i])) {
-            let l2 = [];
-            l2.push(parseInt(getLastNumbersFromString(keys[i])));
-            l2.push(solutions[keys[i]]);
-            list.push(l2);
+            let obj = {};
+            obj.questionID = parseInt(getLastNumbersFromString(keys[i]));
+            obj.studentResponse = solutions[keys[i]];
+
+            list.push(obj);
         }
     }
     return list;
@@ -107,15 +160,23 @@ function getAnswers() {
 
 function submitExamBH() {
     /* Make sure the solution to the last question is saved */
-    saveSolution(questionIDsInExam[questionIDsInExam.length - 1], solutionTextArea.value);
+    // TODO: Make sure all solutions are saved before submitting
+    saveSolution('btn' + questionIDsInExam[questionIDsInExam.length - 1], solutionTextArea.value);
+    // saveSolution('btn' + previousIDSelected, solutionTextArea.value);
     let obj = {};
     obj.examID = parseInt(examID);
     obj.userID = getURLParams(window.location.href).userid;
     obj.answers = getAnswers();
-    obj.requestType = 'submit_exam';
+    obj.requestType = SUBMIT_EXAM_RT;
+
+    log();
     log(obj);
-    sendAJAXReq(JSON.stringify(obj));
-    window.location = 'student-home.html';
+
+    submitExamRequest(obj);
+
+    /* Auto Grade the exam after the student has submitted it */
+
+    // window.location = 'student-home.html?userid=' + userID;
 }
 
 function initView() {
@@ -132,8 +193,10 @@ window.onload = function () {
     enableTab(solutionTextArea.id);
     let params = getURLParams(window.location.href);
     examID = params.id;
-    changeInnerHTML('header-examID', `Exam ID: ${params.id}`);
-    getAvailableExams();
+    userID = params.userid;
+    examName = params.examName;
+    changeInnerHTML('header-examName', `<strong>Exam Name</strong><br>${params.examName}`);
+    submitGetAvailableExamsRequest();
 };
 
 /*

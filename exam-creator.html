@@ -24,6 +24,7 @@
                     <option>str</option>
                     <option>int</option>
                     <option>float</option>
+                    <option>bool</option>
                 </select>
                 <input id="param0" onkeyup="populateTestCaseName(this);">
             </label>
@@ -61,6 +62,7 @@
                 <option>str</option>
                 <option>int</option>
                 <option>float</option>
+                <option>bool</option>
             </select> Output <input id="modal-testcase-output0"><br>
 
             <label id="modal-testcase-container1">
@@ -72,14 +74,15 @@
                 <option>str</option>
                 <option>int</option>
                 <option>float</option>
+                <option>bool</option>
             </select> Output <input id="modal-testcase-output1"><br>
 
         </div>
         <button class="btn btn-add-testcase" onclick="addTestCaseBH()">Add Test Case</button>
         <button class="btn btn-remove-testcase" onclick="removeLastTestCaseBH()">Remove Test Case</button>
 
-        <!--<button id="addTestCase" onclick="addTestCaseBH()">+</button>-->
-        <button class="btn modal-add-btn" onclick="addNewQuestionToBankBH()">Add</button>
+        <button class="btn modal-clear-btn" onclick="clearModalFieldsBH()">Clear</button>
+        <button class="btn modal-add-btn" onclick="submitAddNewQuestionToBankRequestBH()">Add</button>
     </div>
 </div>
 <!-- Left Side-->
@@ -96,11 +99,8 @@
                 </div>
                 <div class="row">
                     <label id="topic-options">
-                        <select onchange="">
-                            <option>All</option>
-                            <option>List</option>
-                            <option>Dictionary</option>
-                            <option>Recursion</option>
+                        <select id="topicSelect" onclick="filterQuestionBankTopic(this)">
+                            <option>None</option>
                         </select>
                     </label>
                 </div>
@@ -111,7 +111,7 @@
                 </div>
                 <div class="row">
                     <label id="sorting-options">
-                        <select onchange="sortQuestionBank(this)">
+                        <select onclick="sortQuestionBank(this)">
                             <optgroup label="Difficulty">
                                 <option>Select</option>
                                 <option>Easy</option>
@@ -148,6 +148,34 @@
                     </span>
                 </div>
 
+            </div>
+            <div class="col">
+                <label>
+                    Questions in exam
+                </label>
+                <br>
+                <label>
+                    Total points in exam
+                </label>
+                <!--<label>-->
+                <!--Easy questions <input id="easyQuestionsInExam">-->
+                <!--</label>-->
+                <!--<br>-->
+                <!--<label>-->
+                <!--Medium questions <input id="mediumQuestionsInExam">-->
+                <!--</label>-->
+                <!--<label>-->
+                <!--Hard questions <input id="hardQuestionsInExam">-->
+                <!--</label>-->
+            </div>
+            <div class="col" style="padding-left: 2em">
+                <label>
+                    <input id="questionsInExam" disabled="disabled">
+                </label>
+                <br>
+                <label>
+                    <input id="pointsInExam" value=0 disabled="disabled">
+                </label>
             </div>
         </div>
     </div>
