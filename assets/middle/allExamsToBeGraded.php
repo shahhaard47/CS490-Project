@@ -1,14 +1,14 @@
 <?php
 
+require_once ("constructExamInfoFunction.php");
+
 /*
 $funcName = string
 $params = array("type var", "type name"...)
 $does = string
 $prints = string
 */
-function constructQuestion($funcName, $params, $does, $returns) {
-	// $outputarr = array();
-	// foreach ($rawArr as $que) {
+/*function constructQuestion($funcName, $params, $does, $returns) {
 	$outparams = "";
 	if (count($params) == 1) {
 		$outparams = "parameter <$params[0]>";
@@ -26,16 +26,15 @@ function constructQuestion($funcName, $params, $does, $returns) {
 	}
 
 	$constructed = "Write a function named \"$funcName\" that takes $outparams, $does and returns $returns.";
+
 	return $constructed;
 }
 
 function constructExams($raw, $exams){
     $detailed_info = array();
     $user_exam_ids = array();
-    //var_dump($raw);exit();
+
     foreach ($raw as $r_elem){
-//        var_dump('relm!------');
-//        var_dump($r_elem);exit();
         $userid = $r_elem["userID"];
         $examid = $r_elem["examID"];
         
@@ -50,8 +49,6 @@ function constructExams($raw, $exams){
         $testCases = $r_elem["testCases"];
         $testCasesPassFail = $r_elem["testCasesPassFail"];
 	      
-	//echo "------".$r_elem["released"]."\n";
-	//exit();
         // new stuff
         $constraints = $r_elem["constraints"];
         $topic = $r_elem["topic"];
@@ -77,18 +74,14 @@ function constructExams($raw, $exams){
             $detailed_info["$userid"]["$examid"] = array($examScore, array($questioninfo_arr));
         }
     }
-    //var_dump();exit();
 
-// var_dump($user_exam_ids);
-// var_dump($detailed_info);
-
-//get all exams in "Exam"
+    //get all exams in "Exam"
     $all_exams_ids = array();
     foreach ($exams as $examinfo){
         array_push($all_exams_ids, $examinfo["examID"]);
     }
 
-// combine the two $user_exam_ids and $detailed_info
+    // combine the two $user_exam_ids and $detailed_info
     $return_array = array();
     foreach ($user_exam_ids as $elem) {
         $userid = $elem[0];
@@ -108,9 +101,9 @@ function constructExams($raw, $exams){
             "examQuestions" => $examQuestions
         ));
     }
-    //var_dump($return_array);exit();
+
     return $return_array;
-}
+}*/
 
 // get front json request // WON'T need
 // $jsonrequest = file_get_contents('php://input');

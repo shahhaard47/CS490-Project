@@ -1,8 +1,6 @@
 <?php
 
-require_once ("constructExamInfoFunction.php");
-
-/*function constructQuestion($funcName, $params, $does, $returns) {
+function constructQuestion($funcName, $params, $does, $returns) {
     $outparams = "";
     if (count($params) == 1) {
         $outparams = "parameter <$params[0]>";
@@ -23,12 +21,17 @@ require_once ("constructExamInfoFunction.php");
     return $constructed;
 }
 
-function constructExams($raw, $exams, $userid){
+function constructExams($raw, $exams, $userID=0){
     $detailed_info = array();
     $user_exam_ids = array();
 
     foreach ($raw as $r_elem){
         $examid = $r_elem["examID"];
+        if ($userID) {
+            $userid = $userID;
+        } else {
+            $userid = $r_elem["userID"];
+        }
 
         $examScore= $r_elem["examScore"];
         $qid = $r_elem["questionID"];
@@ -93,59 +96,6 @@ function constructExams($raw, $exams, $userid){
     }
 
     return $return_array;
-}*/
-
-$jsonrequest = file_get_contents('php://input');
-$decoded = json_decode($jsonrequest, true);
-
-$decoded = array("userID" => "jsnow");
-$jsonrequest = json_encode($decoded);
-
-if ($decoded["userID"]) {
-    $userid = $decoded["userID"];
-} else {
-    echo "(error) userID should be passed to view student exam info\n";
-    exit();
 }
-
-$backfile = "allStudentExamInfo.php";
-$url = "https://web.njit.edu/~ds547/CS490-Project/assets/back/".$backfile;
-
-$curl_opts = array(CURLOPT_POST => 1,
-    CURLOPT_URL => $url,
-    CURLOPT_POSTFIELDS => $jsonrequest,
-    CURLOPT_RETURNTRANSFER => 1);
-$ch = curl_init();
-curl_setopt_array($ch, $curl_opts);
-$result = curl_exec($ch);
-
-$decoded = json_decode($result, true);
-
-//var_dump($decoded); exit();
-
-$raw = $decoded["raw"];
-//var_dump($raw); exit();
-
-$exams = $decoded["exams"];
-
-//var_dump($decoded);
-//exit();
-$return_array = constructExams($raw, $exams, $userid);
-
-//var_dump($return_array); exit();
-
-$encoded_return_array = json_encode($return_array);
-
-//var_dump($return_array);
-echo $encoded_return_array;
-
-
-
-
-
-
-
-
-
 
 ?>
