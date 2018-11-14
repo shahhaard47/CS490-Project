@@ -70,6 +70,7 @@ function submitSaveExamRequest() {
                 log(parseJSON(xhr.responseText));
                 let overallGrade = getelm('overallGrade').value;
                 submitUpdateOverallGradeRequest(overallGrade, examObj.userID, examObj.examID);
+                // sendUpdateComments();
                 window.location.reload();
 
             } else {
@@ -126,6 +127,37 @@ function sendReleaseGradeRequest(obj) {
     xhr.send(JSON.stringify(obj));
 }
 
+function sendUpdateComments() {
+    log('sending comments request. Send data: ');
+    let obj = {};
+    obj.userID = examObj.userID;
+    obj.examID = parseInt(examObj.examID);
+    obj.data = getExamData();
+    obj.requestType = 'update_comments';
+
+    log(obj);
+
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        /* Check if the xhr request was successful */
+        if (this.readyState === 4) {
+            if (this.status === 200) {
+                log(parseJSON(xhr.responseText));
+                // window.location.reload();
+                /* Update the overall score in the database for an exam */
+            } else {
+
+            }
+        }
+    };
+
+    /* Open a POST request */
+    xhr.open("POST", URL, true);
+    /* Encode the data properly. Otherwise, php will not be able to get the values */
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    /* Send the POST request with the data */
+    xhr.send(JSON.stringify(obj));
+}
 
 function loadView(jsonObj) {
     for (let i = 0; i < jsonObj.length; i++) {
@@ -164,10 +196,12 @@ function loadQuestionsInExam() {
 
         let questionBottom = appendNodeToNode('div', '', 'questionBottom', questionContainer);
         label = appendNodeToNode('label', '', '', questionBottom);
-        label.innerHTML = 'Points<br>';
+        label.innerHTML = 'Points';
         let inputPoints = appendNodeToNode('input', 'points' + i, '', label);
         inputPoints.value = examQuestions[i].points;
         appendNodeToNode('br', '', '', label);
+
+        //TODO: OUT OF points
 
         /*
         label = appendNodeToNode('label', '', '', questionBottom);
@@ -178,8 +212,10 @@ function loadQuestionsInExam() {
         */ //TODO: Showw out of how many points
         label = appendNodeToNode('label', '', '', questionBottom);
         label.innerHTML = 'Comments<br>';
-        textarea = appendNodeToNode('textarea', 'comments' + i, '', label);
+        textarea = appendNodeToNode('textarea', '', '', label);
         textarea.rows = 10;
+        textarea.disabled = true;
+
         // textarea.innerHTML = examQuestions[i].comments;
 
         let x = examQuestions[i].gradedComments;
@@ -187,6 +223,12 @@ function loadQuestionsInExam() {
         for (let j = 0; j < x.length; j++) {
             textarea.innerHTML += examQuestions[i].gradedComments[j] + '\n';
         }
+
+        label = appendNodeToNode('label', '', '', questionBottom);
+        label.innerHTML = 'Instructor Comments<br>';
+        textarea = appendNodeToNode('textarea', 'comments' + i, '', label);
+        textarea.rows = 10;
+        textarea.innerHTML = examQuestions[i].instructorComments;
 
         let overallScore = getelm('overallGrade');
         inputPoints.onkeyup = function () {

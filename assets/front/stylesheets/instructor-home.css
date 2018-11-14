@@ -1,11 +1,11 @@
 body {
     background-color: whitesmoke;
+    margin-top: 100px;
 }
 
 button {
     min-width: 100px;
     min-height: 50px;
-    border-radius: 10px;
     background-color: white;
     margin-bottom: 10px;
     border: solid 2px;
@@ -22,8 +22,26 @@ button:active {
     background-color: #45484d;
 }
 
-.header {
+.navbar {
+    width: 100%;
+    position: fixed;
+    box-shadow: 0 2px lightgray;
+    min-height: 20px;
+    background-color: white;
+    margin: 0;
+    padding: 0;
+    top: 0;
+    left: 0;
 
+}
+
+.navbar .btn {
+    height: 100%;
+    width: 50px;
+}
+
+.col {
+    float: left;
 }
 
 .options-section {

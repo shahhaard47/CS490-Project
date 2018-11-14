@@ -6,15 +6,20 @@
     <link rel="stylesheet" href="assets/front/stylesheets/instructor-home.css">
 </head>
 <body id="body">
-<header class="centered header">
-    <div class="title">
-        <h3>Welcome Instructor!</h3>
-        <!--<button>Logout</button>-->
+<header class="centered navbar">
+    <div class="row">
+        <div class="col title">
+            <h3>Instructor Portal</h3>
+        </div>
+        <div class="col buttons">
+            <button class="btn" onclick="window.location = 'exam-creator.html';">Exam Creator</button>
+            <button class="btn" onclick="window.location = 'exams-controller.html';">Exams</button>
+
+        </div>
     </div>
 </header>
 <section class="centered options-section">
-    <div class="centerd options">
-        <button onclick="window.location = 'exam-creator.html';">Exam Creator</button>
+    <div class="centered options">
         <br>
         <button onclick="window.location = 'publish-exam.html';">View Created Exam</button>
         <br>

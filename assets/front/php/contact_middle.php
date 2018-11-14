@@ -50,12 +50,12 @@ if ($req == LOGIN_RT) {
 } elseif ($req == GRADE_EXAM_RT) {
     $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/grade.php';
 } elseif ($req == ALL_STUDENT_INFO_RT) {
-    $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/'.ALL_STUDENT_INFO_RT.'.php';
+    $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/' . ALL_STUDENT_INFO_RT . '.php';
 } elseif ($req == SAVE_EXAM_INFO_RT) {
     $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/comms.php';
 } elseif ($req == UPDATE_OVERALL_SCORE) {
     $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/comms.php';
-} elseif ($req == PUBLISH_EXAM_RT || $req == UNPUBLISH_EXAM_RT || $req == IS_PUBLISHED_RT || $req == DELETE_EXAM_RT || $req == RETURN_TOPICS_RT || $req == 'getReleasedExams') {
+} elseif ($req == PUBLISH_EXAM_RT || $req == UNPUBLISH_EXAM_RT || $req == IS_PUBLISHED_RT || $req == DELETE_EXAM_RT || $req == RETURN_TOPICS_RT || $req == 'getReleasedExams' || $req == 'update_comments') {
     $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/comms.php';
 } elseif ($req == 'allExamsToBeGraded') {
     $url = 'https://web.njit.edu/~hks32/CS490-Project/assets/middle/allExamsToBeGraded.php';

@@ -9,7 +9,7 @@ examObj = {};
 /* AJAX request when don't care about response */
 function submitGetExamGradesRequest() {
     let obj = {};
-    obj.userID = getURLParams(window.location.href).ucid;
+    obj.userID = getURLParams(window.location.href).user;
     obj.requestType = 'allStudentExamInfo';
 
     let xhr = new XMLHttpRequest();
@@ -27,7 +27,7 @@ function submitGetExamGradesRequest() {
                 }
                 */
                 examObj = x;
-                log(examObj);
+                // log(examObj);
                 loadView();
             } else {
 
@@ -68,7 +68,7 @@ function loadView() {
 }
 
 function loadQuestionsInExam() {
-    let examQuestions = examObj.examQuestions;
+    let examQuestions = examObj[0].examQuestions;
 
     for (let i = 0; i < examQuestions.length; i++) {
         let questionContainer = appendNodeToNode('div', 'question' + i, 'questionContainer', getelm('allQuestionsContainer'));
@@ -105,18 +105,30 @@ function loadQuestionsInExam() {
         textarea.rows = 5;
 
         /* Display comments line by line */
-        for (let j = 0; j < x.length; j++) {
-            if (examQuestions[i].gradedComments[j] !== undefined)
-                textarea.innerHTML += examQuestions[i].gradedComments[j] + '\n';
-        }
+        // log(examQuestions)
+        // log(examQuestions.length)
+        // for (let j = 0; j < examQuestions.length; j++) {
+        //     if (examQuestions[i].gradedComments[j] !== undefined)
+        textarea.innerHTML += examQuestions[i].gradedComments + '\n';
+        // }
+
+        label = appendNodeToNode('label', '', '', questionBottom);
+        label.innerHTML = 'Instructor Comments<br>';
+        textarea = appendNodeToNode('textarea', 'comments' + i, '', label);
+        textarea.rows = 10;
+        textarea.innerHTML = examQuestions[i].instructorComments;
+        textarea.disabled = true;
 
     }
 }
 
 function populateHeaderBar() {
-    getelm('userID').value = examObj.userID;
-    getelm('examName').value = examObj.examName;
-    getelm('overallGrade').value = examObj.overallScore;
+    // log('----');
+    // log(examObj);
+    log(examObj[0].userID);
+    getelm('userID').value = examObj[0].userID;
+    getelm('examName').value = examObj[0].examName;
+    getelm('overallGrade').value = examObj[0].overallScore;
 
 }
 
