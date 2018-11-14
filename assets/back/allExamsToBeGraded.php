@@ -17,9 +17,6 @@ if ($conn->connect_error)
 
 $allFinishedExams = mysqli_query($conn, "SELECT BETA_grades.examScore,BETA_questionBank.functionName,BETA_questionBank.parameters,BETA_questionBank.functionDescription,BETA_questionBank.output,BETA_questionBank.topic,BETA_questionBank.constraints,BETA_rawExamData.userID,BETA_rawExamData.examID,BETA_rawExamData.questionID,BETA_rawExamData.studentResponse,BETA_rawExamData.questionScore,BETA_questionBank.testCases,BETA_rawExamData.testCasesPassFail,BETA_rawExamData.gradedComments,BETA_rawExamData.instructorComments,BETA_grades.released FROM BETA_grades,BETA_questionBank,BETA_rawExamData WHERE BETA_rawExamData.userID=BETA_grades.userID AND BETA_rawExamData.examID=BETA_grades.examID AND BETA_rawExamData.questionID=BETA_questionBank.questionID ORDER BY BETA_rawExamData.userID");
 
-$examsTableData = mysqli_query($conn, "SELECT * FROM BETA_exams");
-
-
 $returnArrayRAW=array();
 $returnArrayEXAMS=array();
 if($allFinishedExams->num_rows!=0)
@@ -36,6 +33,19 @@ if($allFinishedExams->num_rows!=0)
     $tempArray['does']=$row['functionDescription'];
     $tempArray['prints']=$row['output'];
     $tempArray['points']=(int)$row['questionScore'];
+    
+    $examData=mysqli_query($conn,"SELECT examName,questionIDs,points FROM BETA_exams WHERE examID='".$row['examID']."'");
+    $data=$examData->fetch_assoc();
+    $tempArray['examName']=$data['examName'];
+    $points=explode(',',$data['points']);
+    $questions=explode(',',$data['questionIDs']);
+    for($i=0;$i<sizeof($questions);$i++)
+    {
+      if((int)$questions[$i]==(int)$row['questionID'])
+      {
+        $tempArray['totalPoints']=$points[$i];
+      }
+    }
     $tempArray['gradedComments']=explode(':',$row['gradedComments']);
     $tempArray['instructorComments']=explode(':',$row['instructorComments']);
     $tempArray['topic']=$row['topic'];
@@ -50,24 +60,7 @@ if($allFinishedExams->num_rows!=0)
 }
 else
 {
-  $myObj->raw=null;
-}
-if($examsTableData->num_rows!=0)
-{
-  $tempArray=array();
-  while($row = $examsTableData->fetch_assoc())
-  {
-    $tempArray['examID']=$row['examID'];
-    $tempArray['examName']=$row['examName'];
-    $tempArray['qIDs']=explode(',',$row['questionIDs']);
-    $tempArray['points']=explode(',',$row['points']);
-    array_push($returnArrayEXAMS,$tempArray);
-  }
-  $myObj->exam=$returnArrayEXAMS;
-}
-else
-{
-  $myObj->exam=null;
+  $myObj->raw=NULL;
 }
 
 $myJSON=json_encode($myObj);

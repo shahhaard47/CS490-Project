@@ -16,8 +16,8 @@ if ($conn->connect_error)
 } 
 $rawStuExamData = file_get_contents('php://input'); 
 $data = json_decode($rawStuExamData, true); 
-$requestInfo = array('userID' => $data['userID']);
-//$requestInfo = array('userID' => 'jsnow');
+//$requestInfo = array('userID' => $data['userID']);
+$requestInfo = array('userID' => 'jsnow');
 
 $studentExams=mysqli_query($conn,"SELECT examID FROM BETA_rawExamData WHERE userID='".$requestInfo['userID']."'");
 
@@ -32,8 +32,6 @@ if($studentExams->num_rows!=0)
     if($released==true)
     {
       $examData=mysqli_query($conn,"SELECT BETA_grades.examScore,BETA_questionBank.functionName,BETA_questionBank.parameters,BETA_questionBank.functionDescription,BETA_questionBank.output,BETA_questionBank.topic,BETA_questionBank.constraints,BETA_rawExamData.examID,BETA_rawExamData.questionID,BETA_rawExamData.studentResponse,BETA_rawExamData.questionScore,BETA_questionBank.testCases,BETA_rawExamData.testCasesPassFail,BETA_rawExamData.gradedComments,BETA_rawExamData.instructorComments FROM BETA_grades,BETA_questionBank,BETA_rawExamData WHERE BETA_rawExamData.userID=BETA_grades.userID AND BETA_rawExamData.userID='".$requestInfo['userID']."' AND BETA_rawExamData.examID=BETA_grades.examID AND BETA_rawExamData.examID='".$row['examID']."' AND BETA_rawExamData.questionID=BETA_questionBank.questionID");
-      
-      $examsTableData = mysqli_query($conn, "SELECT * FROM BETA_exams WHERE examID='".$row['examID']."'");
       if($examData->num_rows!=0)
       {
         while($row_j=$examData->fetch_assoc())
@@ -51,6 +49,19 @@ if($studentExams->num_rows!=0)
           $tempArray['questionID']=$row_j['questionID'];      
           $tempArray['studentResponse']=$row_j['studentResponse'];
           $tempArray['points']=$row_j['questionScore'];
+          
+          $examPoints=mysqli_query($conn,"SELECT examName,questionIDs,points FROM BETA_exams WHERE examID='".$row_j['examID']."'");
+          $data=$examPoints->fetch_assoc();
+          $tempArray['examName']=$data['examName'];
+          $points=explode(',',$data['points']);
+          $questions=explode(',',$data['questionIDs']);
+          for($i=0;$i<sizeof($questions);$i++)
+          {
+            if((int)$questions[$i]==(int)$row_j['questionID'])
+            {
+              $tempArray['totalPoints']=$points[$i];
+            }
+          }
           $tempArray['testCases']=explode(':',$row_j['testCases']);
           $tempArray['testCasesPassFail']=explode(',',$row_j['testCasesPassFail']);
           $tempArray['gradedComments']=$row_j['gradedComments'];
@@ -58,27 +69,13 @@ if($studentExams->num_rows!=0)
           array_push($returnArrayRAW,$tempArray);
         }
       }
-      if($examsTableData->num_rows!=0)
-      {
-        while($row=$examsTableData->fetch_assoc())
-        {
-          $tempArray=array();
-          $tempArray['examID']=$row['examID'];
-          $tempArray['examName']=$row['examName'];
-          $tempArray['questionIDs']=$row['questionIDs'];
-          $tempArray['points']=$row['points'];
-          array_push($returnArrayEXAMS,$tempArray);
-        }      
-      }
     }
   }
   $myObj->raw=$returnArrayRAW;
-  $myObj->exams=$returnArrayEXAMS;
 }
 else
 {
   $myObj->raw=NULL;
-  $myObj->exams=NULL;
 }
 echo json_encode($myObj);
 
