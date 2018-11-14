@@ -3,19 +3,19 @@ body {
     margin-top: 100px;
 }
 
-button {
+/*button {
     min-width: 100px;
     min-height: 50px;
     background-color: white;
     margin-bottom: 10px;
     border: solid 2px;
     border-color: gray;
-}
+}*/
 
 button:hover {
     background-color: #497EFF;
-    color: white;
-    box-shadow: 0 3px lightgray;
+    /*color: white;*/
+    /*box-shadow: 0 3px lightgray;*/
 }
 
 button:active {
@@ -36,8 +36,13 @@ button:active {
 }
 
 .navbar .btn {
-    height: 100%;
-    width: 50px;
+    min-height: 60px;
+    min-width: 100px;
+    margin: 0;
+    background-color: white;
+    border: 0;
+    border-left: 1px solid gray;
+    border-right: 1px solid gray;
 }
 
 .col {
