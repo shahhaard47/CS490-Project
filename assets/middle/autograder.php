@@ -5,7 +5,9 @@ GRADING NOTES AND ASSUMPTIONS
 	- #def functionName()
 */
 
-define("TESTING", false);
+if (!defined("TESTING")) {
+    define("TESTING", false);
+}
 
 if (TESTING) {
     echo "Testing...\n";
@@ -13,14 +15,16 @@ if (TESTING) {
 }
 
 define ("WRONG_HEADER", "header");
-define ("NOT_RETURNING", "return");
 define ("CONSTRAINT_WHILELOOP", "while");
 define ("CONSTRAINT_FORLOOP", "for");
 define ("CONSTRAINT_RECURSION", "recursion");
 // future checks
-define ("INCORRECT_PARAMS", "params");
+define ("INCORRECT_PARAMS_NAMES", "params");
 define ("MISSING_COLON", "colon");
 
+define ("FUNCTION_HEADER_NOT_FOUND", "no_header");
+define ("NOT_RETURNING", "return");
+define ("INCORRECT_PARAMS", "incorrect_parameters");
 
 function listifyOutput($output) {
     $lbr_pos = strpos($output, "[");
@@ -175,7 +179,7 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
                 $tmp = "Function is not using for loop.\t[-".$deductCustomPoints."]"; break;
             case CONSTRAINT_RECURSION:
                 $tmp = "Function is not using recursion.\t[-".$deductCustomPoints."]"; break;
-            case INCORRECT_PARAMS:
+            case INCORRECT_PARAMS_NAMES:
                 $tmp = "Used incorrect parameter name/s\t[-".$deductCustomPoints."]"; break;
         }
         array_push($finalComments, $tmp);
@@ -192,11 +196,12 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
     return $final_package;
 }
 
-$flag_wrongHeader = "WRONG_HEADER";
+$flag_wrongHeader = "WRONG_HEADER"; // FIXME: don't need this but don't wanna break anything
 
 function gradeQuestion($question_data) {
 //    $student_filename = 'tmppy/student.py';
     $test_file = 'tmppy/test.py';
+    $CANNOT_GRADE = false;
     //*	1. sample student response
     $student_response = $question_data["student_response"];
     $function_name = $question_data["function_name"];
@@ -217,6 +222,8 @@ function gradeQuestion($question_data) {
 
             $functionHeaderFound = true;
 
+            // FIXME: check for number of parameters and append INCORRECT_PARAMS to $comments
+
             $func_title = substr($line, $def_pos, $l_par - $def_pos);
             $tmp = explode(" ", $func_title);
             $student_function_name = $tmp[count($tmp) - 1];
@@ -232,17 +239,22 @@ function gradeQuestion($question_data) {
 
     if ($functionHeaderFound == false) {
 //        echo "DID NOT FIND\n"; exit();
+        array_push($comments, FUNCTION_HEADER_NOT_FOUND);
+        $CANNOT_GRADE = true;
     }
-
-
 //    echo "AFTER: \n$student_response\n";
 //    exit();
     // check for "return"
     $return_pos = strpos($student_response, "return");
     if ($return_pos === false) {
         array_push($comments, NOT_RETURNING);
+        $CANNOT_GRADE = true;
     }
-    // FIXME: check for restraints
+
+    // FIXME: if NOT_RETURNING or INCORRECT_PARMS return different
+
+
+    //  check for restraints
     $constraints = explode(" ", $question_data["constraints"]);
     foreach ($constraints as $constraint) {
         switch ($constraint) {
@@ -269,13 +281,7 @@ function gradeQuestion($question_data) {
                 break;
         }
     }
-    //*	2. write student_response to py file
-//    $file = fopen($student_filename, 'w');
-//    if ($file) {
-//        fwrite($file, $student_response);
-//        fclose($file);
-//        echo "WROTE STUDENT FILE\n";
-//    }
+
     //*	5. get testcases from database
     $test_cases = $question_data["test_cases"];
     $functioncalls = constructFunctionCalls($function_name, $test_cases);
@@ -362,6 +368,7 @@ function gradeQuestion($question_data) {
         exit();
     }
 }
+
 function gradeAll($grading_data) {
     $final_grades = array();
     foreach ($grading_data as $question_data) {

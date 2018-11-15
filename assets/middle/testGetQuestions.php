@@ -33,9 +33,52 @@ function getTestQuestionInGradingFormat($questionID) {
  */
 
 function getAllQuestions() {
-    $jsonencoded = file_get_contents("./info_files/BETA_questionBank.json");
-    return $jsonencoded;
+    $questionsEncoded = file_get_contents("./info_files/BETA_questionBank.json");
+    $questions = json_decode($questionsEncoded, true);
+    return $questions;
 }
+
+// FIXME: make sure json read in can be parsed
+function getAllSolutions() {
+    $solutionsEncoded = file_get_contents("./info_files/solutionsALL-nov14.json");
+    $solutions = json_decode($solutionsEncoded, true);
+    return $solutions;
+}
+
+function combineQuestionsAndSolutions() {
+    $questions = getAllQuestions();
+    $solutions = getAllSolutions();
+    $customPoints = 10;
+    $rtnArray = array();
+
+    // insert solutions in questions
+    for ($i = 0; $i < count($questions); $i++) {
+//        var_dump($questions[$i]);
+
+        // change functionName to function_name
+        $questions[$i]["function_name"] = $questions[$i]["functionName"];
+        unset($questions[$i]["functionName"]);
+        // explode testCases to test_cases with ":"
+        $questions[$i]["test_cases"] = explode(":", $questions[$i]["testCases"]);
+        unset($questions[$i]["testCases"]);
+
+        $funcName = $questions[$i]["function_name"];
+//        echo "solution: ".$solutions[$funcName]."\n";
+        if ($solutions["$funcName"]) {
+            $questions[$i]["student_response"] = $solutions["$funcName"];
+            $questions[$i]["points"] = $customPoints;
+            array_push($rtnArray, $questions[$i]);
+        }
+    }
+    return $rtnArray;
+}
+
+function getQuestionsReadyToGrade() {
+    return combineQuestionsAndSolutions();
+}
+
+//$tmp = getQuestionsReadyToGrade();
+//var_dump($tmp);
 
 /*function getAllSolutions() {
     $all_solutions_qbank = file('../back/questionBank_allSolutions.txt');
@@ -50,9 +93,9 @@ function getAllQuestions() {
     }
 }*/
 
-$allquestions = getAllQuestions();
-$decoded = json_decode($allquestions);
-var_dump($decoded[0]);
+//$allquestions = getAllQuestions();
+//$decoded = json_decode($allquestions);
+//var_dump($decoded[0]);
 
 
 $allSolutions = array(
@@ -185,7 +228,16 @@ $allSolutions = array(
 		val=val*i
 	return val"
 );
+//$allSolutionsEncoded = json_encode($allSolutions);
 
+//echo $allSolutionsEncoded;
 
+// write solutions to solutionsALL-nov14.json
+/*$solutions_file = "solutionsALL-nov14.json";
+$solutions_file = fopen($solutions_file, "w");
+if ($solutions_file) {
+    fwrite($solutions_file, $allSolutionsEncoded);
+    fclose($solutions_file);
+}*/
 
 ?>

@@ -92,11 +92,11 @@ function constructExams($raw, $userID=0){
         $otherInfo = $examInfo["otherInfo"];
 
         $tmp = array();
-        $tmp["examQuestions"] = $examInfo["examQuestions"];
         foreach ($otherInfo as $info) {
             $k = $info[0];
             $tmp["$k"] = $info[1];
         }
+        $tmp["examQuestions"] = $examInfo["examQuestions"];
 
         array_push($returnExamsArray, $tmp);
     }
