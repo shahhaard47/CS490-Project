@@ -4,6 +4,24 @@ GRADING NOTES AND ASSUMPTIONS
 - assuming that there isn't a comment line before function title that has the actual function name
 	- #def functionName()
 */
+
+define("TESTING", false);
+
+if (TESTING) {
+    echo "Testing...\n";
+    echo __FILE__."\n";
+}
+
+define ("WRONG_HEADER", "header");
+define ("NOT_RETURNING", "return");
+define ("CONSTRAINT_WHILELOOP", "while");
+define ("CONSTRAINT_FORLOOP", "for");
+define ("CONSTRAINT_RECURSION", "recursion");
+// future checks
+define ("INCORRECT_PARAMS", "params");
+define ("MISSING_COLON", "colon");
+
+
 function listifyOutput($output) {
     $lbr_pos = strpos($output, "[");
     if ($lbr_pos === false) {
@@ -147,27 +165,20 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
             $totalPoints = 0;
         }
         switch ($c) {
-            case "WRONG_HEADER":
-                $tmp = "Used incorrect function header.\t[-".$deductCustomPoints."]";
-                array_push($finalComments, $tmp);
-                break;
-            case "NOT_RETURNING":
-                $tmp = "Function is not returning anything.\t[-".$deductCustomPoints."]";
-                array_push($finalComments, $tmp);
-                break;
-            case "CONSTRAINT_WHILELOOP":
-                $tmp = "Function is not using while loop.\t[-".$deductCustomPoints."]";
-                array_push($finalComments, $tmp);
-                break;
-            case "CONSTRAINT_FORLOOP":
-                $tmp = "Function is not using for loop.\t[-".$deductCustomPoints."]";
-                array_push($finalComments, $tmp);
-                break;
-            case "CONSTRAINT_RECURSION":
-                $tmp = "Function is not using recursion.\t[-".$deductCustomPoints."]";
-                array_push($finalComments, $tmp);
-                break;
+            case WRONG_HEADER:
+                $tmp = "Used incorrect function header.\t[-".$deductCustomPoints."]"; break;
+            case NOT_RETURNING:
+                $tmp = "Function is not returning anything.\t[-".$deductCustomPoints."]"; break;
+            case CONSTRAINT_WHILELOOP:
+                $tmp = "Function is not using while loop.\t[-".$deductCustomPoints."]"; break;
+            case CONSTRAINT_FORLOOP:
+                $tmp = "Function is not using for loop.\t[-".$deductCustomPoints."]"; break;
+            case CONSTRAINT_RECURSION:
+                $tmp = "Function is not using recursion.\t[-".$deductCustomPoints."]"; break;
+            case INCORRECT_PARAMS:
+                $tmp = "Used incorrect parameter name/s\t[-".$deductCustomPoints."]"; break;
         }
+        array_push($finalComments, $tmp);
         $totalPoints -= $deduction;
     }
     $totalPoints = round($totalPoints, 2);
@@ -181,9 +192,10 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
     return $final_package;
 }
 
+$flag_wrongHeader = "WRONG_HEADER";
 
 function gradeQuestion($question_data) {
-    $student_filename = 'tmppy/student.py';
+//    $student_filename = 'tmppy/student.py';
     $test_file = 'tmppy/test.py';
     //*	1. sample student response
     $student_response = $question_data["student_response"];
@@ -191,17 +203,16 @@ function gradeQuestion($question_data) {
     $comments = array(); // strings of comments
     // check if function title in named properly
     $lines = explode("\n", $student_response);
-    // echo "BEFORE: \n$student_response\n";
+//    if (TESTING) {echo "BEFORE: \n$student_response\n";}
     $functionHeaderFound = false;
 
     for ($i = 0; $i < count($lines); $i++) {
         $line = $lines[$i];
         $def_pos = strpos($line, "def");
-        // echo "defpos ";
-        // var_dump($def_pos);
+//        if(TESTING) {echo "defpos "; var_dump($def_pos);}
         if ($def_pos !== false) {
             $l_par = strpos($line, "(");
-            // FIXME: what to do when l_par is false
+
             if ($l_par === false) { continue; }
 
             $functionHeaderFound = true;
@@ -212,7 +223,7 @@ function gradeQuestion($question_data) {
             if ($student_function_name != $function_name){
                 // replace
                 $lines[$i] = str_replace("$student_function_name", "$function_name", $line);
-                array_push($comments, "WRONG_HEADER");
+                array_push($comments, WRONG_HEADER);
             }
             break; // func header is good
         }
@@ -229,7 +240,7 @@ function gradeQuestion($question_data) {
     // check for "return"
     $return_pos = strpos($student_response, "return");
     if ($return_pos === false) {
-        array_push($comments, "NOT_RETURNING");
+        array_push($comments, NOT_RETURNING);
     }
     // FIXME: check for restraints
     $constraints = explode(" ", $question_data["constraints"]);
@@ -239,21 +250,21 @@ function gradeQuestion($question_data) {
                 // check for CONSTRAINT_FORLOOP
                 $for_pos = strpos($student_response, "for");
                 if ($for_pos === false) {
-                    array_push($comments, "CONSTRAINT_FORLOOP");
+                    array_push($comments, CONSTRAINT_FORLOOP);
                 }
                 break;
             case "while":
                 // check for CONSTRAINT_WHILELOOP
                 $while_pos = strpos($student_response, "while");
                 if ($while_pos === false) {
-                    array_push($comments, "CONSTRAINT_WHILELOOP");
+                    array_push($comments, CONSTRAINT_WHILELOOP);
                 }
                 break;
             case "recursion":
                 // check for CONSTRAINT RECURSION
                 $functionNameCount = substr_count($student_response, $function_name);
                 if ($functionNameCount < 2) {
-                    array_push($comments, "CONSTRAINT_RECURSION");
+                    array_push($comments, CONSTRAINT_RECURSION);
                 }
                 break;
         }

@@ -2,6 +2,12 @@
 
 require_once ("constructExamInfoFunction.php");
 
+define("TESTING", false);
+if (TESTING) {
+	echo "Testing...\n";
+	echo __FILE__."\n";
+}
+
 /*
 $funcName = string
 $params = array("type var", "type name"...)
@@ -118,9 +124,11 @@ $curl_opts = array(CURLOPT_POST => 1,
 $ch = curl_init();
 curl_setopt_array($ch, $curl_opts);
 $result = curl_exec($ch);
-// echo "RESULT\n";
-//var_dump($result);
-//exit();
+
+if (TESTING) {
+//	echo "Result:\n"; var_dump($result);
+//	exit();
+}
 
 $examsdata = json_decode($result, true);
 // echo "DATA DECODEd\n";
@@ -132,13 +140,16 @@ if ($examsdata["conn"] && $examsdata["conn"] == false) {
 //var_dump($examsdata);
 $raw = $examsdata["raw"];
 //var_dump($raw); exit();
-$exams = $examsdata["exam"];
-//var_dump($exams); exit();
 
 $return_array = constructExams($raw, $exams);
 
-//var_dump($return_array); exit();
+if (TESTING) {
+//    echo "Final output: \n"; var_dump($return_array);
+//    exit();
+}
+
 $encoded_return_array = json_encode($return_array);
+
 // var_dump($return_array);
 echo $encoded_return_array;
 
