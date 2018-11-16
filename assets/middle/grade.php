@@ -11,20 +11,22 @@
 6. compare student's to correct response's on individual testcases
 */
 
-include ('autograder.php');
+define("TESTING", false);
+require ("autograder.php");
 
-
+if (TESTING) {
+    echo "Testing...\n";
+    echo __FILE__."\n";
+}
 
 //* get front's grading request 							F -> M
 $jsonrequest = file_get_contents('php://input');
 // extract examID and userID
 $decoded = json_decode($jsonrequest, true);
 
-//echo "REQUEST: $jsonrequest\n";
-//* testing without front input
-//$decoded = array("examID" => 72, "userID" => "mscott", "requestType" => "gradeExam");
-
-//$decoded = array("examID" => 80, "userID" => "jsnow"); $jsonrequest = json_encode($decoded);
+if (TESTING) {
+//    $decoded = array("examID" => 87, "userID" => "jsnow"); $jsonrequest = json_encode($decoded);
+}
 
 $examID = $decoded["examID"];
 $userID = $decoded["userID"];
@@ -44,7 +46,9 @@ if ($decoded["examID"] && $decoded["userID"]) {
 	//* extract the grading data from $result
 	$grading_data = json_decode($result, true);
 
-//    echo "GRADING DATA\n"; var_dump($grading_data);
+	if (TESTING) {
+//		echo "GRADING DATA:\n"; var_dump($grading_data); exit();
+	}
 
 	//check that the database is still up
 	if ($decoded["conn"] && $decoded["conn"] == false) {
@@ -52,11 +56,7 @@ if ($decoded["examID"] && $decoded["userID"]) {
 		exit();
 	}
 
-	// echo "Grading data received from debbie\n";
-//    var_dump($grading_data); exit();
-
 	//* perform grading
-//    var_dump($grading_data); exit();
 	$grades = gradeAll($grading_data);
 
 	// check if grading worked
@@ -97,6 +97,9 @@ if ($decoded["examID"] && $decoded["userID"]) {
 		// unsuccessful grading or updating report error to front
 		echo "(back)".$result."\n";
 	}
+} else {
+	echo "(middle) requesting json must include user and exam information in order to grade.";
+	exit();
 }
 exit();
 

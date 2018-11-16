@@ -21,9 +21,11 @@ function constructQuestion($funcName, $params, $does, $returns) {
     return $constructed;
 }
 
-function constructExams($raw, $exams, $userID=0){
+function constructExams($raw, $userID=0){
     $detailed_info = array();
     $user_exam_ids = array();
+
+    $uniqueExams = 0;
 
     foreach ($raw as $r_elem){
         $examid = $r_elem["examID"];
@@ -33,41 +35,72 @@ function constructExams($raw, $exams, $userID=0){
             $userid = $r_elem["userID"];
         }
 
-        $examScore= $r_elem["examScore"];
-        $qid = $r_elem["questionID"];
-        $qpoints = $r_elem["points"];
-        $studentResponse = $r_elem["studentResponse"];
-        $funcName = $r_elem["functionName"];
-        $params = $r_elem["parameters"];
-        $does = $r_elem["does"];
-        $returns = $r_elem["prints"];
-        $testCases = $r_elem["testCases"];
-        $testCasesPassFail = $r_elem["testCasesPassFail"];
+        $examScore                  = $r_elem["examScore"];
+        $qid                        = $r_elem["questionID"];
+        $qpoints                    = $r_elem["points"];
+        $studentResponse            = $r_elem["studentResponse"];
+        $funcName                   = $r_elem["functionName"];
+        $params                     = $r_elem["parameters"];
+        $does                       = $r_elem["does"];
+        $returns                    = $r_elem["prints"];
+        $testCases                  = $r_elem["testCases"];
+        $testCasesPassFail          = $r_elem["testCasesPassFail"];
         // new stuff
-        $constraints = $r_elem["constraints"];
-        $topic = $r_elem["topic"];
-        $gradedComments = $r_elem["gradedComments"];
+        $constraints                = $r_elem["constraints"];
+        $topic                      = $r_elem["topic"];
+        $gradedComments             = $r_elem["gradedComments"];
+        $instructorComments         = $r_elem["instructorComments"];
         $constructed = constructQuestion($funcName, $params, $does, $returns);
-        $questioninfo_arr = array(	"questionID"		=> $qid,
-            "points" 			=> $qpoints,
-            "constructed"		=> $constructed,
-            "studentResponse"	=> $studentResponse,
-            "testCases"			=> $testCases,
-            "testCasesPassFail" => $testCasesPassFail,
-            "constraints"		=> $constraints,
-            "topic"				=> $topic,
-            "gradedComments" 	=> $gradedComments,
-            "instructorComments" => $r_elem["instructorComments"]
+        $questioninfo_arr = array(
+            "questionID"		    => $qid,
+            "points" 			    => $qpoints,
+            "maxPoints"             => $r_elem["totalPoints"],
+            "constructed"		    => $constructed,
+            "studentResponse"	    => $studentResponse,
+            "testCases"			    => $testCases,
+            "testCasesPassFail"     => $testCasesPassFail,
+            "constraints"		    => $constraints,
+            "topic"				    => $topic,
+            "gradedComments" 	    => $gradedComments,
+            "instructorComments"    => $instructorComments
         );
         if ($detailed_info["$userid"]["$examid"]){ // same student same exam NEW question
-            array_push($detailed_info["$userid"]["$examid"][1], $questioninfo_arr);
+            array_push($detailed_info["$userid"]["$examid"]["examQuestions"], $questioninfo_arr);
         }
         else { // NEW user or NEW exam or NEW both
             array_push($user_exam_ids, array($userid, $examid));
-            $detailed_info["$userid"]["$examid"] = array($examScore, array($questioninfo_arr));
+            $uniqueExams++;
+            $detailed_info["$userid"]["$examid"] = array(
+                "otherInfo" => array(
+                    array("userID"      , $userid),
+                    array("examID"      , $examid),
+                    array("overallScore", $examScore),
+                    array("examName"    , $r_elem["examName"]),
+                    array("released"    , $r_elem["released"])
+                ),
+                "examQuestions" => array($questioninfo_arr)
+            );
         }
     }
 
+    $returnExamsArray = array();
+    foreach ($user_exam_ids as $elem) {
+        $userID = $elem[0];
+        $examID = $elem[1];
+
+        $examInfo = $detailed_info["$userID"]["$examID"];
+        $otherInfo = $examInfo["otherInfo"];
+
+        $tmp = array();
+        foreach ($otherInfo as $info) {
+            $k = $info[0];
+            $tmp["$k"] = $info[1];
+        }
+        $tmp["examQuestions"] = $examInfo["examQuestions"];
+
+        array_push($returnExamsArray, $tmp);
+    }
+/*
     //  get all exams in "Exam"
     $all_exams_ids = array();
     //  var_dump($exams); exit();
@@ -93,9 +126,11 @@ function constructExams($raw, $exams, $userID=0){
             "overallScore" => $overallScore,
             "examQuestions" => $examQuestions
         ));
-    }
 
-    return $return_array;
+
+    }*/
+
+    return $returnExamsArray;
 }
 
 ?>

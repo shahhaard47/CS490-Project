@@ -33,10 +33,19 @@
         $rawArr[$a]["constructed"] = $tmp;
     }
 }*/
+define("TESTING", false);
+
+if (TESTING) {
+    echo "Testing...\n";
+    echo __FILE__."\n";
+}
 
 function constructQuestions(&$rawArr) {
     // $outputarr = array();
     // foreach ($rawArr as $que) {
+    if (TESTING) {
+//        echo "CONSTRUCTION QUESTION:\n"; var_dump($rawArr[0]); exit();
+    }
 
     for ($a = 0; $a < count($rawArr); $a++) {
         $que = $rawArr[$a];
@@ -79,8 +88,16 @@ function constructQuestions(&$rawArr) {
 //            echo "(middle) error while constructing. No \"returns\" attribute found";
 //            exit();
         }
+        $constraint = $rawArr[$a]["constraints"];
 //        $prints = $rawArr[$a]["output"];
         $tmp = "Write a function named \"$funcName\" that takes $outparams, $does and returns $returns.";
+        if ($constraint) {
+            $tmp .= " **(constraint: use $constraint)";
+        }
+
+        if (TESTING) {
+            echo $tmp."\n"; exit();
+        }
         // add constructed question attribute
         $rawArr[$a]["constructed"] = $tmp;
     }
