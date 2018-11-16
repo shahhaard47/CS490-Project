@@ -1,58 +1,36 @@
 /**
- * This file is used for an instructor to grade a specific exam they clicked on in 'view-completed-exams.html'
+ * Controller for 'grade-an-exam.html'
+ * This file is used for an instructor to grade a specific exam they clicked on a 'View Exam' button in
+ * 'view-completed-exams.html'
  *
  **/
 
-
 const RELEASE_GRADE_RT = 'release_grades',
     GRADE_EXAM_RT = 'gradeExam';
-/* The current exam as an object */
+
+/* The current exam information as an object */
 let examObj = {}, currentExamID = '';
 
+/* Used for debugging. If true, console logs are executed. */
+let debug = true;
+
 /* Get the exam from middle-end who gets it from back-end */
-function getAvailableExams() {
+function submitGetAvailableExams() {
     let obj = {};
     obj.requestType = 'allExamsToBeGraded';
-    let xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-        /* Check if the xhr request was successful */
-        if (this.readyState === 4) {
-            if (this.status === 200) {
-                log(parseJSON(xhr.responseText));
-                loadView(parseJSON(xhr.responseText));
-            } else {
-
-            }
-        }
-    };
-
-    /* Open a POST request */
-    xhr.open("POST", URL, true);
-    /* Encode the data properly. Otherwise, php will not be able to get the values */
-    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    /* Send the POST request with the data */
-    xhr.send(JSON.stringify(obj));
+    sendAJAXReq(loadView, JSON.stringify(obj));
 }
 
-function sendGradeRequest(obj) {
-    let xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-        /* Check if the xhr request was successful */
-        if (this.readyState === 4) {
-            if (this.status === 200) {
-                log(parseJSON(xhr.responseText));
-            } else {
+function sendGradeRequest() {
+    let obj = {};
+    obj.userID = examObj.userID;
+    obj.examID = parseInt(currentExamID);
+    obj.scores = getScores();
+    obj.requestType = GRADE_EXAM_RT;
+    log(obj);
 
-            }
-        }
-    };
+    sendAJAXReq('', JSON.stringify(obj))
 
-    /* Open a POST request */
-    xhr.open("POST", URL, true);
-    /* Encode the data properly. Otherwise, php will not be able to get the values */
-    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    /* Send the POST request with the data */
-    xhr.send(JSON.stringify(obj));
 }
 
 function submitSaveExamRequest() {
@@ -67,12 +45,13 @@ function submitSaveExamRequest() {
         /* Check if the xhr request was successful */
         if (this.readyState === 4) {
             if (this.status === 200) {
-                log(parseJSON(xhr.responseText));
+                if (debug) {
+                    log("--In Callback of 'submitSaveExamRequest'--");
+                    log(parseJSON(xhr.responseText));
+                }
                 let overallGrade = getelm('overallGrade').value;
                 submitUpdateOverallGradeRequest(overallGrade, examObj.userID, examObj.examID);
-                // sendUpdateComments();
-                window.location.reload();
-
+                reloadView();
             } else {
 
             }
@@ -89,9 +68,7 @@ function submitSaveExamRequest() {
 
 function getExamData() {
     let examQs = examObj.examQuestions, list = [];
-    // log(examQs.length)
     for (let i = 0; i < examQs.length; i++) {
-        // log(examQs[i]);
         let obj = {};
         obj.questionID = parseInt(examQs[i].questionID);
         obj.points = parseInt(getelm('points' + i).value);
@@ -99,8 +76,6 @@ function getExamData() {
 
         list.push(obj);
     }
-
-    // log(list);
 
     return list;
 }
@@ -112,7 +87,7 @@ function sendReleaseGradeRequest(obj) {
         if (this.readyState === 4) {
             if (this.status === 200) {
                 log(parseJSON(xhr.responseText));
-                /* Update the overall score in the database for an exam */
+                reloadView();
             } else {
 
             }
@@ -159,7 +134,13 @@ function sendUpdateComments() {
     xhr.send(JSON.stringify(obj));
 }
 
-function loadView(jsonObj) {
+function loadView(AJAX_Response, onlyReloadHeader) {
+    let jsonObj = parseJSON(AJAX_Response);
+    if (debug){
+        log('---In loadView()---');
+        log(jsonObj);
+    }
+    /* All exams to be graded are sent. Search for the examID that matches the one instructor clicked on. */
     for (let i = 0; i < jsonObj.length; i++) {
         if (jsonObj[i].examID == currentExamID) {
             examObj = jsonObj[i];
@@ -168,11 +149,16 @@ function loadView(jsonObj) {
     }
 
     populateHeaderBar();
-    loadQuestionsInExam();
+
+    /* Only reload the view if 'onlyReloadHeader' is FALSE */
+    if (!onlyReloadHeader)
+        loadQuestionsInExam();
 }
 
 
 function loadQuestionsInExam() {
+    getelm('allQuestionsContainer').innerHTML = '';
+
     let examQuestions = examObj.examQuestions;
 
     for (let i = 0; i < examQuestions.length; i++) {
@@ -198,25 +184,19 @@ function loadQuestionsInExam() {
         label = appendNodeToNode('label', '', '', questionBottom);
         label.innerHTML = 'Points';
         let inputPoints = appendNodeToNode('input', 'points' + i, '', label);
+        inputPoints.setAttribute('size', 3);
         inputPoints.value = examQuestions[i].points;
+
+        label.appendChild(document.createTextNode(`out of ${examQuestions[i].maxPoints}`));
+
         appendNodeToNode('br', '', '', label);
 
-        //TODO: OUT OF points
-
-        /*
         label = appendNodeToNode('label', '', '', questionBottom);
-        label.innerHTML = 'Points<br>';
-        let inputOutOfPoints = appendNodeToNode('input', 'points' + i, '', label);
-        inputOutOfPoints.value = examQuestions[i].points;
-        appendNodeToNode('br', '', '', label);
-        */ //TODO: Showw out of how many points
-        label = appendNodeToNode('label', '', '', questionBottom);
-        label.innerHTML = 'Comments<br>';
+        label.innerHTML = 'Autograde Comments<br>';
         textarea = appendNodeToNode('textarea', '', '', label);
         textarea.rows = 10;
         textarea.disabled = true;
 
-        // textarea.innerHTML = examQuestions[i].comments;
 
         let x = examQuestions[i].gradedComments;
         /* Display comments line by line */
@@ -230,6 +210,7 @@ function loadQuestionsInExam() {
         textarea.rows = 10;
         textarea.innerHTML = examQuestions[i].instructorComments;
 
+        /* Dynamically change overall score as points are changed for individual questions */
         let overallScore = getelm('overallGrade');
         inputPoints.onkeyup = function () {
             let pts = getPoints(), sum = 0;
@@ -239,7 +220,8 @@ function loadQuestionsInExam() {
             }
 
             overallScore.value = sum;
-            log(sum);
+            if (debug)
+                log(sum);
         };
 
     }
@@ -263,7 +245,7 @@ function populateHeaderBar() {
     getelm('userID').value = examObj.userID;
     getelm('examName').value = examObj.examName;
     getelm('overallGrade').value = examObj.overallScore;
-
+    getelm('checkboxReleased').checked = examObj.released == "1";
 }
 
 
@@ -275,13 +257,6 @@ function btnGoBack() {
 }
 
 function btnGradeExam() {
-    let obj = {};
-    obj.userID = examObj.userID;
-    obj.examID = parseInt(currentExamID);
-    obj.scores = getScores();
-    obj.requestType = GRADE_EXAM_RT;
-    log(obj);
-
     sendGradeRequest(obj);
 }
 
@@ -310,7 +285,11 @@ function getScores() {
     return scores;
 }
 
+function reloadView() {
+    submitGetAvailableExams();
+}
+
 window.onload = function () {
     currentExamID = getURLParams(window.location.href).examID;
-    getAvailableExams();
+    submitGetAvailableExams();
 };

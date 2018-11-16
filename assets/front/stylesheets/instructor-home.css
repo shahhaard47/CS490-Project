@@ -1,21 +1,22 @@
 body {
     background-color: whitesmoke;
-    margin-top: 100px;
+    /*margin-top: 100px;*/
 }
 
-/*button {
+button {
     min-width: 100px;
     min-height: 50px;
     background-color: white;
     margin-bottom: 10px;
     border: solid 2px;
     border-color: gray;
-}*/
+    border-radius: 10px;
+}
 
 button:hover {
     background-color: #497EFF;
-    /*color: white;*/
-    /*box-shadow: 0 3px lightgray;*/
+    color: white;
+    box-shadow: 0 3px lightgray;
 }
 
 button:active {

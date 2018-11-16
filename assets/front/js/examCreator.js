@@ -850,9 +850,6 @@ function showHardQuestionDifficulties() {
 function sortQuestionBank(selectElm) {
     let sortOption = selectElm.value;
     switch (sortOption) {
-        // case 'All':
-        //     showAllQuestionDifficulties();
-        //     break;
         case 'Easy':
             showEasyQuestionDifficulties();
             break;
@@ -862,17 +859,11 @@ function sortQuestionBank(selectElm) {
         case 'Hard':
             showHardQuestionDifficulties();
             break;
-        case 'Lowest':
-            // showHardQuestionDifficulties();
-            break;
-        case 'Highest':
-            // showHardQuestionDifficulties();
-            break;
         default:
 
     }
-
-
+    /* Filter question bank after sorting with whatever the current selection is. */
+    filterQuestionBankTopic(getelm('topicSelect'));
 }
 
 function filterQuestionBankTopic(selectElm) {

@@ -108,14 +108,18 @@ function appendNodeToNode(type, id, clss, addTo) {
 }
 
 /* AJAX request when don't care about response */
-function sendAJAXReq(content) {
+function sendAJAXReq(callback, contentToSend) {
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         /* Check if the xhr request was successful */
         if (this.readyState === 4) {
             if (this.status === 200) {
-                log(xhr.responseText);
+                // TODO: Handle more than one callback
+                if (callback !== '')
+                    callback(xhr.responseText);
             } else {
+                if (callback !== '')
+                    callback(xhr.status);
             }
         }
     };
@@ -125,7 +129,7 @@ function sendAJAXReq(content) {
     /* Encode the data properly. Otherwise, php will not be able to get the values */
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     /* Send the POST request with the data */
-    xhr.send(content);
+    xhr.send(contentToSend);
 }
 
 function submitUpdateOverallGradeRequest(grade, userID, examID) {

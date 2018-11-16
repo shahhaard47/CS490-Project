@@ -1,4 +1,5 @@
 /**
+ * Controller for 'student-view-grades'.
  *
  * This file is used for a student to view their grades for all the questions in the exam. They can only get here after
  * the instructor has released grades.
@@ -17,17 +18,11 @@ function submitGetExamGradesRequest() {
         /* Check if the xhr request was successful */
         if (this.readyState === 4) {
             if (this.status === 200) {
-                log(xhr.responseText);
+                // log(xhr.responseText);
                 x = parseJSON(xhr.responseText);
-                /*for (let i = 0; i < x.length; i++) {
-                    log(x[i]);
-                    if (x[i].userID == userID && x[i].examID == examID) {
-                        examObj = x[i];
-                    }
-                }
-                */
+                // log('obj len');
+                // log(x[0].examQuestions.length);
                 examObj = x;
-                // log(examObj);
                 loadView();
             } else {
 
@@ -45,31 +40,13 @@ function submitGetExamGradesRequest() {
 
 
 function loadView() {
-    // if (examObj.length) {
-    //     let dialog = showDialog(document.body, 'There are no grades to view. Try again later.');
-    //     dialog.show();
-    //     let btn = d.getElementsByTagName('button');
-    //
-    //     btn[0].onclick = function () {
-    //         window.history.back();
-    //         // window.location = 'student-home.html?ucid=' + userID;
-    //     };
-    //     return;
-    // }
-    /*for (let i = 0; i < jsonObj.length; i++) {
-        if (jsonObj[i].examID == currentExamID) {
-            examObj = jsonObj[i];
-            break;
-        }
-    }*/
-
     populateHeaderBar();
     loadQuestionsInExam();
 }
 
 function loadQuestionsInExam() {
     let examQuestions = examObj[0].examQuestions;
-
+    log(examQuestions);
     for (let i = 0; i < examQuestions.length; i++) {
         let questionContainer = appendNodeToNode('div', 'question' + i, 'questionContainer', getelm('allQuestionsContainer'));
 
@@ -123,8 +100,6 @@ function loadQuestionsInExam() {
 }
 
 function populateHeaderBar() {
-    // log('----');
-    // log(examObj);
     log(examObj[0].userID);
     getelm('userID').value = examObj[0].userID;
     getelm('examName').value = examObj[0].examName;
