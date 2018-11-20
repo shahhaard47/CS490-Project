@@ -47,24 +47,18 @@ function showElement(element) {
 
 }
 
-function showDialog(elementToAddTo, bodyText) {
-    let dialog = appendNodeToNode('dialog', 'dialog', 'dialog', elementToAddTo);
-    // dialog.innerHTML = 'This exam is no longer available to take. Please refresh and try again.';
-    dialog.innerHTML = bodyText;
-    dialog.style = 'text-align:center; background-color:whitesmoke;';
-    appendNodeToNode('br', '', '', dialog);
-
-    let btnCloseDialog = appendNodeToNode('button', 'button', 'button', dialog);
-    btnCloseDialog.innerHTML = 'Close';
-
-    btnCloseDialog.onclick = function () {
-        dialog.close();
-        dialog.remove();
-    };
-
-    return dialog;
-}
-
+/*
+* <dialog id="demo-modal">
+  <h3 class="modal-header">A native modal dialog box</h3>
+  <div class="modal-body">
+    <p>Finally, HTML has a native dialog box element! This is fantastic.</p>
+    <p>And a polyfill makes this usable today.</p>
+  </div>
+  <footer class="modal-footer">
+    <button id="close" type="button">close</button>
+  </footer>
+</dialog>
+*/
 // function showInfoModal() {
 // }
 

@@ -68,7 +68,7 @@ function submitExamRequest(obj) {
                 log(`Response from back after submitting exam: ${response.query}`);
                 log(response);
                 if (response.query == true) {
-                    let d = showDialog(document.body, 'Exam was submitted successfully!');
+                    let d = showDialog('Success!', 'Exam was submitted successfully!');
                     d.show();
                     let btn = d.getElementsByTagName('button');
 
@@ -76,13 +76,12 @@ function submitExamRequest(obj) {
                         window.location = 'student-home.html?ucid=' + userID;
                     };
 
-                    /* When the submit request is good, send a auto grade exam request */
+                    /* When the submit request is good, send an auto grade exam request */
                     submitGradeExamRequest();
 
-                    // window.history.back();
-                    // window.location.reload();
                 } else {
-                    let d = showDialog(document.body, 'Exam was not submitted. Please try again.');
+                    // TODO: Save exam somehow in case database is down
+                    let d = showDialog('Whoops...', 'Exam was not submitted. Please try again.');
                     d.show();
                 }
 

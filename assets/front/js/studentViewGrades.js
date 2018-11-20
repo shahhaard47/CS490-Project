@@ -72,7 +72,11 @@ function loadQuestionsInExam() {
         label.innerHTML = 'Points<br>';
         let input = appendNodeToNode('input', 'points' + i, '', label);
         input.value = examQuestions[i].points;
+        input.size = 3;
         input.disabled = true;
+
+        label.appendChild(document.createTextNode(`out of ${examQuestions[i].maxPoints}`));
+
         appendNodeToNode('br', '', '', label);
 
         label = appendNodeToNode('label', '', '', questionBottom);
