@@ -14,10 +14,11 @@ if (TESTING) {
     echo __FILE__."\n";
 }
 
-define ("WRONG_HEADER", "header");
+define ("WRONG_FUNCTION_NAME", "header");
 define ("CONSTRAINT_WHILELOOP", "while");
 define ("CONSTRAINT_FORLOOP", "for");
 define ("CONSTRAINT_RECURSION", "recursion");
+
 // future checks
 define ("INCORRECT_PARAMS_NAMES", "params");
 define ("MISSING_COLON", "colon");
@@ -25,6 +26,9 @@ define ("MISSING_COLON", "colon");
 define ("FUNCTION_HEADER_NOT_FOUND", "no_header");
 define ("NOT_RETURNING", "return");
 define ("INCORRECT_PARAMS", "incorrect_parameters");
+
+// all unexpected behaviors
+define ("INVALID_SYNTAX_CANNOT_PARSE", "cannot_parse");
 
 function listifyOutput($output) {
     $lbr_pos = strpos($output, "[");
@@ -156,6 +160,7 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
             $testCasesPassFail[$i] = 0; // change back to 0 to be sure nothing breaks
         }
         else {
+            ///
             $passedTC++;
         }
     }
@@ -169,8 +174,8 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
             $totalPoints = 0;
         }
         switch ($c) {
-            case WRONG_HEADER:
-                $tmp = "Used incorrect function header.\t[-".$deductCustomPoints."]"; break;
+            case WRONG_FUNCTION_NAME:
+                $tmp = "Used incorrect function name.\t[-".$deductCustomPoints."]"; break;
             case NOT_RETURNING:
                 $tmp = "Function is not returning anything.\t[-".$deductCustomPoints."]"; break;
             case CONSTRAINT_WHILELOOP:
@@ -192,23 +197,169 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
         "testCasesPassFail" => $testCasesPassFail,
         "comments" => $finalComments
     );
-    // var_dump($final_package);
+
+    if (TESTING) {var_dump($final_package);}
+
     return $final_package;
 }
 
-$flag_wrongHeader = "WRONG_HEADER"; // FIXME: don't need this but don't wanna break anything
+//* Check for constraints
+//  returns: updated $student_response
+/* FIXME - CONTINUE NOTE
+        - finish parseResponse function (copy first half of gradeQuestion)
+            - then test that all question are still graded properly with testGrading.php
+        - then add more parsingPlanned
+        - then FIRST make middle files for anything front uses to submit comments using 'comms.php'
+*/
+
+// returns  true if comment or empty line, false otherwise
+function checkComment($line) {
+    $trimmed = ltrim($line);
+    if ($trimmed) { // not empty
+        if ($trimmed[0] == '#') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
+
+function checkConstraints(&$parsed, $constraints, $correctFunctionName) {
+    if (!$parsed["gradable"]) {
+        return;
+    }
+
+//    $constraints = explode(" ", $question_data["constraints"]);
+    $studentResponse = $parsed["studentResponse"];
+    $studentFunctionName = $parsed["studentFunctionName"];
+    $constraintsSplit = explode(" ", $constraints);
+    foreach ($constraintsSplit as $constraint) {
+        switch ($constraint) {
+            case "for":
+                // check for CONSTRAINT_FORLOOP
+                $for_pos = strpos($studentResponse, "for");
+                if ($for_pos === false) {
+                    array_push($errorCodes, CONSTRAINT_FORLOOP);
+                }
+                break;
+            case "while":
+                // check for CONSTRAINT_WHILELOOP
+                $while_pos = strpos($studentResponse, "while");
+                if ($while_pos === false) {
+                    array_push($errorCodes, CONSTRAINT_WHILELOOP);
+                }
+                break;
+            case "recursion":
+                // check for CONSTRAINT RECURSION
+                if (!$studentFunctionName) {
+                    $functionNameCount = substr_count($studentResponse, $correctFunctionName);
+                    if ($functionNameCount < 2) {
+                        array_push($errorCodes, CONSTRAINT_RECURSION);
+                    }
+                }
+                else {
+                    // FIXME: deal with this (changed function header to correct title but recursion implemented with incorrect function title
+                }
+                break;
+        }
+    }
+}
+
+// return $parsed():
+    // "newStudentResponse" => "def fun...",
+    // "errorCodes"         => array(),
+    // "gradable"           => true | false
+function parseResponse($question_data) {
+    $parsed = array(
+        "studentResponse"       => $question_data["student_response"],
+        "newStudentResponse"    => false,
+        "errorCodes"            => array(),
+        "gradable"              => true,
+        "studentFunctionName"   => null // functiontitle student gives right or wrong (for recursion checking)
+    );
+    $correctFunctionName = $question_data["function_name"];
+
+    $errorCodes = array();
+    if (TESTING) {echo "BEFORE: \n".$parsed["studentResponse"]."\n"; }
+
+    // traverse through studentResponse line by line
+    $lines = explode("\n", $parsed["studentResponse"]);
+    $functionTitleFound = false;
+    $returnFound = false;
+    for ($i = 0; $i < count($lines); $i++) {
+        $line = $lines[$i];
+
+        if (checkComment($line)) { continue; }
+
+        //* FIXME: check colon (need to figure out a way to store which line/s are missing it)
+
+        $defPos = strpos($line, "def");
+        if ($defPos !== false){
+            $leftPar = strpos($line, "(");
+            if ($leftPar !== false) {
+                $functionTitleFound = true;
+
+                //* check function title
+                $funcTitle = substr($line, $defPos, $leftPar - $defPos);
+//                $tmp = explode(" ", $funcTitle);
+//                $student_function_name = $tmp[count($tmp) - 1];
+                $studentFunctionName = end(explode(" ", $funcTitle));
+                if ($studentFunctionName != $correctFunctionName){
+                    // replace
+                    $lines[$i] = str_replace($studentFunctionName, $correctFunctionName, $line);
+                    array_push($errorCodes, WRONG_FUNCTION_NAME);
+                    $parsed["studentResponse"] = implode("\n", $lines);
+                    $parsed["newStudentResponse"] = true;
+                    $parsed["studentFunctionName"] = $studentFunctionName;
+                }
+
+                //* FIXME: check for number of parameters
+
+            }
+            else {
+                array_push($errorCodes, INVALID_SYNTAX_CANNOT_PARSE);
+                $parsed["gradable"] = false;
+            }
+        }
+        else {
+            $tmp = ltrim($line);
+            $tmp = explode(" ", $tmp);
+            if ($tmp[0] == "return") {
+                $returnFound = true;
+            }
+        }
+    }
+    if (TESTING) {echo "BEFORE: \n".$parsed["studentResponse"]."\n"; }
+
+    // check whether function header was found
+    if ($functionTitleFound == false) {
+        array_push($errorCodes, FUNCTION_HEADER_NOT_FOUND);
+        $parsed["gradable"] = false;
+    }
+
+    // check whether function returns
+    if ($returnFound == false) {
+        array_push($errorCodes, NOT_RETURNING);
+        $parsed["gradable"] = false;
+    }
+
+    checkConstraints($parsed, $question_data["constraints"], $correctFunctionName);
+
+    return $parsed;
+}
 
 function gradeQuestion($question_data) {
 //    $student_filename = 'tmppy/student.py';
     $test_file = 'tmppy/test.py';
-    $CANNOT_GRADE = false;
+    /*$CANNOT_GRADE = false;
     //*	1. sample student response
     $student_response = $question_data["student_response"];
     $function_name = $question_data["function_name"];
-    $comments = array(); // strings of comments
+    $errorCodes = array(); // strings of comments
     // check if function title in named properly
     $lines = explode("\n", $student_response);
-//    if (TESTING) {echo "BEFORE: \n$student_response\n";}
+    if (TESTING) {echo "BEFORE: \n$student_response\n";}
     $functionHeaderFound = false;
 
     for ($i = 0; $i < count($lines); $i++) {
@@ -230,7 +381,7 @@ function gradeQuestion($question_data) {
             if ($student_function_name != $function_name){
                 // replace
                 $lines[$i] = str_replace("$student_function_name", "$function_name", $line);
-                array_push($comments, WRONG_HEADER);
+                array_push($errorCodes, WRONG_FUNCTION_NAME);
             }
             break; // func header is good
         }
@@ -239,20 +390,21 @@ function gradeQuestion($question_data) {
 
     if ($functionHeaderFound == false) {
 //        echo "DID NOT FIND\n"; exit();
-        array_push($comments, FUNCTION_HEADER_NOT_FOUND);
+        array_push($errorCodes, FUNCTION_HEADER_NOT_FOUND);
         $CANNOT_GRADE = true;
     }
-//    echo "AFTER: \n$student_response\n";
-//    exit();
+    if (TESTING) {echo "AFTER: \n$student_response\n";}
+
     // check for "return"
     $return_pos = strpos($student_response, "return");
     if ($return_pos === false) {
-        array_push($comments, NOT_RETURNING);
+        array_push($errorCodes, NOT_RETURNING);
         $CANNOT_GRADE = true;
     }
 
-    // FIXME: if NOT_RETURNING or INCORRECT_PARMS return different
 
+    // FIXME: if NOT_RETURNING or INCORRECT_PARMS return different
+    // TODO:
 
     //  check for restraints
     $constraints = explode(" ", $question_data["constraints"]);
@@ -262,31 +414,39 @@ function gradeQuestion($question_data) {
                 // check for CONSTRAINT_FORLOOP
                 $for_pos = strpos($student_response, "for");
                 if ($for_pos === false) {
-                    array_push($comments, CONSTRAINT_FORLOOP);
+                    array_push($errorCodes, CONSTRAINT_FORLOOP);
                 }
                 break;
             case "while":
                 // check for CONSTRAINT_WHILELOOP
                 $while_pos = strpos($student_response, "while");
                 if ($while_pos === false) {
-                    array_push($comments, CONSTRAINT_WHILELOOP);
+                    array_push($errorCodes, CONSTRAINT_WHILELOOP);
                 }
                 break;
             case "recursion":
                 // check for CONSTRAINT RECURSION
                 $functionNameCount = substr_count($student_response, $function_name);
                 if ($functionNameCount < 2) {
-                    array_push($comments, CONSTRAINT_RECURSION);
+                    array_push($errorCodes, CONSTRAINT_RECURSION);
                 }
                 break;
         }
-    }
+    }*/
 
-    //*	5. get testcases from database
+    $parsedData = parseResponse($question_data);
+
+    if (!$parsedData["gradable"]) {
+        echo "NOT GRADABLE... Handle this\n";
+    }
+    $function_name = $question_data["function_name"];
+    $student_response = $parsedData["studentResponse"];
+    $errorCodes = $parsedData["errorCodes"];
+
+    //* get testcases from database
     $test_cases = $question_data["test_cases"];
     $functioncalls = constructFunctionCalls($function_name, $test_cases);
-//    var_dump($functioncalls); exit();
-    //*	6. compare student's to correct response's on individual testcases
+
     $TCresults = array(); // size should be count($functioncalls) RETURNING
     $TCtotal = count($functioncalls);
     foreach ($functioncalls as $call) {
@@ -294,9 +454,7 @@ function gradeQuestion($question_data) {
         $correct_response = explode(" ", $correct_response);
         $type = array_shift($correct_response);
         $expectedValue = implode(" ", $correct_response);
-//        if ($type != "list") { // if == list don't add QUOTES around expectedValue
-//            $expectedValue = "\"$expectedValue\"";
-//        }
+
         if ($type == "bool" || $type == 'list') {
             // don't need to do anything
             $expectedValue = "$expectedValue"; // this doesn't do anything but makes the logic looks symmetric
@@ -304,8 +462,8 @@ function gradeQuestion($question_data) {
         else {
             $expectedValue = "\"$expectedValue\"";
         }
-        // get students output
-//        $text = "from student import *\n";
+
+        // check student_response
         $text = $student_response."\n";
         $text .= "response = $callll\n";
         $text .= "correct = $type($expectedValue)\n";
@@ -314,52 +472,38 @@ function gradeQuestion($question_data) {
         $text .= "else:\n";
         $text .= "\tprint(response)";
 
-//        echo "TEST FILE\n";
-//        echo $text."\n";
-
         $file = fopen($test_file, 'w');
         if ($file){
-//            echo "OPENED FILE SUCCESSFULLY\n";
             fwrite($file, $text);
             fclose($file);
-//            echo "WROTE TEST FILE\n";
         }
-        else {
-//            echo "COULD NOT OPEN FILE\n";
+        elseif (TESTING) {
+            echo "COULD NOT OPEN FILE\n";
         }
         $command = escapeshellcmd("python $test_file");
         $student_output = shell_exec($command);
 
-//        echo "RAN TEST FILE... Student output:";
-//        var_dump($student_output);
         // compare outputs
         $outputpos = strpos($student_output, "output is correct");
         if ($outputpos !== false){
             array_push($TCresults, 1);
         }
         else {
-            // attach the output here (extract from $student_output string between 'Oi' and 'Of')
-//            $startPos = strpos($student_output, 'Oi');
-//            if ($startPos !== false) {
-//                $startPos += 2; // length of 'Oi' = 2
-//                $endPos = strpos($student_output, 'Of');
-//                $lengthOfOutput = $endPos - $startPos;
-//                $outputString = substr($student_output, $startPos, $lengthOfOutput);
-//            }
             if ($student_output) {
-                $outputString = $student_output;
+                // remove any newline characters from end
+                $outputString = rtrim($student_output);
             }
             else {
+                // FIXME: show what the error was
                 $outputString = "RUNTIME_ERROR";
             }
             array_push($TCresults, $outputString);
         }
     }
-//    exit();
+
     if (count($TCresults) == $TCtotal) { // just a sanity to make sure everything went well
         $maxPoints = $question_data["points"];
-        $rtn_package = constructCommentsAndPoints($maxPoints, $test_cases, $TCresults, $comments);
-//        var_dump($rtn_package); exit();
+        $rtn_package = constructCommentsAndPoints($maxPoints, $test_cases, $TCresults, $errorCodes);
         return $rtn_package;
     }
     else {
@@ -376,7 +520,6 @@ function gradeAll($grading_data) {
         $pkg["questionID"] = (int)$question_data["questionID"];
         array_push($final_grades, $pkg);
     }
-//    echo $final_grades;
     return $final_grades;
 }
 ?>

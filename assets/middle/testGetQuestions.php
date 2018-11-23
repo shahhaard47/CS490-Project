@@ -38,15 +38,36 @@ function getAllQuestions() {
     return $questions;
 }
 
-// FIXME: make sure json read in can be parsed
+function getQuestion($id) {
+    $all = getAllQuestions();
+    foreach ($all as $question) {
+        if (array_search($id, $question)) {
+            return array($question);
+        };
+    }
+    echo "Could not find questionID ".$id."\n";
+    exit(1);
+}
+
+
+function is_json($str) {
+    return json_decode($str) != null;
+}
+
 function getAllSolutions() {
     $solutionsEncoded = file_get_contents("./info_files/solutionsALL-nov14.json");
     $solutions = json_decode($solutionsEncoded, true);
     return $solutions;
 }
 
-function combineQuestionsAndSolutions() {
-    $questions = getAllQuestions();
+function combineQuestionsAndSolutions($whichQuestion="all") {
+    if ($whichQuestion == 'all') {
+        $questions = getAllQuestions();
+    }
+    else {
+        $questionID = $whichQuestion;
+        $questions = getQuestion($questionID);
+    }
     $solutions = getAllSolutions();
     $customPoints = 10;
     $rtnArray = array();
@@ -73,8 +94,8 @@ function combineQuestionsAndSolutions() {
     return $rtnArray;
 }
 
-function getQuestionsReadyToGrade() {
-    return combineQuestionsAndSolutions();
+function getQuestionsReadyToGrade($whichQuestion) {
+    return combineQuestionsAndSolutions($whichQuestion);
 }
 
 //$tmp = getQuestionsReadyToGrade();

@@ -1,10 +1,7 @@
-def mathOperations(str1,str2):
-	if(str1 in str2):
-		return True
-	else:
-		return False
-response = mathOperations(str("%"), int("13"), int("6"))
-correct = int("1")
+def cube(num):
+	return (num**3)
+response = cube(int("5"))
+correct = int("125")
 if (response == correct):
 	print('output is correct')
 else:
