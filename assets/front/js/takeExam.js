@@ -4,7 +4,6 @@ let questionIDsInExam = [], solutions = {}, previousIDSelected = '', currentSele
 
 function submitGetAvailableExamsRequest() {
     let obj = {};
-    // obj.userID = userID;
     obj.requestType = GET_AVAILABLE_EXAM_RT;
 
     let xhr = new XMLHttpRequest();
@@ -69,7 +68,7 @@ function submitExamRequest(obj) {
                 log(`Response from back after submitting exam: ${response.query}`);
                 log(response);
                 if (response.query == true) {
-                    let d = showDialog(document.body, 'Exam was submitted successfully!');
+                    let d = showDialog('Success!', 'Exam was submitted successfully!');
                     d.show();
                     let btn = d.getElementsByTagName('button');
 
@@ -77,13 +76,12 @@ function submitExamRequest(obj) {
                         window.location = 'student-home.html?ucid=' + userID;
                     };
 
-                    /* When the submit request is good, send a auto grade exam request */
+                    /* When the submit request is good, send an auto grade exam request */
                     submitGradeExamRequest();
 
-                    // window.history.back();
-                    // window.location.reload();
                 } else {
-                    let d = showDialog(document.body, 'Exam was not submitted. Please try again.');
+                    // TODO: Save exam somehow in case database is down
+                    let d = showDialog('Whoops...', 'Exam was not submitted. Please try again.');
                     d.show();
                 }
 
@@ -133,7 +131,7 @@ function loadQuestions(obj) {
     let num = 1, questionsList = obj.questions;
     for (let i = 0; i < questionsList.length; i++) {
         questionIDsInExam.push(questionsList[i].questionID);
-        let btn = appendNodeToNode('button', `btn${questionsList[i].questionID}`, '', getelm('questions-in-exam'));
+        let btn = appendNodeToNode('button', `btn${questionsList[i].questionID}`, 'btn', getelm('questions-in-exam'));
         btn.innerHTML = `Question ${num++}`;
         btn.setAttribute('style', 'width:100%');
         btn.onclick = function () {
@@ -184,9 +182,8 @@ function getAnswers() {
 
 function submitExamBH() {
     /* Make sure the solution to the last question is saved */
-    // TODO: Make sure all solutions are saved before submitting
     saveSolution('btn' + questionIDsInExam[questionIDsInExam.length - 1], solutionTextArea.value);
-    // saveSolution('btn' + previousIDSelected, solutionTextArea.value);
+
     let obj = {};
     obj.examID = parseInt(examID);
     obj.userID = getURLParams(window.location.href).userid;
@@ -194,7 +191,6 @@ function submitExamBH() {
     obj.totalQuestions = obj.answers.length;
     obj.requestType = SUBMIT_EXAM_RT;
 
-    log();
     log(obj);
 
     submitExamRequest(obj);
@@ -226,5 +222,4 @@ window.onload = function () {
 
 /*
 grade.php -> userID, examID
-
- */
+*/

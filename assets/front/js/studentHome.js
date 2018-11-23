@@ -11,14 +11,13 @@ function getPublishedExam() {
             if (this.status === 200) {
                 let response = parseJSON(xhr.responseText);
                 if (!window.location.href.includes('student-home.html') && (response.length === 0 || response.error)) {
-                    let d = showDialog(document.body, 'There are no exams available to take at this moment.');
+                    let d = showDialog('Whoops...', 'There are no exams available to take at this moment.');
                     d.show();
-                    let btn = d.getElementsByTagName('button');
 
-                    // btn[0].onclick = function () {
-                    //     window.history.back();
-                    // window.location = 'student-home.html?ucid=' + userID;
-                    // };
+                    getDialogCloseButton(d).onclick = function () {
+                        window.history.back();
+                        // window.location = 'student-home.html?ucid=' + userID;
+                    };
                     return;
                 }
                 populateExamsTable(parseJSON(xhr.responseText));
@@ -51,7 +50,7 @@ function submitCheckIfExamPublishedRequest(examID, examName) {
                 if (response.published) {
                     openExam(examID, examName);
                 } else {
-                    showDialog(document.body, 'This exam is no longer available to take. Please refresh and try again.').show();
+                    showDialog('Whoops...', 'This exam is no longer available to take. Please refresh and try again.').show();
                 }
             } else {
             }

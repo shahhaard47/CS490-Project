@@ -7,6 +7,9 @@ const EASY_QUESTION_CLASS = 'question-easy',
     HARD_QUESTION_CLASS = 'question-hard',
     ERR_MODAL_CONTENT = 'errorModalContent';
 
+/* Console logs if debug is true. */
+let debug = false;
+
 /** Counts how many parameters are added when adding a question to the bank */
 let paramsNum = 1;
 
@@ -675,6 +678,9 @@ function createExamBH() {
     if (questionIDsInExam.length === 0) {
         getelm(ERR_MODAL_CONTENT).innerHTML = "You haven't added any questions in the exam.";
         showModalBH('modalError');
+        let dialog = showDialog('Whoops...', 'You haven\'t added any questions in the exam.');
+        dialog.show();
+
         return;
     }
     let obj = {
@@ -704,18 +710,17 @@ function submitCreateExamRequest(content) {
                 log(xhr.responseText);
                 let response = parseJSON(xhr.responseText);
                 if (response.examCreated) {
-                    let d = showDialog(document.body, 'Exam was created!');
+                    let d = showDialog('Success!', 'Exam was successfully created.');
                     d.show();
-                    let btn = d.getElementsByTagName('button');
 
-                    btn[0].onclick = function () {
-                        dialog.close();
-                        dialog.remove();
+                    getDialogCloseButton(d).onclick = function () {
+                        d.close();
+                        d.remove();
                         window.location = 'instructor-home.html';
 
                     }
                 } else {
-                    showDialog(document.body, 'Something went wrong. Please try again.');
+                    showDialog('Whoops...', 'Something went wrong. Please try again.');
                 }
 
             } else {
@@ -850,9 +855,6 @@ function showHardQuestionDifficulties() {
 function sortQuestionBank(selectElm) {
     let sortOption = selectElm.value;
     switch (sortOption) {
-        // case 'All':
-        //     showAllQuestionDifficulties();
-        //     break;
         case 'Easy':
             showEasyQuestionDifficulties();
             break;
@@ -862,17 +864,11 @@ function sortQuestionBank(selectElm) {
         case 'Hard':
             showHardQuestionDifficulties();
             break;
-        case 'Lowest':
-            // showHardQuestionDifficulties();
-            break;
-        case 'Highest':
-            // showHardQuestionDifficulties();
-            break;
         default:
 
     }
-
-
+    /* Filter question bank after sorting with whatever the current selection is. */
+    filterQuestionBankTopic(getelm('topicSelect'));
 }
 
 function filterQuestionBankTopic(selectElm) {
@@ -891,13 +887,19 @@ function filterQuestionBankTopic(selectElm) {
     }
 
     let keys = Object.keys(topicQuestions);
-    log(`keys:`);
-    log(keys);
+    if (debug) {
+        log(`keys:`);
+        log(keys);
+    }
 
     for (let i in keys) {
-        log(`keys[i] = ${keys[i]}`);
+        if (debug) {
+            log(`keys[i] = ${keys[i]}`);
+        }
         if (keys[i] !== option) {
-            log(`${keys[i]} != ${option}`);
+            if (debug) {
+                log(`${keys[i]} != ${option}`);
+            }
             for (let j in topicQuestions[keys[i]]) {
                 let elm = getelm(topicQuestions[keys[i]][j]);
                 elm.style = 'display:none';

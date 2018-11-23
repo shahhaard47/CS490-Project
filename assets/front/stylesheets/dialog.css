@@ -1,0 +1,52 @@
+dialog {
+    border-radius: 10px;
+    padding: 0;
+    border: 0;
+    box-shadow: 0 0 1em black;
+    z-index: 10;
+    max-width: 35%;
+}
+
+dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+dialog button {
+    width: 30%;
+    height: 30px;
+    background-color: white;
+    border-radius: 10px;
+}
+
+dialog button:hover {
+    background-color: #497EFF;
+    color: white;
+}
+
+.dialogHeader {
+    height: 40px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom: 1px solid gray;
+    background-color: #002836;
+    padding: 10px;
+    font-size: 22px;
+    color: white;
+}
+
+.dialogHeader * {
+    font-size: 20px;
+    margin: 0;
+}
+
+.dialogBody {
+    padding: 10px;
+    border-bottom: 1px solid gray;
+    font-size: 18px;
+}
+
+.dialogFooter {
+    padding: 10px;
+    text-align: center;
+
+}

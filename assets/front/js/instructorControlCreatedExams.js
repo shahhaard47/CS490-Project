@@ -11,6 +11,7 @@ const GET_ALL_CREATED_EXAMS = 'getAllCreatedExams',
     UNPUBLISH_EXAM_RT = 'unpublish_exam';
 
 /* AJAX requests */
+//TODO: Simplify ajax reqs by passing function references to 'sendAJAXRequest'
 function getAllCreatedExams() {
     let obj = {};
     obj.requestType = GET_ALL_CREATED_EXAMS;
@@ -97,14 +98,12 @@ function populateTable(obj) {
         tr = appendNodeToNode('tr', '', '', table);
         let td = appendNodeToNode('td', `rowData${i}`, '', tr);
         td.innerHTML = obj[i].examName;
-
         td = appendNodeToNode('td', '', '', tr);
-        if (checkExamPublished(i, obj)) {
-            td.innerHTML = 'Yes';
-            publishedExamID = obj[i].examID;
-        }
-        else
-            td.innerHTML = 'No';
+
+        let checkbox = appendNodeToNode('input', '', '', td);
+        checkbox.setAttribute('type', 'checkbox');
+        checkbox.disabled = true;
+        checkbox.checked = checkExamPublished(i,obj);
 
         td = appendNodeToNode('td', '', '', tr);
         let btn = appendNodeToNode('button', `btn${i}`, '', td);

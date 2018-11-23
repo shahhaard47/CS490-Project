@@ -69,18 +69,14 @@ function submitGetExamGradesRequest() {
         /* Check if the xhr request was successful */
         if (this.readyState === 4) {
             if (this.status === 200) {
-                // log(xhr.responseText);
                 x = parseJSON(xhr.responseText);
                 for (let i = 0; i < x.length; i++) {
-                    // log(x[i]);
                     //TODO: receive one exam
                     if (x[i].userID === obj.userID) {
                         examObjs.push(x[i]);
                     }
                 }
                 showExams(x);
-                // log(examObjs)
-                // loadView();
             } else {
 
             }
@@ -106,8 +102,6 @@ function getReleasedExams() {
 }
 
 function showExams(obj) {
-    // log('-----');
-    log(obj);
     if (obj.length === 0) {
         let dialog = showDialog(document.body, 'There are no grades to view. Try again later.');
         dialog.show();
@@ -119,7 +113,6 @@ function showExams(obj) {
         };
         return;
     }
-    // log(obj);
     let table = appendNodeToNode('table', 'table', '', container);
     table.setAttribute('width', '100%');
     table.style = 'text-align:center;';

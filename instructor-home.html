@@ -6,24 +6,19 @@
     <link rel="stylesheet" href="assets/front/stylesheets/instructor-home.css">
 </head>
 <body id="body">
-<header class="centered navbar">
-    <div class="row">
-        <div class="col title">
-            <h3>Instructor Portal</h3>
-        </div>
-        <div class="col buttons">
-            <button class="btn" onclick="window.location = 'exam-creator.html';">Exam Creator</button>
-            <button class="btn" onclick="window.location = 'exams-controller.html';">Exams</button>
-
-        </div>
+<header class="centered header">
+    <div class="title">
+        <h3>Welcome Instructor!</h3>
+        <!--<button>Logout</button>-->
     </div>
 </header>
 <section class="centered options-section">
-    <div class="centered options">
+    <div class="centerd options">
+        <button onclick="window.location = 'exam-creator.html';">Exam Creator</button>
         <br>
         <button onclick="window.location = 'publish-exam.html';">View Created Exam</button>
         <br>
-        <button onclick="window.location = 'view-completed-exams.html';">View Exams Completed By Students</button>
+        <button onclick="window.location = 'view-completed-exams.html';">Grade</button>
         <br>
         <button onclick="window.location = '/~sk2283';" id="exitBtn">Logout</button>
         <br>
@@ -33,4 +28,5 @@
 <script src="assets/front/js/instructorHome.js"></script>
 <script src="assets/front/js/examCreator.js"></script>
 <script src="assets/front/js/handyMethods.js"></script>
+<script src="assets/front/js/dialog.js"></script>
 </html>
