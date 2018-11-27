@@ -14,6 +14,8 @@ if (TESTING) {
     echo __FILE__."\n";
 }
 
+define ("TEST_FILE", "tmppy/test.py");
+
 define ("WRONG_FUNCTION_NAME", "header");
 define ("CONSTRAINT_WHILELOOP", "while");
 define ("CONSTRAINT_FORLOOP", "for");
@@ -352,6 +354,67 @@ function constructUngradableComments($maxPoints, $errorCodes) {
 
 }
 
+function runTestCases($functionCalls, $studentResponse) {
+    $TCresults = array(); // size should be count($functioncalls) RETURNING
+    foreach ($functionCalls as $call) {
+        $callll = $call[0]; $correct_response = $call[1];
+        $correct_response = explode(" ", $correct_response);
+        $type = array_shift($correct_response);
+        $expectedValue = implode(" ", $correct_response);
+
+        if ($type == "bool" || $type == 'list') {
+            // don't need to do anything
+            $expectedValue = "$expectedValue"; // this doesn't do anything but makes the logic looks symmetric
+        }
+        else {
+            $expectedValue = "\"$expectedValue\"";
+        }
+
+        // check student_response
+        $text = $studentResponse."\n";
+        $text .= "response = $callll\n";
+        $text .= "correct = $type($expectedValue)\n";
+        $text .= "if (response == correct):\n";
+        $text .= "\tprint('output is correct')\n";
+        $text .= "else:\n";
+        $text .= "\tprint(response)";
+
+        $file = fopen(TEST_FILE, 'w');
+        if ($file){
+            fwrite($file, $text);
+            fclose($file);
+        }
+        elseif (TESTING) {
+            echo "COULD NOT OPEN FILE\n";
+        }
+        $command = escapeshellcmd("python ".TEST_FILE);
+        $student_output = shell_exec($command);
+
+        // compare outputs
+        $outputpos = strpos($student_output, "output is correct");
+        if ($outputpos !== false){
+            array_push($TCresults, 1);
+        }
+        else {
+            if ($student_output) {
+                // remove any newline characters from end
+                $outputString = rtrim($student_output);
+            }
+            else {
+                // FIXME: show what the error was
+                $outputString = "RUNTIME_ERROR";
+            }
+            array_push($TCresults, $outputString);
+        }
+    }
+    $TCtotal = count($functionCalls);
+    if (count($TCresults) == $TCtotal) {
+        return $TCresults;
+    } else {
+        return false;
+    }
+}
+
 function gradeQuestion($question_data) {
 //    $student_filename = 'tmppy/student.py';
     $test_file = 'tmppy/test.py';
@@ -456,7 +519,9 @@ function gradeQuestion($question_data) {
     $test_cases = $question_data["test_cases"];
     $functioncalls = constructFunctionCalls($function_name, $test_cases);
 
-    $TCresults = array(); // size should be count($functioncalls) RETURNING
+    $TCresults = runTestCases($functioncalls, $student_response);
+
+    /*$TCresults = array(); // size should be count($functioncalls) RETURNING
     foreach ($functioncalls as $call) {
         $callll = $call[0]; $correct_response = $call[1];
         $correct_response = explode(" ", $correct_response);
@@ -510,7 +575,9 @@ function gradeQuestion($question_data) {
     }
 
     $TCtotal = count($functioncalls);
-    if (count($TCresults) == $TCtotal) { // just a sanity to make sure everything went well
+    */
+
+    if ($TCresults) { // just a sanity to make sure everything went well
         $maxPoints = $question_data["points"];
         $rtn_package = constructCommentsAndPoints($maxPoints, $test_cases, $TCresults, $errorCodes);
         return $rtn_package;
