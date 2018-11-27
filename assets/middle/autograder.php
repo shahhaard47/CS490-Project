@@ -6,7 +6,7 @@ GRADING NOTES AND ASSUMPTIONS
 */
 
 if (!defined("TESTING")) {
-    define("TESTING", false);
+    define("TESTING", true);
 }
 
 if (TESTING) {
@@ -153,7 +153,10 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
             $studentOutput = $testCasesPassFail[$i];
             $currentTC = explode(";", $testCases[$i]);
             $TCnumber = $i + 1;
-            $tmp = "Failed testcase$TCnumber: "."input(".$currentTC[0]."), expected_output(".$currentTC[1]."), student_output(".$studentOutput.")\t[-".round($individualTCpoints, 2)." points]";
+            $tmp = "Failed testcase$TCnumber: ";
+            $tmp .= "input(".$currentTC[0]."), expected_output(".$currentTC[1];
+            $tmp .= "), student_output(".$studentOutput.")\t[-";
+            $tmp .= round($individualTCpoints, 2)." points]";
             array_push($finalComments, $tmp);
             $totalPoints -= $individualTCpoints;
 
@@ -205,12 +208,6 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
 
 //* Check for constraints
 //  returns: updated $student_response
-/* FIXME - CONTINUE NOTE
-        - finish parseResponse function (copy first half of gradeQuestion)
-            - then test that all question are still graded properly with testGrading.php
-        - then add more parsingPlanned
-        - then FIRST make middle files for anything front uses to submit comments using 'comms.php'
-*/
 
 // returns  true if comment or empty line, false otherwise
 function checkComment($line) {
@@ -235,19 +232,20 @@ function checkConstraints(&$parsed, $constraints, $correctFunctionName) {
     $studentFunctionName = $parsed["studentFunctionName"];
     $constraintsSplit = explode(" ", $constraints);
     foreach ($constraintsSplit as $constraint) {
+        // FIXME: check for constraints by looping line by line to make sure comments don't influence the check
         switch ($constraint) {
             case "for":
                 // check for CONSTRAINT_FORLOOP
                 $for_pos = strpos($studentResponse, "for");
                 if ($for_pos === false) {
-                    array_push($errorCodes, CONSTRAINT_FORLOOP);
+                    array_push($parsed["errorCodes"], CONSTRAINT_FORLOOP);
                 }
                 break;
             case "while":
                 // check for CONSTRAINT_WHILELOOP
                 $while_pos = strpos($studentResponse, "while");
                 if ($while_pos === false) {
-                    array_push($errorCodes, CONSTRAINT_WHILELOOP);
+                    array_push($parsed["errorCodes"], CONSTRAINT_WHILELOOP);
                 }
                 break;
             case "recursion":
@@ -255,7 +253,7 @@ function checkConstraints(&$parsed, $constraints, $correctFunctionName) {
                 if (!$studentFunctionName) {
                     $functionNameCount = substr_count($studentResponse, $correctFunctionName);
                     if ($functionNameCount < 2) {
-                        array_push($errorCodes, CONSTRAINT_RECURSION);
+                        array_push($parsed["errorCodes"], CONSTRAINT_RECURSION);
                     }
                 }
                 else {
@@ -330,7 +328,7 @@ function parseResponse($question_data) {
             }
         }
     }
-    if (TESTING) {echo "BEFORE: \n".$parsed["studentResponse"]."\n"; }
+    if (TESTING) {echo "AFTER: \n".$parsed["studentResponse"]."\n"; }
 
     // check whether function header was found
     if ($functionTitleFound == false) {
@@ -344,9 +342,14 @@ function parseResponse($question_data) {
         $parsed["gradable"] = false;
     }
 
+    // passing $parsed as reference
     checkConstraints($parsed, $question_data["constraints"], $correctFunctionName);
 
     return $parsed;
+}
+
+function constructUngradableComments($maxPoints, $errorCodes) {
+
 }
 
 function gradeQuestion($question_data) {
@@ -372,8 +375,6 @@ function gradeQuestion($question_data) {
             if ($l_par === false) { continue; }
 
             $functionHeaderFound = true;
-
-            // FIXME: check for number of parameters and append INCORRECT_PARAMS to $comments
 
             $func_title = substr($line, $def_pos, $l_par - $def_pos);
             $tmp = explode(" ", $func_title);
@@ -401,10 +402,6 @@ function gradeQuestion($question_data) {
         array_push($errorCodes, NOT_RETURNING);
         $CANNOT_GRADE = true;
     }
-
-
-    // FIXME: if NOT_RETURNING or INCORRECT_PARMS return different
-    // TODO:
 
     //  check for restraints
     $constraints = explode(" ", $question_data["constraints"]);
@@ -436,19 +433,30 @@ function gradeQuestion($question_data) {
 
     $parsedData = parseResponse($question_data);
 
-    if (!$parsedData["gradable"]) {
-        echo "NOT GRADABLE... Handle this\n";
-    }
+    /* FIXME - CONTINUE NOTE
+        - then add more parsingPlanned (check for number of parameters, semicolon,
+            (make sure recursion check always works)
+        - then FIRST make middle files for anything front uses to submit comments using 'comms.php'
+            - once that is done do this (so that i can worry about delimiters and control
+                                                the translation of messages)
+                - work with Emad to send me 2D arrays of information
+                - then work with Debbie for her to accept "strings to store and send back strings only"
+    */
     $function_name = $question_data["function_name"];
     $student_response = $parsedData["studentResponse"];
     $errorCodes = $parsedData["errorCodes"];
+
+    if (!$parsedData["gradable"]) {
+        echo "NOT GRADABLE...\n";
+
+
+    }
 
     //* get testcases from database
     $test_cases = $question_data["test_cases"];
     $functioncalls = constructFunctionCalls($function_name, $test_cases);
 
     $TCresults = array(); // size should be count($functioncalls) RETURNING
-    $TCtotal = count($functioncalls);
     foreach ($functioncalls as $call) {
         $callll = $call[0]; $correct_response = $call[1];
         $correct_response = explode(" ", $correct_response);
@@ -501,6 +509,7 @@ function gradeQuestion($question_data) {
         }
     }
 
+    $TCtotal = count($functioncalls);
     if (count($TCresults) == $TCtotal) { // just a sanity to make sure everything went well
         $maxPoints = $question_data["points"];
         $rtn_package = constructCommentsAndPoints($maxPoints, $test_cases, $TCresults, $errorCodes);
