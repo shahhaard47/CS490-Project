@@ -6,7 +6,7 @@ GRADING NOTES AND ASSUMPTIONS
 */
 
 if (!defined("TESTING")) {
-    define("TESTING", false);
+    define("TESTING", true);
 }
 
 if (TESTING) {
@@ -345,7 +345,20 @@ function parseResponse($question_data) {
                 }
 
                 //* FIXME: check for number of parameters
+                // check for parameters (assuming colon is present at the end)
+                // note: still uses old $line to get parameters (so that $leftPar matches)
+                $parameters = substr($line, $leftPar+1, -2);
+                $numParams = count(explode(",", $parameters));
+                $idealNumParams = count(explode(":", $question_data["parameters"]));
 
+                if ($numParams != $idealNumParams) {
+                    array_push($parsed[PARSEKEY_ERROR_CODES], INCORRECT_PARAMS);
+                    $parsed[PARSEKEY_GRADABLE] = false;
+                }
+//                if (TESTING) {
+//                    echo "numParams: $numParams\n";
+//                    echo "ideal: $idealNumParams\n"; exit();
+//                }
             }
             else {
                 array_push($parsed[PARSEKEY_ERROR_CODES], INVALID_SYNTAX_CANNOT_PARSE);
