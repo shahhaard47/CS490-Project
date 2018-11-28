@@ -6,7 +6,7 @@ GRADING NOTES AND ASSUMPTIONS
 */
 
 if (!defined("TESTING")) {
-    define("TESTING", true);
+    define("TESTING", false);
 }
 
 if (TESTING) {
@@ -25,9 +25,10 @@ define ("CONSTRAINT_RECURSION", "recursion");
 define ("INCORRECT_PARAMS_NAMES", "params");
 define ("MISSING_COLON", "colon");
 
-define ("FUNCTION_HEADER_NOT_FOUND", "no_header");
-define ("NOT_RETURNING", "return");
-define ("INCORRECT_PARAMS", "incorrect_parameters");
+// checks that result in ungradable behaviour
+define ("FUNCTION_HEADER_NOT_FOUND", "Function header not found.");
+define ("NOT_RETURNING", "Return statement not found");
+define ("INCORRECT_PARAMS", "Incorrect number of parameters");
 
 // all unexpected behaviors
 define ("INVALID_SYNTAX_CANNOT_PARSE", "cannot_parse");
@@ -78,6 +79,7 @@ function listifyInput($inp) {
     }
     return $inp;
 }
+
 function constructFunctionCalls($functionName, $testcases) {
     $functioncalls = array();
     foreach ($testcases as $case) {
@@ -194,6 +196,9 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
                 $tmp = "Function is not using recursion.\t[-".$deductCustomPoints."]"; break;
             case INCORRECT_PARAMS_NAMES:
                 $tmp = "Used incorrect parameter name/s\t[-".$deductCustomPoints."]"; break;
+            default:
+                if (TESTING) { echo "(middle) encounter unhandled comment/constraint.\n";}
+                continue;
         }
         array_push($finalComments, $tmp);
         $totalPoints -= $deduction;
@@ -207,6 +212,23 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
     );
 
 //    if (TESTING) {var_dump($final_package);}
+
+    return $final_package;
+}
+
+function constructUngradeableComments($maxPoints, $errorCodes) {
+
+    $finalComments = array();
+    $totalPoints = 0;
+    array_push($finalComments, "Question could not be auto-graded because of following reasons:");
+    $finalComments = array_merge($finalComments, $errorCodes);
+    array_push($finalComments, "Final score: ".$totalPoints."/".$maxPoints);
+
+    $final_package = array(
+        "qScore" => $totalPoints,
+        "testCasesPassFail" => false,
+        "comments" => $finalComments
+    );
 
     return $final_package;
 }
@@ -273,17 +295,22 @@ function checkConstraints(&$parsed, $constraints, $correctFunctionName) {
     // "newStudentResponse" => "def fun...",
     // "errorCodes"         => array(),
     // "gradable"           => true | false
+define ("PARSEKEY_STUDENT_RESPONSE", "studentResponse");
+define ("PARSEKEY_NEW_STUDENT_RESPONSE", "newStudentResponse");
+define ("PARSEKEY_ERROR_CODES", "errorCodes");
+define ("PARSEKEY_GRADABLE", "gradable");
+define ("PARSEKEY_STUDENT_FUNCTION_NAME", "studentFunctionName")   ;
+
 function parseResponse($question_data) {
     $parsed = array(
-        "studentResponse"       => $question_data["student_response"],
-        "newStudentResponse"    => false,
-        "errorCodes"            => array(),
-        "gradable"              => true,
-        "studentFunctionName"   => null // functiontitle student gives right or wrong (for recursion checking)
+        PARSEKEY_STUDENT_RESPONSE       => $question_data["student_response"],
+        PARSEKEY_NEW_STUDENT_RESPONSE   => false,
+        PARSEKEY_ERROR_CODES            => array(),
+        PARSEKEY_GRADABLE               => true,
+        PARSEKEY_STUDENT_FUNCTION_NAME  => null // functiontitle student gives right or wrong (for recursion checking)
     );
     $correctFunctionName = $question_data["function_name"];
 
-    $errorCodes = array();
 //    if (TESTING) {echo "BEFORE: \n".$parsed["studentResponse"]."\n"; }
 
     // traverse through studentResponse line by line
@@ -311,18 +338,18 @@ function parseResponse($question_data) {
                 if ($studentFunctionName != $correctFunctionName){
                     // replace
                     $lines[$i] = str_replace($studentFunctionName, $correctFunctionName, $line);
-                    array_push($errorCodes, WRONG_FUNCTION_NAME);
-                    $parsed["studentResponse"] = implode("\n", $lines);
-                    $parsed["newStudentResponse"] = true;
-                    $parsed["studentFunctionName"] = $studentFunctionName;
+                    array_push($parsed[PARSEKEY_ERROR_CODES], WRONG_FUNCTION_NAME);
+                    $parsed[PARSEKEY_STUDENT_RESPONSE] = implode("\n", $lines);
+                    $parsed[PARSEKEY_NEW_STUDENT_RESPONSE] = true;
+                    $parsed[PARSEKEY_STUDENT_FUNCTION_NAME] = $studentFunctionName;
                 }
 
                 //* FIXME: check for number of parameters
 
             }
             else {
-                array_push($errorCodes, INVALID_SYNTAX_CANNOT_PARSE);
-                $parsed["gradable"] = false;
+                array_push($parsed[PARSEKEY_ERROR_CODES], INVALID_SYNTAX_CANNOT_PARSE);
+                $parsed[PARSEKEY_GRADABLE] = false;
             }
         }
         else {
@@ -337,24 +364,20 @@ function parseResponse($question_data) {
 
     // check whether function header was found
     if ($functionTitleFound == false) {
-        array_push($errorCodes, FUNCTION_HEADER_NOT_FOUND);
-        $parsed["gradable"] = false;
+        array_push($parsed[PARSEKEY_ERROR_CODES], FUNCTION_HEADER_NOT_FOUND);
+        $parsed[PARSEKEY_GRADABLE] = false;
     }
 
     // check whether function returns
     if ($returnFound == false) {
-        array_push($errorCodes, NOT_RETURNING);
-        $parsed["gradable"] = false;
+        array_push($parsed[PARSEKEY_ERROR_CODES], NOT_RETURNING);
+        $parsed[PARSEKEY_GRADABLE] = false;
     }
 
     // passing $parsed as reference
     checkConstraints($parsed, $question_data["constraints"], $correctFunctionName);
 
     return $parsed;
-}
-
-function constructUngradableComments($maxPoints, $errorCodes) {
-
 }
 
 function runTestCases($functionCalls, $studentResponse) {
@@ -443,45 +466,51 @@ function runTestCases($functionCalls, $studentResponse) {
 
 function gradeQuestion($question_data) {
 //    $student_filename = 'tmppy/student.py';
-    $test_file = 'tmppy/test.py';
+//    $test_file = 'tmppy/test.py'; // don't need
+    $maxPoints = $question_data["points"];
 
     $parsedData = parseResponse($question_data);
 
-    /* FIXME - CONTINUE NOTE
-        - then add more parsingPlanned (check for number of parameters, semicolon,
-            (make sure recursion check always works)
-        - then FIRST make middle files for anything front uses to submit comments using 'comms.php'
-            - once that is done do this (so that i can worry about delimiters and control
-                                                the translation of messages)
-                - work with Emad to send me 2D arrays of information
-                - then work with Debbie for her to accept "strings to store and send back strings only"
-    */
     $function_name = $question_data["function_name"];
     $student_response = $parsedData["studentResponse"];
     $errorCodes = $parsedData["errorCodes"];
 
+    /* timestamp: 11.27.18 - 11:32 PM
+    TODO: CONTINUE NOTE - 2 immediate things that need to happen on branch 'grading'
+        2. if student response is changed
+            - add newStudentResponse to the rtn_package
+            - it should be store like follows
+                - line 1...|0
+                    - 0 or 1 after '|' indicates unchanged or changed
+                - line 2...|1
+            - then when giving it back to front, it will become array of lines for emad to print to form
+                - array(line1, 0)
+                - array(line2, 1)
+            - maybe a better would be to store the indices of changed text on that line!
+    */
+
     if (!$parsedData["gradable"]) {
-        echo "NOT GRADABLE...\n";
-
-
-    }
-
-    //* get testcases from database
-    $test_cases = $question_data["test_cases"];
-    $functioncalls = constructFunctionCalls($function_name, $test_cases);
-
-    $TCresults = runTestCases($functioncalls, $student_response);
-
-    if ($TCresults) { // just a sanity to make sure everything went well
-        $maxPoints = $question_data["points"];
-        $rtn_package = constructCommentsAndPoints($maxPoints, $test_cases, $TCresults, $errorCodes);
-        return $rtn_package;
+        if (TESTING) {echo "NOT GRADABLE...\n";}
+        $rtn_package = constructUngradeableComments($maxPoints, $errorCodes);
     }
     else {
-        // something went wrong
-        echo "(middle): error while grading. Testcase and function calls mismatch. Terminating.";
-        exit();
+        //* get testcases from database
+        $test_cases = $question_data["test_cases"];
+        $functioncalls = constructFunctionCalls($function_name, $test_cases);
+
+        $TCresults = runTestCases($functioncalls, $student_response);
+
+        if ($TCresults) { // just a sanity to make sure everything went well
+            $rtn_package = constructCommentsAndPoints($maxPoints, $test_cases, $TCresults, $errorCodes);
+        }
+        else {
+            // something went wrong
+            echo "(middle): error while grading. Testcase and function calls mismatch. Terminating.";
+            exit();
+        }
     }
+
+    return $rtn_package;
 }
 
 function gradeAll($grading_data) {
