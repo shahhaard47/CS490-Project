@@ -45,7 +45,7 @@ $grading_data = array(
 ); // not using this rn
 
 
-$allQuestionBank = getQuestionsReadyToGrade("all");
+$allQuestionBank = getQuestionsReadyToGrade("86");
 
 $grades = gradeAll($allQuestionBank);
 echo "-----------Grading test Data-----------\n";

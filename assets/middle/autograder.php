@@ -10,7 +10,7 @@ if (!defined("TESTING")) {
 }
 
 if (TESTING) {
-    echo "Testing...\n";
+    echo "Testing... ";
     echo __FILE__."\n";
 }
 
@@ -52,7 +52,7 @@ function listifyOutput($output) {
 function listifyInput($inp) {
     $lbr_pos = strpos($inp, "[");
     if ($lbr_pos === false) {
-        $inp = str_replace(",",":", $inp); //FIXME: tmp did this for some functionality when iwas doing lists
+        $inp = str_replace(",",":", $inp); //FIXME: tmp did this for some functionality when i was doing lists
         return $inp;
     }
     else {
@@ -80,8 +80,8 @@ function listifyInput($inp) {
 }
 function constructFunctionCalls($functionName, $testcases) {
     $functioncalls = array();
-//    echo "TESTCASES\n";var_dump($testcases);
     foreach ($testcases as $case) {
+//        if (TESTING) {echo "ORIGINAL TC:\n"; var_dump($case);}
         $tc = array();
         $call = "";
         $call = "$functionName(";
@@ -133,11 +133,14 @@ function constructFunctionCalls($functionName, $testcases) {
         $expectedOutput = listifyOutput($expectedOutput);
 //        var_dump($expectedOutput);
         array_push($tc, $expectedOutput);
-        // var_dump($tc);
+
+//        if (TESTING) { echo "CONSTRUCTED TC:\n"; var_dump($tc); exit(); }
+
         array_push($functioncalls, $tc);
     }
-//    echo "FUNCTIONCALLS: ".$functionName."\n";
-//    var_dump($functioncalls); exit();
+//    if (TESTING) {
+//        echo "FUNCTION CALLS: \n"; var_dump($functioncalls); exit();
+//    }
     return $functioncalls;
 }
 
@@ -203,7 +206,7 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
         "comments" => $finalComments
     );
 
-    if (TESTING) {var_dump($final_package);}
+//    if (TESTING) {var_dump($final_package);}
 
     return $final_package;
 }
@@ -281,7 +284,7 @@ function parseResponse($question_data) {
     $correctFunctionName = $question_data["function_name"];
 
     $errorCodes = array();
-    if (TESTING) {echo "BEFORE: \n".$parsed["studentResponse"]."\n"; }
+//    if (TESTING) {echo "BEFORE: \n".$parsed["studentResponse"]."\n"; }
 
     // traverse through studentResponse line by line
     $lines = explode("\n", $parsed["studentResponse"]);
@@ -330,7 +333,7 @@ function parseResponse($question_data) {
             }
         }
     }
-    if (TESTING) {echo "AFTER: \n".$parsed["studentResponse"]."\n"; }
+//    if (TESTING) {echo "AFTER: \n".$parsed["studentResponse"]."\n"; }
 
     // check whether function header was found
     if ($functionTitleFound == false) {
@@ -374,6 +377,10 @@ function runTestCases($functionCalls, $studentResponse) {
         $text = $studentResponse."\n";
         $text .= "response = $callll\n";
         $text .= "correct = $type($expectedValue)\n";
+//        if (TESTING) {
+//            $text .= "print('TEST check response:', response)\n";
+//            $text .= "print('TEST check correct:', correct)\n";
+//        }
         $text .= "if (response == correct):\n";
         $text .= "\tprint('output is correct')\n";
         $text .= "else:\n";
@@ -388,7 +395,17 @@ function runTestCases($functionCalls, $studentResponse) {
             echo "COULD NOT OPEN FILE\n";
         }
         $command = escapeshellcmd("python ".TEST_FILE);
-        $student_output = shell_exec($command);
+//        if (TESTING) { var_dump($command); }
+//        $student_output = shell_exec($command);
+        $student_output = "";
+        exec("$command 2>&1", $student_output);
+//        if (TESTING) { echo "raw STUDENT OUT: \n"; var_dump($student_output); }
+        $student_output = implode("\n", $student_output);
+
+//        if (TESTING) {
+//            echo "STUDENT OUTPUT:\n";
+//            var_dump($student_output);
+//        }
 
         // compare outputs
         $outputpos = strpos($student_output, "output is correct");
@@ -396,17 +413,26 @@ function runTestCases($functionCalls, $studentResponse) {
             array_push($TCresults, 1);
         }
         else {
-            if ($student_output) {
-                // remove any newline characters from end
+            $studentOutputLines = explode("\n", $student_output);
+            if (count($studentOutputLines) > 1) { // means an error probably occured
+                $lastLine = $studentOutputLines[count($studentOutputLines) - 1];
+                $outputString = explode(":", $lastLine)[0];
+            } else {
                 $outputString = rtrim($student_output);
             }
-            else {
-                // FIXME: show what the error was
-                $outputString = "RUNTIME_ERROR";
-            }
+//            if ($student_output) {
+//                // remove any newline characters from end
+//                $outputString = rtrim($student_output);
+//            }
+//            else {
+//                // FIXME: show what the error was
+//                $outputString = "RUNTIME_ERROR";
+//            }
             array_push($TCresults, $outputString);
         }
     }
+//    if (TESTING) exit();
+
     $TCtotal = count($functionCalls);
     if (count($TCresults) == $TCtotal) {
         return $TCresults;

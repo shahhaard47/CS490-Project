@@ -128,11 +128,11 @@ $allSolutions = array(
 	else:
 		return False",
     "initialVowels" => "def initialVowels(text):
-	count=0
+	words=[]
 	for word in text.split(' '):
 		if(word[0] in 'aeiouAEIOU'):
-			count=count+1
-	return count",
+			words.append(word)
+	return words",
     "mathOperations" => "def mathOperations(operation,int1,int2):
 	if(operation=='-'):
 		return(int1-int2)
