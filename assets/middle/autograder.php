@@ -6,7 +6,7 @@ GRADING NOTES AND ASSUMPTIONS
 */
 
 if (!defined("TESTING")) {
-    define("TESTING", true);
+    define("TESTING", false);
 }
 
 if (TESTING) {
@@ -226,7 +226,7 @@ function constructUngradeableComments($maxPoints, $errorCodes) {
 
     $final_package = array(
         "qScore" => $totalPoints,
-        "testCasesPassFail" => false,
+        "testCasesPassFail" => "",
         "comments" => $finalComments
     );
 
@@ -291,12 +291,30 @@ function checkConstraints(&$parsed, $constraints, $correctFunctionName) {
     }
 }
 
+
+// implied that $line is not a comment
+function checkColonError($line) {
+    $line = trim($line);
+    $first = explode(" ", $line)[0];
+    $first = preg_split('/( |\(|\:)/', $line, -1, PREG_SPLIT_NO_EMPTY);
+//    if (TESTING) {echo "SPLIT CHECK: "; var_dump($first);}
+    $first = $first[0];
+
+    if ($first == "def" || $first == "if" || $first == "else" || $first == "elif" || $first == "for" || $first == "while") {
+        // check for trailing colon
+        if (substr($line, -1) != ':') {
+            return true;
+        }
+    }
+    return false; // no colon error
+}
+
 // return $parsed():
     // "newStudentResponse" => "def fun...",
     // "errorCodes"         => array(),
     // "gradable"           => true | false
 define ("PARSEKEY_STUDENT_RESPONSE", "studentResponse");
-define ("PARSEKEY_NEW_STUDENT_RESPONSE", "newStudentResponse");
+define ("PARSEKEY_NEW_STUDENT_RESPONSE", "modResponse");
 define ("PARSEKEY_ERROR_CODES", "errorCodes");
 define ("PARSEKEY_GRADABLE", "gradable");
 define ("PARSEKEY_STUDENT_FUNCTION_NAME", "studentFunctionName")   ;
@@ -304,7 +322,7 @@ define ("PARSEKEY_STUDENT_FUNCTION_NAME", "studentFunctionName")   ;
 function parseResponse($question_data) {
     $parsed = array(
         PARSEKEY_STUDENT_RESPONSE       => $question_data["student_response"],
-        PARSEKEY_NEW_STUDENT_RESPONSE   => false,
+        PARSEKEY_NEW_STUDENT_RESPONSE   => $question_data["student_response"],
         PARSEKEY_ERROR_CODES            => array(),
         PARSEKEY_GRADABLE               => true,
         PARSEKEY_STUDENT_FUNCTION_NAME  => null // functiontitle student gives right or wrong (for recursion checking)
@@ -314,16 +332,29 @@ function parseResponse($question_data) {
 //    if (TESTING) {echo "BEFORE: \n".$parsed["studentResponse"]."\n"; }
 
     // traverse through studentResponse line by line
-    $lines = explode("\n", $parsed["studentResponse"]);
+    $lines = explode("\n", $parsed[PARSEKEY_STUDENT_RESPONSE]);
+    $mlines = explode("\n", $parsed[PARSEKEY_NEW_STUDENT_RESPONSE]);
     $functionTitleFound = false;
     $returnFound = false;
     for ($i = 0; $i < count($lines); $i++) {
         $line = $lines[$i];
+        $mline = $mlines[$i];
 
         if (checkComment($line)) { continue; }
 
-        //* FIXME: check colon (need to figure out a way to store which line/s are missing it)
+//        if (TESTING) {echo "LINE: "; var_dump($line);}
 
+        if (checkColonError($line)) { // true if colon missing
+            $line = rtrim($line).":";
+            $mline = rtrim($mline)."<mark>:</mark>";
+            $mlines[$i] = $mline;
+            $parsed[PARSEKEY_NEW_STUDENT_RESPONSE] = implode("\n", $mlines);
+        }
+//        if (TESTING) {
+//            echo "LINE: "; var_dump($line);
+//            echo "mLINE: "; var_dump($mline);
+//            exit();
+//        }
         $defPos = strpos($line, "def");
         if ($defPos !== false){
             $leftPar = strpos($line, "(");
@@ -338,9 +369,10 @@ function parseResponse($question_data) {
                 if ($studentFunctionName != $correctFunctionName){
                     // replace
                     $lines[$i] = str_replace($studentFunctionName, $correctFunctionName, $line);
+                    $mlines[$i] = str_replace($studentFunctionName, "<mark>".$correctFunctionName."</mark>", $mline);
                     array_push($parsed[PARSEKEY_ERROR_CODES], WRONG_FUNCTION_NAME);
                     $parsed[PARSEKEY_STUDENT_RESPONSE] = implode("\n", $lines);
-                    $parsed[PARSEKEY_NEW_STUDENT_RESPONSE] = true;
+                    $parsed[PARSEKEY_NEW_STUDENT_RESPONSE] = implode("\n", $mlines);
                     $parsed[PARSEKEY_STUDENT_FUNCTION_NAME] = $studentFunctionName;
                 }
 
@@ -372,6 +404,7 @@ function parseResponse($question_data) {
                 $returnFound = true;
             }
         }
+
     }
 //    if (TESTING) {echo "AFTER: \n".$parsed["studentResponse"]."\n"; }
 
@@ -488,19 +521,6 @@ function gradeQuestion($question_data) {
     $student_response = $parsedData["studentResponse"];
     $errorCodes = $parsedData["errorCodes"];
 
-    /* timestamp: 11.27.18 - 11:32 PM
-    TODO: CONTINUE NOTE - 2 immediate things that need to happen on branch 'grading'
-        2. if student response is changed
-            - add newStudentResponse to the rtn_package
-            - it should be store like follows
-                - line 1...|0
-                    - 0 or 1 after '|' indicates unchanged or changed
-                - line 2...|1
-            - then when giving it back to front, it will become array of lines for emad to print to form
-                - array(line1, 0)
-                - array(line2, 1)
-            - maybe a better would be to store the indices of changed text on that line!
-    */
 
     if (!$parsedData["gradable"]) {
         if (TESTING) {echo "NOT GRADABLE...\n";}
@@ -522,6 +542,16 @@ function gradeQuestion($question_data) {
             exit();
         }
     }
+    // FIXME: Added "modResponse" key to $rtn_package
+//    $rtn_package[PARSEKEY_NEW_STUDENT_RESPONSE] = $parsedData[PARSEKEY_NEW_STUDENT_RESPONSE];
+//    if (TESTING) {
+//        echo $rtn_package[PARSEKEY_NEW_STUDENT_RESPONSE]."\n"; exit();
+//    }
+//    if (TESTING) {
+//        echo "graded:\n";
+//        var_dump($rtn_package);
+//        exit();
+//    }
 
     return $rtn_package;
 }
