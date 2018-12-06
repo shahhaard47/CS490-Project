@@ -22,10 +22,10 @@ $info = array('userID' => $data['userID'], 'examID' => $data['examID'], 'data' =
 foreach($info['data'] as $arr)
 {
   $insert=mysqli_real_escape_string($conn, $arr['comments']);
-  echo $insert;
+  //echo $insert;
   $insert_data=mysqli_query($conn, "UPDATE BETA_rawExamData SET questionScore='".$arr['points']."',instructorComments='".$insert."' WHERE userID='".$info['userID']."' AND examID='".$info['examID']."' AND questionID='".$arr['questionID']."'");
   $insert_comments = mysqli_query($conn, "UPDATE BETA_rawExamData SET instructorComments='".$insert."' WHERE userID='".$info['userID']."' AND examID='".$info['examID']."' AND questionID='".$arr['questionID']."'");
-  echo $insert_data;
+  //echo $insert_data;
 }
 echo "done";
 ?>

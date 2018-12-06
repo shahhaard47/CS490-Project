@@ -20,7 +20,19 @@ $data = json_decode($rawDeleteRequest, true);
 $deleteRequest = array('examID' => $data['examID']);
 
 
-$delete = mysqli_query($conn, "DELETE FROM BETA_exams WHERE examID='".$deleteRequest['examID']."'");
+if(mysqli_query($conn,"SELECT * FROM BETA_rawExamData WHERE examID='".$deleteRequest['examID']."'")->num_rows!=0)
+{
+  $archieve = mysqli_query($conn,"UPDATE BETA_exams SET archieved=True WHERE examID='".$deleteRequest['examID']."'");
+  if(mysqli_query($conn,"SELECT published FROM BETA_exams WHERE examID='".$deleteRequest['examID']."'")->fetch_assoc()['published']==True)
+  {
+    $unPublish = mysqli_query($conn, "UPDATE BETA_exams SET published=FALSE WHERE examID='".$deleteRequest['examID']."'");
+  }
+}
+else
+{
+  $delete = mysqli_query($conn, "DELETE FROM BETA_exams WHERE examID='".$deleteRequest['examID']."'");
+}
+
 
 
 ?>

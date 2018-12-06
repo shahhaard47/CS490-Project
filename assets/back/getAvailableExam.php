@@ -18,12 +18,16 @@ if ($conn->connect_error)
     die();
 } 
 
-
-//receiving json data from Haard (middle) for login
 $rawRequest = file_get_contents('php://input'); 
 $data = json_decode($rawRequest, true); 
-$request = array('userID' => $data['userID']); 
+$request = array('userID' => $data['user']); 
 
+if(!$request['userID'])
+{
+  $myObj->error='back: no userID was passed';
+  echo json_encode($myObj);
+  exit();
+}
 
 $exam = array();
 $questionData = array();

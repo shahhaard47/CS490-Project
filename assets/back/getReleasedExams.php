@@ -30,7 +30,7 @@ if($studentExams->num_rows!=0)
     {
       $examData=mysqli_query($conn,"SELECT BETA_grades.examScore,BETA_questionBank.functionName,BETA_questionBank.parameters,BETA_questionBank.functionDescription,BETA_questionBank.output,
 	BETA_questionBank.topic,BETA_questionBank.constraints,BETA_rawExamData.examID,BETA_rawExamData.questionID,BETA_rawExamData.studentResponse,BETA_rawExamData.questionScore,
-	BETA_questionBank.testCases,BETA_rawExamData.testCasesPassFail,BETA_rawExamData.gradedComments FROM BETA_grades,BETA_questionBank,BETA_rawExamData WHERE 
+	BETA_questionBank.testCases,BETA_rawExamData.testCasesPassFail,BETA_rawExamData.gradedComments,BETA_rawExamData.modResponse FROM BETA_grades,BETA_questionBank,BETA_rawExamData WHERE 
 	BETA_rawExamData.userID=BETA_grades.userID AND BETA_rawExamData.userID='".$row['userID']."' AND BETA_rawExamData.examID=BETA_grades.examID AND 
 	BETA_rawExamData.examID='".$row['examID']."' AND BETA_rawExamData.questionID=BETA_questionBank.questionID");
       
@@ -67,6 +67,7 @@ if($studentExams->num_rows!=0)
           //echo $row_j['questionID'];          
           $tempArray['studentResponse']=$row_j['studentResponse'];
           //echo $row_j['studentResponse'];
+          $tempArray['modResponse']=$row_j['modResponse'];
           $tempArray['points']=$row_j['questionScore'];
           //echo $row_j['questionScore'];
           $tempArray['testCases']=explode(':',$row_j['testCases']);
