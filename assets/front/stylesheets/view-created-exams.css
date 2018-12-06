@@ -1,3 +1,57 @@
 body {
     margin: 0;
 }
+
+#exams-container {
+    width: 300px;
+    text-align: center;
+    margin: auto;
+}
+
+.examDivParent {
+    border: solid 1px lightgray;
+    border-top: solid 10px dodgerblue;
+    border-radius: 10px;
+    box-shadow: 2px 2px 3px lightgray;
+    margin-bottom: 20px;
+}
+
+.header {
+    color: #40434E;
+    padding: 10px;
+}
+
+.divBody {
+    color: #40434E;
+    /*padding: 10px;*/
+}
+
+.btnPublish {
+    font-size: 16px;
+    width: 100%;
+    border: solid 1px lightgray;
+    background: white;
+}
+
+.btnPublish:hover {
+    background: dodgerblue;
+    color: white;
+}
+
+.btnRemove {
+    font-size: 16px;
+    width: 100%;
+    border: solid 1px lightgray;
+    background: white;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.btnRemove:hover {
+    background: indianred;
+}
+
+.published {
+    background: mediumseagreen;
+    color: white;
+}

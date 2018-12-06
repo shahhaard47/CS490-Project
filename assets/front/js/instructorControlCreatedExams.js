@@ -94,33 +94,32 @@ function submitRemoveExamRequest(examID) {
 
 /* Show all exams in a table */
 function populateTable(obj) {
-    let table = getelm('table');
-    table.innerHTML = '';
-    let tr = appendNodeToNode('tr', '', '', table);
-    appendNodeToNode('th', '', '', tr).innerHTML = 'Exam Name';
-    appendNodeToNode('th', '', '', tr).innerHTML = 'Published';
+    let container = getelm('exams-container');
+    container.innerHTML = '';
 
     for (let i in obj) {
-        tr = appendNodeToNode('tr', '', '', table);
-        let td = appendNodeToNode('td', `rowData${i}`, '', tr);
-        td.innerHTML = obj[i].examName;
-        td = appendNodeToNode('td', '', '', tr);
+        let divParent = appendNodeToNode('div', `row${i}`, 'examDivParent', container);
 
-        let checkbox = appendNodeToNode('input', '', '', td);
-        checkbox.setAttribute('type', 'checkbox');
-        checkbox.disabled = true;
-        checkbox.checked = checkExamPublished(i, obj);
+        let divHeader = appendNodeToNode('div', '', 'header', divParent);
+        let headerTitle = appendNodeToNode('h2', '', 'examTitle', divHeader);
+        headerTitle.innerHTML = obj[i].examName;
 
-        td = appendNodeToNode('td', '', '', tr);
-        let btn = appendNodeToNode('button', `btn${i}`, '', td);
-        btn.innerHTML = 'Publish/Unpublish';
+        let divBody = appendNodeToNode('div', '', 'divBody', divParent);
 
-        td = appendNodeToNode('td', '', '', tr);
-        let btnRemove = appendNodeToNode('button', `btnRemove${i}`, '', td);
-        btnRemove.innerHTML = 'Remove Exam';
+        let btnPubOrUnpub = appendNodeToNode('button', `btn${i}`, 'btnPublish', divBody);
+        btnPubOrUnpub.innerHTML = 'Publish or Unpublish';
+
+        if (checkExamPublished(i, obj)) {
+            addClass(btnPubOrUnpub.id, 'published');
+        }
+
+        appendNodeToNode('br', '', '', divBody);
+
+        let btnRemove = appendNodeToNode('button', `btnRemove${i}`, 'btnRemove', divBody);
+        btnRemove.innerHTML = 'Remove';
 
 
-        btn.onclick = function () {
+        btnPubOrUnpub.onclick = function () {
             /* Check if the exam is already published */
             if (checkExamPublished(i, obj)) {
                 submitPublishOrUnpublishExamRequest(publishedExamID, UNPUBLISH_EXAM_RT);

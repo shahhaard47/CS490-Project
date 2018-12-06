@@ -2,6 +2,7 @@
     background-color: #333;
     /*color: black;*/
     overflow: hidden;
+    margin-bottom: 20px;
 }
 
 .nav a {
