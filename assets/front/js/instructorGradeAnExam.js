@@ -11,9 +11,6 @@ const RELEASE_GRADE_RT = 'release_grades',
 /* The current exam information as an object */
 let examObj = {}, currentExamID = '';
 
-/* Used for debugging. If true, console logs are executed. */
-let debug = true;
-
 /* Get the exam from middle-end who gets it from back-end */
 function submitGetAvailableExams() {
     let obj = {};
@@ -29,7 +26,7 @@ function sendGradeRequest() {
     obj.requestType = GRADE_EXAM_RT;
     log(obj);
 
-    sendAJAXReq('', JSON.stringify(obj))
+    sendAJAXReq(reloadView, JSON.stringify(obj))
 
 }
 
@@ -136,7 +133,7 @@ function sendUpdateComments() {
 
 function loadView(AJAX_Response, onlyReloadHeader) {
     let jsonObj = parseJSON(AJAX_Response);
-    if (debug){
+    if (debug) {
         log('---In loadView()---');
         log(jsonObj);
     }
@@ -249,7 +246,7 @@ function populateHeaderBar() {
 }
 
 
-/* Button Handlers */
+/** Button Handlers */
 
 function btnGoBack() {
     window.history.back();
@@ -257,7 +254,7 @@ function btnGoBack() {
 }
 
 function btnGradeExam() {
-    sendGradeRequest(obj);
+    sendGradeRequest();
 }
 
 function btnReleaseGrade() {
@@ -289,7 +286,14 @@ function reloadView() {
     submitGetAvailableExams();
 }
 
-window.onload = function () {
-    currentExamID = getURLParams(window.location.href).examID;
+function initializeGradeAnExam() {
+    log('==initializeGradeAnExam Called==');
+
+    if (debug) {
+        log(`Exam ID: ${examID}.`);
+    }
+    currentExamID = examID;
     submitGetAvailableExams();
-};
+}
+
+initializeGradeAnExam();

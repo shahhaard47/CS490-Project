@@ -1,6 +1,11 @@
 const STUDENT = 'student';
 const INSTRUCTOR = 'instructor';
 const INVALID = null;
+// historyReplaceState({page: 'index.html'}, null, null);
+historyReplaceState({
+    html: getCurrentPageHTML(),
+    title: TITLE_LOGIN
+}, 'login', null);
 
 
 function authenticateLogin() {
@@ -34,11 +39,10 @@ function authenticateLogin() {
         if (this.readyState === 4 && this.status === 200) {
             /* Remove any text from the 'error' tag */
             changeInnerHTML('error', '');
+
             /* Hide Loading icon */
             loader('loading', 'hidden');
             setAttribute('submit-btn', 'value', 'Sign In');
-
-            // console.log('result: ' + xhr.responseText);
 
             /* Try to parse JSON */
             let json = parseJSON(xhr.responseText);
@@ -55,18 +59,24 @@ function authenticateLogin() {
                 return;
             }
 
+            /*  Used for JSON to request a page. */
+            let obj = {};
+
             /* Update status tags */
             if (json.user === INVALID) {
                 changeInnerHTML('error', "Username or password is incorrect.");
             } else if (json.user === INSTRUCTOR) {
-                window.location = 'instructor-home.html?user=' + user;
-                // changeInnerHTML('identity', "You are an instructor");
-            } else if (json.user === STUDENT) {
-                window.location = 'student-home.html?ucid=' + user;
+                obj.page = TITLE_INSTRUCTOR_HOME;
+                obj.url = './instructor';
+                obj.user = user;
+                getPage(JSON.stringify(obj), changeToNewPage);
+                includeJS('instructorHome');
 
-                // changeInnerHTML('identity', "You are a student");
+            } else if (json.user === STUDENT) {
+                obj.page = 'student-home.html?ucid=' + user;
+                history.pushState({'user': user}, 'Login', './student');
+                getPage(JSON.stringify(obj), changeToNewPage);
             }
-            // console.log(xhr.responseText);
         }
 
     };
@@ -79,10 +89,13 @@ function authenticateLogin() {
 
 }
 
-/* Enable the input fields when the page loads */
-window.onload = function () {
-    /* Enable the form inputs */
+function initializeLogin() {
     getelm('field-set').disabled = false;
+}
+
+
+window.onload = function () {
+    initializeLogin();
 };
 
 /* Wait for the DOM to be created */

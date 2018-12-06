@@ -21,9 +21,10 @@ input {
     height: 100%;
     width: 40%;
     position: fixed;
-    z-index: 1;
+    z-index: 2;
     top: 0;
     overflow-x: hidden;
+    overflow-y: scroll;
     border-right: solid 1px lightgray;
     left: 0;
     padding-bottom: 20px;
@@ -33,7 +34,7 @@ input {
     height: 100%;
     width: 60%;
     position: fixed;
-    z-index: 1;
+    z-index: 2;
     top: 0;
     overflow-x: hidden;
     right: 0;

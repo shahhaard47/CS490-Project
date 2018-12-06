@@ -1,9 +1,5 @@
-let debug = true;
-
 function showExams(obj) {
     obj = parseJSON(obj);
-    if (debug)
-        log(obj);
     let table = appendNodeToNode('table', 'table', '', container);
     table.setAttribute('width', '100%');
     table.style = 'text-align:center;';
@@ -52,21 +48,27 @@ function showExams(obj) {
             let tbl = getelm('table');
             let examID = obj[id].examID,
                 userID = tbl.rows[id].cells[1].innerHTML;
-            // score = tbl.rows[id].cells[2].childNodes[0].value,
-            // comments = tbl.rows[id].cells[3].childNodes[0].value;
+            //TODO: use AJAX to change page here and pass usrID and examID to next page.
+            let x = {};
+            x.page = TITLE_GRADE_AN_EXAM;
+            x.js = JS_GRADE_AN_EXAM;
+            x.url = './grade';
+            x.user = userID;
+            x.examID = examID;
 
-            window.location = `grade-an-exam.html?user=${userID}&examID=${examID}`;
+            getPage(JSON.stringify(x), changeToNewPage);
+            // window.location = `grade-an-exam.html?user=${userID}&examID=${examID}`;
         };
 
 
     }
 }
 
-function btnGoBack(){
-    window.location = 'instructor-home.html';
+function btnGoBack() {
+    window.history.back();
 }
 
-window.onload = function () {
+function initializeViewCompletedExams() {
     container = getelm('container');
 
     /* Request to retrieve all exams that students have taken from database */
@@ -74,4 +76,6 @@ window.onload = function () {
     obj.requestType = 'allExamsToBeGraded';
     sendAJAXReq(showExams, JSON.stringify(obj));
 
-};
+}
+
+initializeViewCompletedExams();

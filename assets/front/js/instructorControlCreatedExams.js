@@ -4,13 +4,13 @@
  *
  **/
 
-
 /* Request types */
 const GET_ALL_CREATED_EXAMS = 'getAllCreatedExams',
     PUBLISH_EXAM_RT = 'publish_exam',
     UNPUBLISH_EXAM_RT = 'unpublish_exam';
 
 /* AJAX requests */
+
 //TODO: Simplify ajax reqs by passing function references to 'sendAJAXRequest'
 function getAllCreatedExams() {
     let obj = {};
@@ -21,7 +21,7 @@ function getAllCreatedExams() {
         /* Check if the xhr request was successful */
         if (this.readyState === 4) {
             if (this.status === 200) {
-                log(parseJSON(xhr.responseText));
+                // log(parseJSON(xhr.responseText));
                 populateTable(parseJSON(xhr.responseText));
 
             } else {
@@ -37,6 +37,11 @@ function getAllCreatedExams() {
     xhr.send(JSON.stringify(obj));
 }
 
+function reloadView() {
+    getAllCreatedExams();
+
+}
+
 function submitPublishOrUnpublishExamRequest(examID, requestType) {
     let obj = {};
     obj.examID = examID;
@@ -47,8 +52,8 @@ function submitPublishOrUnpublishExamRequest(examID, requestType) {
         /* Check if the xhr request was successful */
         if (this.readyState === 4) {
             if (this.status === 200) {
-                log(xhr.responseText);
-                window.location.reload();
+                // log(xhr.responseText);
+                reloadView();
             } else {
             }
         }
@@ -72,8 +77,8 @@ function submitRemoveExamRequest(examID) {
         /* Check if the xhr request was successful */
         if (this.readyState === 4) {
             if (this.status === 200) {
-                log(xhr.responseText);
-                window.location.reload();
+                // log(xhr.responseText);
+                reloadView();
             } else {
             }
         }
@@ -90,6 +95,7 @@ function submitRemoveExamRequest(examID) {
 /* Show all exams in a table */
 function populateTable(obj) {
     let table = getelm('table');
+    table.innerHTML = '';
     let tr = appendNodeToNode('tr', '', '', table);
     appendNodeToNode('th', '', '', tr).innerHTML = 'Exam Name';
     appendNodeToNode('th', '', '', tr).innerHTML = 'Published';
@@ -103,7 +109,7 @@ function populateTable(obj) {
         let checkbox = appendNodeToNode('input', '', '', td);
         checkbox.setAttribute('type', 'checkbox');
         checkbox.disabled = true;
-        checkbox.checked = checkExamPublished(i,obj);
+        checkbox.checked = checkExamPublished(i, obj);
 
         td = appendNodeToNode('td', '', '', tr);
         let btn = appendNodeToNode('button', `btn${i}`, '', td);
@@ -137,7 +143,10 @@ function checkExamPublished(rowNumber, obj) {
     return obj[rowNumber].published === "1";
 }
 
-window.onload = function () {
+function initializeViewCreatedExams() {
     getAllCreatedExams();
     publishedExamID = '';
-};
+}
+
+initializeViewCreatedExams();
+//FIXME: this page not initializing when back is hit and 'View Created Exams' is clicked again

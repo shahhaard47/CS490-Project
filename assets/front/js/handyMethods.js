@@ -1,6 +1,44 @@
 const URL = 'https://web.njit.edu/~sk2283/assets/front/php/contact_middle.php';
 const GET_AVAILABLE_EXAM_RT = 'getAvailableExam';
 
+/* HTML file names */
+const TITLE_LOGIN = 'index.html',
+    TITLE_EXAM_CREATOR = 'exam-creator.html',
+    TITLE_INSTRUCTOR_HOME = 'instructor-home.html',
+    TITLE_VIEW_CREATED_EXAMS = 'view-created-exams.html',
+    TITLE_VIEW_COMPLETED_EXAMS = 'view-completed-exams.html',
+    TITLE_GRADE_AN_EXAM = 'grade-an-exam.html';
+
+/* JS file names */
+const JS_EXAM_CREATOR = 'examCreator',
+    JS_CREATED_EXAMS = 'instructorControlCreatedExams',
+    JS_GRADE_AN_EXAM = 'instructorGradeAnExam',
+    JS_VIEW_COMPLETED_EXAMS = 'instructorViewCompletedExams',
+    JS_INSTRUCTOR_HOME = 'instructorHome';
+
+/* Used for debug. If true, console logs are executed. */
+let debug = true;
+
+let scriptsLoaded = [];
+
+function includeJS(jsFileName) {
+    /* Only include JS file if it's not already included. */
+    if (!scriptsLoaded.includes(jsFileName)) {
+        if (debug)
+            log(`INCLUDE JS FILE: file *${jsFileName}* added`);
+        let scriptElement = appendNodeToNode('script', '', '', document.getElementsByTagName('html')[0]);
+        scriptElement.src = `/~sk2283/assets/front/js/${jsFileName}.js`;
+        scriptsLoaded.push(jsFileName);
+
+    } else {
+        if (debug)
+            log(`INCLUDE JS FILE: file *${jsFileName}* NOT added`);
+        /* If the functions *initialize* exists, call it. This function initializes the content of the page being loaded. */
+
+    }
+
+}
+
 function loader(id, state) {
     getelm(id).style.visibility = state;
 }
@@ -47,21 +85,6 @@ function showElement(element) {
 
 }
 
-/*
-* <dialog id="demo-modal">
-  <h3 class="modal-header">A native modal dialog box</h3>
-  <div class="modal-body">
-    <p>Finally, HTML has a native dialog box element! This is fantastic.</p>
-    <p>And a polyfill makes this usable today.</p>
-  </div>
-  <footer class="modal-footer">
-    <button id="close" type="button">close</button>
-  </footer>
-</dialog>
-*/
-// function showInfoModal() {
-// }
-
 function parseJSON(str) {
     let json = '';
     try {
@@ -73,12 +96,16 @@ function parseJSON(str) {
     return json;
 }
 
-function getPage(url) {
+function getPage(contentToSend, callback) {
+    let parsed = parseJSON(contentToSend);
+
+    url = 'https://web.njit.edu/~sk2283/assets/front/php/getPage.php';
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         /* Check if the xhr request was successful */
         if (this.readyState === 4 && this.status === 200) {
-            return xhr.responseText;
+            log('GET PAGE GOOD. TITLE: ' + parsed.page);
+            callback(contentToSend, xhr.responseText, parsed.page, parsed.js, parsed.url);
         }
 
     };
@@ -87,9 +114,84 @@ function getPage(url) {
     /* Encode the data properly. Otherwise, php will not be able to get the values */
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     /* Send the POST request with the data */
-    xhr.send();
+    xhr.send(contentToSend);
+}
 
-    return 'oops';
+function changePageHTML(xhrResponse, title, newURL) {
+    let obj = {};
+    obj.html = xhrResponse;
+    obj.title = title;
+
+    historyPushState(obj, title, newURL);
+
+    // log(xhrResponse);
+    /* This is the callback for a XHR Request. It will load the page requested. The response text is HTML. */
+    // document.write(xhrResponse);
+    document.getElementsByTagName('html')[0].innerHTML = xhrResponse;
+    // getelm('body').innerHTML = xhrResponse;
+
+}
+
+function changeToNewPage(sentContent, xhrResponse, title, jsFileToInclude, newURL) {
+    /* sentContent is what was sent in the AJAX request which called this callback. */
+    /* This is the callback for a XHR Request. It will load the page requested. The response text is HTML. */
+    let obj = {};
+    obj.html = xhrResponse;
+    obj.title = title;
+    historyPushState(obj, title, null);
+    document.getElementsByTagName('html')[0].innerHTML = xhrResponse;
+
+    initPage(title, sentContent);
+}
+
+function initPage(htmlFileName, sentContent, isPopstate) {
+    /* sentContent is what was sent in an AJAX request. */
+    switch (htmlFileName) {
+        case TITLE_LOGIN:
+            if (typeof initializeLogin === "function")
+                initializeLogin();
+            break;
+        case TITLE_INSTRUCTOR_HOME:
+            includeJS(JS_INSTRUCTOR_HOME);
+            break;
+        case TITLE_EXAM_CREATOR:
+            includeJS(JS_EXAM_CREATOR);
+            if (typeof initializeExamCreator === "function")
+                initializeExamCreator();
+            break;
+        case TITLE_VIEW_CREATED_EXAMS:
+            includeJS(JS_CREATED_EXAMS);
+            if (typeof initializeViewCreatedExams === "function")
+                initializeViewCreatedExams();
+            break;
+        case TITLE_GRADE_AN_EXAM:
+            includeJS(JS_GRADE_AN_EXAM);
+            if (sentContent) {
+                let parsed = parseJSON(sentContent);
+                examID = parsed.examID;
+            }
+            if (typeof initializeGradeAnExam === "function") {
+                initializeGradeAnExam();
+            }
+            break;
+        case TITLE_VIEW_COMPLETED_EXAMS:
+            includeJS(JS_VIEW_COMPLETED_EXAMS);
+            if (typeof initializeViewCompletedExams === "function")
+                initializeViewCompletedExams();
+            break;
+        default:
+            break;
+
+    }
+}
+
+
+function getCurrentPageHTML() {
+    let htmlElement = document.getElementsByTagName('html');
+    if (htmlElement.length > 0)
+        return htmlElement[0].innerHTML;
+    else
+        return null;
 }
 
 function appendNodeToNode(type, id, clss, addTo) {
@@ -200,6 +302,23 @@ function getLastNumbersFromString(str) {
         }
     }
     return parseInt(num);
+}
+
+/** Checks if a javascript file is included on the current page. Will not work for dynamically loaded scripts. */
+function jsFileOnPage(file) {
+    let scriptElems = document.getElementsByTagName('script');
+
+    for (let i = 0; i < scriptElems.length; i++) {
+        log(scriptElems[i].src);
+        if (scriptElems[i].src.includes(`/~sk2283/assets/front/js/${file}.js`)) {
+            if (debug) {
+                log(`jsFileOnPage(): *${file}* exists.`)
+            }
+            return true;
+        }
+    }
+
+    return false;
 }
 
 function log(str) {

@@ -3,30 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Instructor Home</title>
-    <link rel="stylesheet" href="assets/front/stylesheets/instructor-home.css">
+    <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/instructor-home.css">
 </head>
 <body id="body">
 <header class="centered header">
     <div class="title">
         <h3>Welcome Instructor!</h3>
-        <!--<button>Logout</button>-->
     </div>
 </header>
 <section class="centered options-section">
     <div class="centerd options">
-        <button onclick="window.location = 'exam-creator.html';">Exam Creator</button>
+        <button onclick="goToExamCreator()">Exam Creator</button>
         <br>
-        <button onclick="window.location = 'publish-exam.html';">View Created Exam</button>
+        <button onclick="goToViewCreatedExamsPage();">View Created Exam</button>
         <br>
-        <button onclick="window.location = 'view-completed-exams.html';">Grade</button>
+        <button onclick="goToGradePage();">Grade</button>
         <br>
-        <button onclick="window.location = '/~sk2283';" id="exitBtn">Logout</button>
+        <button onclick="logout();" id="exitBtn">Logout</button>
         <br>
     </div>
 </section>
 </body>
-<script src="assets/front/js/instructorHome.js"></script>
-<script src="assets/front/js/examCreator.js"></script>
-<script src="assets/front/js/handyMethods.js"></script>
-<script src="assets/front/js/dialog.js"></script>
+<!--FIXME: Files not being included in FIREFOX-->
+<script src="/~sk2283/assets/front/js/instructorHome.js"></script>
+<!--<script src="assets/front/js/examCreator.js"></script>-->
+<!--<script src="assets/front/js/handyMethods.js"></script>-->
+<!--<script src="assets/front/js/dialog.js"></script>-->
 </html>

@@ -7,8 +7,8 @@ const EASY_QUESTION_CLASS = 'question-easy',
     HARD_QUESTION_CLASS = 'question-hard',
     ERR_MODAL_CONTENT = 'errorModalContent';
 
-/* Console logs if debug is true. */
-let debug = false;
+/* Used to check if this JS file is included. */
+const EXAM_CREATOR_INCLUDED = true;
 
 /** Counts how many parameters are added when adding a question to the bank */
 let paramsNum = 1;
@@ -31,8 +31,10 @@ function loadTopicsSelectElement(obj) {
     let topicsSelectElement = getelm('topicSelect');
 
     for (i in obj) {
-        let optionElement = appendNodeToNode('option', '', '', topicsSelectElement);
-        optionElement.innerHTML = obj[i];
+        if (obj.hasOwnProperty(i)) {
+            let optionElement = appendNodeToNode('option', '', '', topicsSelectElement);
+            optionElement.innerHTML = obj[i];
+        }
     }
 }
 
@@ -118,7 +120,11 @@ function loadQuestionBank(xhrResponseText) {
     }
 
     // log('topic')
-    log(topicQuestions);
+
+    /* Add this page to history. */
+    // history.pushState(questionIDsInBank, null, null);
+    // log('history state');
+    // log(history.state);
 }
 
 /** Reloads question bank. */
@@ -201,7 +207,6 @@ function addQuestionToExam(btnNode) {
         }
 
         pointsElement.value = sum;
-        log(sum)
     };
 
     hideElement(parentRow);
@@ -287,7 +292,8 @@ function submitGetQuestionBankRequest() {
         /* Check if the xhr request was successful */
         if (this.readyState === 4) {
             if (this.status === 200) {
-                log(parseJSON(xhr.responseText));
+                if (debug)
+                    log(parseJSON(xhr.responseText));
                 loadQuestionBank(xhr.responseText);
             } else {
             }
@@ -315,7 +321,6 @@ function submitGetTopicsRequest() {
         /* Check if the xhr request was successful */
         if (this.readyState === 4) {
             if (this.status === 200) {
-                log(parseJSON(xhr.responseText));
                 loadTopicsSelectElement(parseJSON(xhr.responseText));
             } else {
             }
@@ -423,7 +428,6 @@ function addParamToTestCase() {
 function getPoints() {
     let points = [];
 
-    log('Question IDs in exam: ' + questionIDsInExam);
     for (let i in questionIDsInExam) {
         // log('---:' + `question${questionIDsInExam[i]}`);
         let pointsElement = getelm(`question${questionIDsInExam[i]}`).getElementsByTagName('input')[2];
@@ -551,14 +555,12 @@ function deleteQuestionFromQBankDatabase(qid) {
         'questionID': parseInt(qid),
         'requestType': 'delete_question'
     };
-    log(obj);
 
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         /* Check if the xhr request was successful */
         if (this.readyState === 4) {
             if (this.status === 200) {
-                log(xhr.responseText);
                 reloadQuestionBank();
             } else {
             }
@@ -616,7 +618,6 @@ function submitAddNewQuestionToBankRequestBH() {
     /* Send the POST request with the data */
     xhr.send(JSON.stringify(obj));
 
-    log(obj);
 
     closeModalBH('addQuestionModal');
 }
@@ -696,7 +697,6 @@ function createExamBH() {
 
     obj.points = getPoints();
 
-    log(obj);
     submitCreateExamRequest(JSON.stringify(obj));
 }
 
@@ -707,7 +707,6 @@ function submitCreateExamRequest(content) {
         /* Check if the xhr request was successful */
         if (this.readyState === 4) {
             if (this.status === 200) {
-                log(xhr.responseText);
                 let response = parseJSON(xhr.responseText);
                 if (response.examCreated) {
                     let d = showDialog('Success!', 'Exam was successfully created.');
@@ -873,7 +872,6 @@ function sortQuestionBank(selectElm) {
 
 function filterQuestionBankTopic(selectElm) {
     let option = selectElm.value;
-    log(`option: ${option}`);
 
     if (option === 'None') {
         for (let i in questionIDsInBank) {
@@ -905,10 +903,10 @@ function filterQuestionBankTopic(selectElm) {
                 elm.style = 'display:none';
             }
         } else {
-            log(`${keys[i]} == ${option}`);
+            if (debug)
+                log(`${keys[i]} == ${option}`);
             for (let j in topicQuestions[keys[i]]) {
                 if (!inArray(questionIDsInExam, topicQuestions[keys[i]][j])) {
-                    log(topicQuestions[keys[i]][j]);
                     let elm = getelm(topicQuestions[keys[i]][j]);
                     elm.style = 'display:block';
                 }
@@ -918,17 +916,21 @@ function filterQuestionBankTopic(selectElm) {
 }
 
 /* Initialize some things when the DOM tree loads */
-window.onload = function () {
+
+// window.onload = function () {
+function initializeExamCreator() {
     submitGetQuestionBankRequest();
     showEasyQuestionDifficulties();
     populateTestCaseType(getelm('modal-param-sel0'));
     populateTestCaseName(getelm('param0'));
     submitGetTopicsRequest();
-    window.onclick = function (event) {
-        let errModal = getelm("modalError");
-        if (event.target == errModal) {
-            errModal.style.display = "none";
-        }
-    };
+}
 
+initializeExamCreator();
+
+window.onclick = function (event) {
+    let errModal = getelm("modalError");
+    if (event.target == errModal) {
+        errModal.style.display = "none";
+    }
 };
