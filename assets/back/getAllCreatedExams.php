@@ -29,7 +29,7 @@ if($allExamRecords->num_rows!=0)
     $tempArray['examID']=$row['examID'];
     $tempArray['examName']=$row['examName'];
     $tempArray['published']=$row['published'];
-    $tempArray['archieved']=$row['archieved'];
+    $tempArray['archived']=$row['archived'];
     array_push($returnArray,$tempArray);
   }
   $myJSON=json_encode($returnArray);

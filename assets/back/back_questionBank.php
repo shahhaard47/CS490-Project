@@ -27,6 +27,11 @@ if($result->num_rows!=0)
 {
   while($row = $result->fetch_assoc())
   {
+    if($row['archived']==True)
+    {
+      continue;
+    }
+    
     $tempArray = array();
     
     $tempArray["questionID"]=$row['questionID'];

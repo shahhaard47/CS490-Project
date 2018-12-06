@@ -24,7 +24,7 @@ if($info->num_rows!=0)
 {
   while($row=$info->fetch_assoc())
   {
-    $questionsPoints=mysqli_query($conn,"SELECT examName,questionIDs,points,archieved FROM BETA_exams WHERE examID='".$row['examID']."'");
+    $questionsPoints=mysqli_query($conn,"SELECT examName,questionIDs,points,archived FROM BETA_exams WHERE examID='".$row['examID']."'");
     
     $data=$questionsPoints->fetch_assoc();
     $questions=explode(',',$data['questionIDs']);
@@ -56,7 +56,7 @@ if($info->num_rows!=0)
       $tempArray['testCasesPassFail']=explode(',',$questionInfo['testCasesPassFail']);
       $tempArray['examScore']=(int)$row['examScore'];
       $tempArray['released']=$row['released'];
-      $tempArray['archieved']=$data['archieved'];
+      $tempArray['archived']=$data['archived'];
       array_push($returnArrayRAW,$tempArray);
     }
   }
