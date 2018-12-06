@@ -70,7 +70,6 @@ function authenticateLogin() {
                 obj.url = './instructor';
                 obj.user = user;
                 getPage(JSON.stringify(obj), changeToNewPage);
-                includeJS('instructorHome');
 
             } else if (json.user === STUDENT) {
                 obj.page = 'student-home.html?ucid=' + user;

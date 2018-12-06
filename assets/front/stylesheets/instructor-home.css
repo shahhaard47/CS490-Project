@@ -1,5 +1,6 @@
 body {
     background: whitesmoke;
+    margin: 0;
     /*background-color: whitesmoke;*/
     /*margin-top: 100px;*/
 }
@@ -24,27 +25,8 @@ button:active {
     background-color: #45484d;
 }
 
-.navbar {
-    width: 100%;
-    position: fixed;
-    box-shadow: 0 2px lightgray;
-    min-height: 20px;
-    background-color: white;
-    margin: 0;
-    padding: 0;
-    top: 0;
-    left: 0;
+.logoutBtn {
 
-}
-
-.navbar .btn {
-    min-height: 60px;
-    min-width: 100px;
-    margin: 0;
-    background-color: white;
-    border: 0;
-    border-left: 1px solid gray;
-    border-right: 1px solid gray;
 }
 
 .col {

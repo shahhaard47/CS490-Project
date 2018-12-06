@@ -144,6 +144,7 @@ function checkExamPublished(rowNumber, obj) {
 }
 
 function initializeViewCreatedExams() {
+    setNavbarActive(TITLE_VIEW_CREATED_EXAMS);
     getAllCreatedExams();
     publishedExamID = '';
 }

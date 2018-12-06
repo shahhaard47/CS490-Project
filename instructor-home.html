@@ -3,9 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Instructor Home</title>
+    <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/top-navbar.css">
     <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/instructor-home.css">
 </head>
 <body id="body">
+<div class="nav" id="nav">
+    <a onclick="goToInstructorHome()" id="homeBtn">Home</a>
+    <a onclick="goToExamCreator()" id="examCreatorBtn">Exam Creator</a>
+    <a onclick="goToViewCreatedExamsPage();" id="createdExamsBtn">Created Exams</a>
+    <a onclick="goToGradePage();" id="gradeBtn">Grade</a>
+    <a onclick="logout();" class="logoutBtn" id="logoutBtn">Logout</a>
+</div>
 <header class="centered header">
     <div class="title">
         <h3>Welcome Instructor!</h3>
@@ -24,8 +32,6 @@
     </div>
 </section>
 </body>
-<!--FIXME: Files not being included in FIREFOX-->
-<script src="/~sk2283/assets/front/js/instructorHome.js"></script>
 <!--<script src="assets/front/js/examCreator.js"></script>-->
 <!--<script src="assets/front/js/handyMethods.js"></script>-->
 <!--<script src="assets/front/js/dialog.js"></script>-->

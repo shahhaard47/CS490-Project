@@ -10,7 +10,8 @@ const TITLE_LOGIN = 'index.html',
     TITLE_GRADE_AN_EXAM = 'grade-an-exam.html';
 
 /* JS file names */
-const JS_EXAM_CREATOR = 'examCreator',
+const JS_LOGIN = 'login.js',
+    JS_EXAM_CREATOR = 'examCreator',
     JS_CREATED_EXAMS = 'instructorControlCreatedExams',
     JS_GRADE_AN_EXAM = 'instructorGradeAnExam',
     JS_VIEW_COMPLETED_EXAMS = 'instructorViewCompletedExams',
@@ -153,6 +154,8 @@ function initPage(htmlFileName, sentContent, isPopstate) {
             break;
         case TITLE_INSTRUCTOR_HOME:
             includeJS(JS_INSTRUCTOR_HOME);
+            if (typeof initializeInstructorHome === "function")
+                initializeInstructorHome();
             break;
         case TITLE_EXAM_CREATOR:
             includeJS(JS_EXAM_CREATOR);

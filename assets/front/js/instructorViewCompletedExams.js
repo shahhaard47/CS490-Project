@@ -75,6 +75,7 @@ function initializeViewCompletedExams() {
     let obj = {};
     obj.requestType = 'allExamsToBeGraded';
     sendAJAXReq(showExams, JSON.stringify(obj));
+    setNavbarActive(TITLE_VIEW_COMPLETED_EXAMS);
 
 }
 

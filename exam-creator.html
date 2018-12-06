@@ -4,9 +4,17 @@
     <meta charset="UTF-8">
     <title>Exam Creator</title>
     <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/exam-creator.css">
+    <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/top-navbar.css">
     <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/dialog.css">
 </head>
 <body>
+<!--<div class="nav" id="nav">
+    <a onclick="goToInstructorHome()" id="homeBtn">Home</a>
+    <a onclick="goToExamCreator()" id="examCreatorBtn">Exam Creator</a>
+    <a onclick="goToViewCreatedExamsPage();" id="createdExamsBtn">Created Exams</a>
+    <a onclick="goToGradePage();" id="gradeBtn">Grade</a>
+    <a onclick="logout();" class="logoutBtn" id="logoutBtn">Logout</a>
+</div>-->
 <div class="modal" id="addQuestionModal">
     <div class="modal-content centered">
         <span class="closeModal" id="close-modal" onclick="closeModalBH('addQuestionModal')">&times;</span>
@@ -93,7 +101,14 @@
 <!-- Left Side-->
 <div class="left">
     <div class="left-header">
-        <h1 style="">Exam Creator</h1>
+        <div class="row">
+            <div class="col">
+                <button class="exitExamCreatorBtn" onclick="window.history.back()"><strong><</strong></button>
+            </div>
+            <div class="col">
+                <h1 style="">Exam Creator</h1>
+            </div>
+        </div>
     </div>
     <div class="row">
         <div class="left-options centered col">

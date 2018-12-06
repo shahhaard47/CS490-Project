@@ -96,6 +96,18 @@ input {
     border-top-right-radius: 15px;
 }
 
+.exitExamCreatorBtn {
+    height: 90px;
+    background: indianred;
+    color: black;
+    border: 0;
+}
+
+.exitExamCreatorBtn:hover {
+    background-color: gray;
+    color: white;
+}
+
 .btn-add {
     min-height: 30px;
     min-width: 60px;

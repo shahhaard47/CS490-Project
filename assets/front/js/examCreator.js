@@ -10,23 +10,6 @@ const EASY_QUESTION_CLASS = 'question-easy',
 /* Used to check if this JS file is included. */
 const EXAM_CREATOR_INCLUDED = true;
 
-/** Counts how many parameters are added when adding a question to the bank */
-let paramsNum = 1;
-
-/** Counts how many test cases are added when adding a question to the bank */
-let testCasesNum = 2;
-
-/** Lists to track the questions added to exam, easy difficulty questions, medium difficulty questions, and
- hard difficulty questions */
-let questionIDsInExam = [], questionIDsInBank = [], easyQuestionNodes = [], medQuestionNodes = [],
-    hardQuestionNodes = [];
-
-let topicQuestions = {};
-
-/** Used to keep track of node elements in question bank view (left side of screen). Used for sorting */
-let nodesInQuestionBank = [];
-
-
 function loadTopicsSelectElement(obj) {
     let topicsSelectElement = getelm('topicSelect');
 
@@ -677,8 +660,6 @@ function getTestCases() {
 /** Send create exam rquest to middle */
 function createExamBH() {
     if (questionIDsInExam.length === 0) {
-        getelm(ERR_MODAL_CONTENT).innerHTML = "You haven't added any questions in the exam.";
-        showModalBH('modalError');
         let dialog = showDialog('Whoops...', 'You haven\'t added any questions in the exam.');
         dialog.show();
 
@@ -715,7 +696,7 @@ function submitCreateExamRequest(content) {
                     getDialogCloseButton(d).onclick = function () {
                         d.close();
                         d.remove();
-                        window.location = 'instructor-home.html';
+                        goToViewCreatedExamsPage();
 
                     }
                 } else {
@@ -919,6 +900,23 @@ function filterQuestionBankTopic(selectElm) {
 
 // window.onload = function () {
 function initializeExamCreator() {
+    /** Counts how many parameters are added when adding a question to the bank */
+    paramsNum = 1;
+
+    /** Counts how many test cases are added when adding a question to the bank */
+    testCasesNum = 2;
+
+    /** Lists to track the questions added to exam, easy difficulty questions, medium difficulty questions, and
+     hard difficulty questions */
+    questionIDsInExam = [], questionIDsInBank = [], easyQuestionNodes = [], medQuestionNodes = [],
+        hardQuestionNodes = [];
+
+    topicQuestions = {};
+
+    /** Used to keep track of node elements in question bank view (left side of screen). Used for sorting */
+    nodesInQuestionBank = [];
+
+    // setNavbarActive(TITLE_EXAM_CREATOR);
     submitGetQuestionBankRequest();
     showEasyQuestionDifficulties();
     populateTestCaseType(getelm('modal-param-sel0'));
