@@ -378,21 +378,20 @@ function parseResponse($question_data) {
                 //* FIXME: check for number of parameters
                 // check for parameters (assuming colon is present at the end)
                 // note: still uses old $line to get parameters (so that $leftPar matches)
+                $leftPar = strpos($lines[$i], "("); // look for left par again (it might be changed during replacing question
                 $parameters = substr($lines[$i], $leftPar+1, -2);
 
                 $numParams = count(explode(",", $parameters));
 
-//                $idealNumParams = count(explode(":", $question_data["parameters"])); // NOTE: this did not work
-// because "parameters" was not being returned from back
-                $tc1params = explode(";", $question_data["test_cases"][0]);
-                $idealNumParams = count(explode(",", $tc1params[0]));
-
+                $idealNumParams = count($question_data["params"]); // NOTE: this did not work because "parameters" was not being returned from back
+//                $tc1params = explode(";", $question_data["test_cases"][0]);
+//                $idealNumParams = count(explode(",", $tc1params[0]));
 
                 if (TESTING) {
 //                    echo "PARAM INFO:\n";
 //                    echo "params: "; var_dump($parameters);
 //                    echo "num params: "; var_dump($numParams);
-//                    echo "ideal params: "; var_dump($tc1params[0]);
+//                    echo "ideal params: "; var_dump($tc1params[0]); // this is for when i was using test_cases to get params
 //                    echo "ideal num params: "; var_dump($idealNumParams);
 //                    exit();
                 }
@@ -506,24 +505,9 @@ function runTestCases($functionCalls, $studentResponse) {
         exec("$command 2>&1", $student_output);
         if (TESTING) {
 //            echo "raw STUDENT OUT: \n"; var_dump($student_output);
-            // trying to get line with mark of whats wrong
-//            for ($i = 0; $i < count($student_output); $i++) {
-//                $errorMarker = strpos($student_output[$i], "^");
-//                if ($errorMarker !== false) {
-//                    echo $student_output[$i-1]." --> ".$errorMarker."\n";
-//                    echo substr($student_output[$i-1], 0, $errorMarker)."<mark>".substr($student_output[$i-1],
-//                            $errorMarker, 1). "</mark>".substr($student_output[$i-1], $errorMarker+1);
-//                    exit();
-//                }
-//            }
 //            exit();
         }
         $student_output = implode("\n", $student_output);
-
-//        if (TESTING) {
-//            echo "STUDENT OUTPUT:\n";
-//            var_dump($student_output);
-//        }
 
         // compare outputs
         $outputpos = strpos($student_output, "output is correct");
@@ -590,7 +574,7 @@ function gradeQuestion($question_data) {
             exit();
         }
     }
-    // FIXME: Added "modResponse" key to $rtn_package
+
     $rtn_package[PARSEKEY_MODRESPONSE] = $parsedData[PARSEKEY_MODRESPONSE];
 //    if (TESTING) {
 //        echo $rtn_package[PARSEKEY_NEW_STUDENT_RESPONSE]."\n"; exit();
