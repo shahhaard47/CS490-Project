@@ -1,15 +1,9 @@
 <?php
-//returns all exams in the exams table in the database
-
-
-
 $servername = "sql2.njit.edu";
 $username = "ds547";
 $password = "OVzSWetym";
 $databaseName = "ds547";
-//connecting to database
 $conn = new mysqli($servername, $username, $password, $databaseName);
-
 if ($conn->connect_error) 
 {
     $myObj->conn=false;
@@ -17,8 +11,6 @@ if ($conn->connect_error)
     echo json_encode($myObj);
     die();
 } 
-
-
 $returnArray = array();
 $allExamRecords = mysqli_query($conn, "SELECT * FROM BETA_exams");
 if($allExamRecords->num_rows!=0)
@@ -39,6 +31,4 @@ else
   $myJSON=json_encode($returnArray);
 }
 echo $myJSON;
-
-
 ?>
