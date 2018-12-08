@@ -108,8 +108,8 @@ $jsonrequest = file_get_contents('php://input');
 $decoded = json_decode($jsonrequest, true);
 
 if (TESTING) {
-//    $decoded = array("userID" => "jsnow");
-//    $jsonrequest = json_encode($decoded);
+    $decoded = array("userID" => "jsnow");
+    $jsonrequest = json_encode($decoded);
 }
 
 if ($decoded["userID"]) {
@@ -138,8 +138,8 @@ if (TESTING) {
 $decoded = json_decode($result, true);
 
 if (TESTING) {
-    var_dump($decoded);
-    exit();
+//    var_dump($decoded);
+//    exit();
 }
 
 $raw = $decoded["raw"];

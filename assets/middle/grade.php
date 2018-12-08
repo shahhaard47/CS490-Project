@@ -11,6 +11,13 @@
 6. compare student's to correct response's on individual testcases
 */
 
+/*
+ * TODO CONTINUE NOTE: we need to figure out why modResponses are not getting stored in database (look at chat)
+ *		testing with jsnow exam92 second question's modResponse won't show up (not sure why)
+ * 		1. check your work (start at your output json to debbie; there is modResposnse there already!)
+ * 		2. if its not your mistake, make sure to video with debbie to fix this
+ */
+
 define("TESTING", false);
 require ("autograder.php");
 
@@ -25,7 +32,7 @@ $jsonrequest = file_get_contents('php://input');
 $decoded = json_decode($jsonrequest, true);
 
 if (TESTING) {
-//    $decoded = array("examID" => 87, "userID" => "jsnow"); $jsonrequest = json_encode($decoded);
+    $decoded = array("examID" => 92, "userID" => "jsnow"); $jsonrequest = json_encode($decoded);
 }
 
 $examID = $decoded["examID"];
@@ -58,6 +65,8 @@ if ($decoded["examID"] && $decoded["userID"]) {
 
 	//* perform grading
 	$grades = gradeAll($grading_data);
+
+//	if (TESTING) {echo "GRADES: "; var_dump($grades); exit(); }
 
 	// check if grading worked
 	if (count($grades) != count($grading_data)) {
