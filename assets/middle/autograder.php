@@ -314,7 +314,7 @@ function checkColonError($line) {
     // "errorCodes"         => array(),
     // "gradable"           => true | false
 define ("PARSEKEY_STUDENT_RESPONSE", "studentResponse");
-define ("PARSEKEY_NEW_STUDENT_RESPONSE", "modResponse");
+define ("PARSEKEY_MODRESPONSE", "modResponse");
 define ("PARSEKEY_ERROR_CODES", "errorCodes");
 define ("PARSEKEY_GRADABLE", "gradable");
 define ("PARSEKEY_STUDENT_FUNCTION_NAME", "studentFunctionName")   ;
@@ -322,7 +322,7 @@ define ("PARSEKEY_STUDENT_FUNCTION_NAME", "studentFunctionName")   ;
 function parseResponse($question_data) {
     $parsed = array(
         PARSEKEY_STUDENT_RESPONSE       => $question_data["student_response"],
-        PARSEKEY_NEW_STUDENT_RESPONSE   => $question_data["student_response"],
+        PARSEKEY_MODRESPONSE            => $question_data["student_response"],
         PARSEKEY_ERROR_CODES            => array(),
         PARSEKEY_GRADABLE               => true,
         PARSEKEY_STUDENT_FUNCTION_NAME  => null // functiontitle student gives right or wrong (for recursion checking)
@@ -333,55 +333,69 @@ function parseResponse($question_data) {
 
     // traverse through studentResponse line by line
     $lines = explode("\n", $parsed[PARSEKEY_STUDENT_RESPONSE]);
-    $mlines = explode("\n", $parsed[PARSEKEY_NEW_STUDENT_RESPONSE]);
+    $mlines = explode("\n", $parsed[PARSEKEY_MODRESPONSE]);
     $functionTitleFound = false;
     $returnFound = false;
     for ($i = 0; $i < count($lines); $i++) {
-        $line = $lines[$i];
-        $mline = $mlines[$i];
+//        $line = $lines[$i];
+//        $mline = $mlines[$i];
 
-        if (checkComment($line)) { continue; }
+        if (checkComment($lines[$i])) { continue; }
 
 //        if (TESTING) {echo "LINE: "; var_dump($line);}
 
-        if (checkColonError($line)) { // true if colon missing
-            $line = rtrim($line).":";
-            $mline = rtrim($mline)."<mark>:</mark>";
-            $mlines[$i] = $mline;
-            $parsed[PARSEKEY_NEW_STUDENT_RESPONSE] = implode("\n", $mlines);
+        if (checkColonError($lines[$i])) { // true if colon missing
+            $lines[$i] = rtrim($lines[$i]).":";
+//            $lines[$i] = $line;
+            $mlines[$i] = rtrim($mlines[$i])."<mark>:</mark>";
+//            $mlines[$i] = $mline;
+            $parsed[PARSEKEY_STUDENT_RESPONSE] = implode("\n", $lines);
+            $parsed[PARSEKEY_MODRESPONSE] = implode("\n", $mlines);
         }
-//        if (TESTING) {
-//            echo "LINE: "; var_dump($line);
-//            echo "mLINE: "; var_dump($mline);
-//            exit();
-//        }
-        $defPos = strpos($line, "def");
+
+        $defPos = strpos($lines[$i], "def");
         if ($defPos !== false){
-            $leftPar = strpos($line, "(");
+            $leftPar = strpos($lines[$i], "(");
             if ($leftPar !== false) {
                 $functionTitleFound = true;
 
                 //* check function title
-                $funcTitle = substr($line, $defPos, $leftPar - $defPos);
+                $funcTitle = substr($lines[$i], $defPos, $leftPar - $defPos);
 //                $tmp = explode(" ", $funcTitle);
 //                $student_function_name = $tmp[count($tmp) - 1];
                 $studentFunctionName = end(explode(" ", $funcTitle));
                 if ($studentFunctionName != $correctFunctionName){
                     // replace
-                    $lines[$i] = str_replace($studentFunctionName, $correctFunctionName, $line);
-                    $mlines[$i] = str_replace($studentFunctionName, "<mark>".$correctFunctionName."</mark>", $mline);
+                    $lines[$i] = str_replace($studentFunctionName, $correctFunctionName, $lines[$i]);
+                    $mlines[$i] = str_replace($studentFunctionName, "<mark>".$correctFunctionName."</mark>",
+                        $mlines[$i]);
                     array_push($parsed[PARSEKEY_ERROR_CODES], WRONG_FUNCTION_NAME);
                     $parsed[PARSEKEY_STUDENT_RESPONSE] = implode("\n", $lines);
-                    $parsed[PARSEKEY_NEW_STUDENT_RESPONSE] = implode("\n", $mlines);
+                    $parsed[PARSEKEY_MODRESPONSE] = implode("\n", $mlines);
                     $parsed[PARSEKEY_STUDENT_FUNCTION_NAME] = $studentFunctionName;
                 }
 
                 //* FIXME: check for number of parameters
                 // check for parameters (assuming colon is present at the end)
                 // note: still uses old $line to get parameters (so that $leftPar matches)
-                $parameters = substr($line, $leftPar+1, -2);
+                $parameters = substr($lines[$i], $leftPar+1, -2);
+
                 $numParams = count(explode(",", $parameters));
-                $idealNumParams = count(explode(":", $question_data["parameters"]));
+
+//                $idealNumParams = count(explode(":", $question_data["parameters"])); // NOTE: this did not work
+// because "parameters" was not being returned from back
+                $tc1params = explode(";", $question_data["test_cases"][0]);
+                $idealNumParams = count(explode(",", $tc1params[0]));
+
+
+                if (TESTING) {
+//                    echo "PARAM INFO:\n";
+//                    echo "params: "; var_dump($parameters);
+//                    echo "num params: "; var_dump($numParams);
+//                    echo "ideal params: "; var_dump($tc1params[0]);
+//                    echo "ideal num params: "; var_dump($idealNumParams);
+//                    exit();
+                }
 
                 if ($numParams != $idealNumParams) {
                     array_push($parsed[PARSEKEY_ERROR_CODES], INCORRECT_PARAMS);
@@ -398,7 +412,7 @@ function parseResponse($question_data) {
             }
         }
         else {
-            $tmp = ltrim($line);
+            $tmp = ltrim($lines[$i]);
             $tmp = explode(" ", $tmp);
             if ($tmp[0] == "return") {
                 $returnFound = true;
@@ -424,6 +438,28 @@ function parseResponse($question_data) {
     checkConstraints($parsed, $question_data["constraints"], $correctFunctionName);
 
     return $parsed;
+}
+
+function extractError($programOutputString) {
+    $student_output = explode("\n", $programOutputString);
+    $outputString = "";
+    $errorDetail = "";
+    if (count($student_output) > 1) {
+        $last = $student_output[count($student_output)-1];
+        $errorTag = explode(":", $last)[0];
+        for ($i = 0; $i < count($student_output); $i++) {
+            $errorMarker = strpos($student_output[$i], "^");
+            if ($errorMarker !== false) {
+                $errorDetail = substr($student_output[$i-1], 0, $errorMarker)."<mark>".substr($student_output[$i-1], $errorMarker, 1). "</mark>".substr($student_output[$i-1], $errorMarker+1);
+            }
+        }
+        if ($errorDetail) { $outputString = $errorTag." --> ".$errorDetail; }
+        else { $outputString = $errorTag; }
+    }
+    else {
+        $outputString = rtrim($student_output);
+    }
+    return $outputString;
 }
 
 function runTestCases($functionCalls, $studentResponse) {
@@ -468,7 +504,20 @@ function runTestCases($functionCalls, $studentResponse) {
 //        $student_output = shell_exec($command);
         $student_output = "";
         exec("$command 2>&1", $student_output);
-//        if (TESTING) { echo "raw STUDENT OUT: \n"; var_dump($student_output); }
+        if (TESTING) {
+//            echo "raw STUDENT OUT: \n"; var_dump($student_output);
+            // trying to get line with mark of whats wrong
+//            for ($i = 0; $i < count($student_output); $i++) {
+//                $errorMarker = strpos($student_output[$i], "^");
+//                if ($errorMarker !== false) {
+//                    echo $student_output[$i-1]." --> ".$errorMarker."\n";
+//                    echo substr($student_output[$i-1], 0, $errorMarker)."<mark>".substr($student_output[$i-1],
+//                            $errorMarker, 1). "</mark>".substr($student_output[$i-1], $errorMarker+1);
+//                    exit();
+//                }
+//            }
+//            exit();
+        }
         $student_output = implode("\n", $student_output);
 
 //        if (TESTING) {
@@ -482,21 +531,16 @@ function runTestCases($functionCalls, $studentResponse) {
             array_push($TCresults, 1);
         }
         else {
-            $studentOutputLines = explode("\n", $student_output);
-            if (count($studentOutputLines) > 1) { // means an error probably occured
-                $lastLine = $studentOutputLines[count($studentOutputLines) - 1];
-                $outputString = explode(":", $lastLine)[0];
-            } else {
-                $outputString = rtrim($student_output);
-            }
-//            if ($student_output) {
-//                // remove any newline characters from end
+//            $studentOutputLines = explode("\n", $student_output);
+//            if (count($studentOutputLines) > 1) { // means an error probably occured
+//                $lastLine = $studentOutputLines[count($studentOutputLines) - 1];
+//                $outputString = explode(":", $lastLine)[0];
+//            } else {
 //                $outputString = rtrim($student_output);
 //            }
-//            else {
-//                // FIXME: show what the error was
-//                $outputString = "RUNTIME_ERROR";
-//            }
+
+            $outputString = extractError($student_output);
+
             array_push($TCresults, $outputString);
         }
     }
@@ -516,6 +560,10 @@ function gradeQuestion($question_data) {
     $maxPoints = $question_data["points"];
 
     $parsedData = parseResponse($question_data);
+    if (TESTING) {
+//        echo "Q DATA:\n"; var_dump($question_data); exit();
+//        echo "PARSED DATA:\n"; var_dump($parsedData); exit();
+    }
 
     $function_name = $question_data["function_name"];
     $student_response = $parsedData["studentResponse"];
@@ -543,7 +591,7 @@ function gradeQuestion($question_data) {
         }
     }
     // FIXME: Added "modResponse" key to $rtn_package
-//    $rtn_package[PARSEKEY_NEW_STUDENT_RESPONSE] = $parsedData[PARSEKEY_NEW_STUDENT_RESPONSE];
+    $rtn_package[PARSEKEY_MODRESPONSE] = $parsedData[PARSEKEY_MODRESPONSE];
 //    if (TESTING) {
 //        echo $rtn_package[PARSEKEY_NEW_STUDENT_RESPONSE]."\n"; exit();
 //    }

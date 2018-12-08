@@ -1,11 +1,20 @@
 <?php
 
+define("TESTING", false);
+
 require_once('constructQuestionsInPlace.php');
+
+if (TESTING) {
+    echo "Testing...\n";
+    echo __FILE__."\n";
+}
 
 $jsonrequest = file_get_contents('php://input');
 
-//$decjson = array("userID" => "mscott");
-//$jsonrequest = json_encode($decjson);
+if (TESTING) {
+    $decjson = array("userID" => "mscott");
+    $jsonrequest = json_encode($decjson);
+}
 
 $backfile = "getAvailableExam.php";
 $url = "https://web.njit.edu/~ds547/CS490-Project/assets/back/".$backfile;
@@ -19,7 +28,9 @@ $result = curl_exec($ch);
 // var_dump($result);
 
 $decoded = json_decode($result, true);
-//var_dump($decoded);
+if (TESTING) {
+    echo "Response of published exam:\n"; var_dump($decoded); exit();
+}
 
 // check connection
 if ($decoded["conn"] && $decoded["conn"] == false) {
@@ -37,7 +48,6 @@ if ($decoded["questions"]) {
 	echo $encoded;
 }
 else {
-    $decoded = array("error" => "no available exams");
     $encoded = json_encode($decoded);
 	echo $encoded;
 	exit();

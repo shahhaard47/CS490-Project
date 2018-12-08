@@ -2,7 +2,7 @@
 
 require_once ("constructExamInfoFunction.php");
 
-define("TESTING", false);
+define("TESTING", true);
 if (TESTING) {
 	echo "Testing...\n";
 	echo __FILE__."\n";
@@ -132,7 +132,11 @@ if (TESTING) {
 
 $examsdata = json_decode($result, true);
 // echo "DATA DECODEd\n";
+if (TESTING) {
+//	var_dump($examsdata); exit();
+}
 // var_dump($examsdata); exit();
+
 if ($examsdata["conn"] && $examsdata["conn"] == false) {
 	echo $result;
 	exit();
