@@ -225,6 +225,7 @@ input {
     font-size: 20px;
     border: 1px solid gray;
     background: white;
+    margin-right: 20px;
 }
 
 .createExamBtn:hover {
@@ -265,7 +266,6 @@ input {
     position: fixed;
     z-index: 3;
     padding-top: 100px;
-    /*top: 0;*/
     right: -100px;
     width: 75%;
     height: 100%;
@@ -273,7 +273,7 @@ input {
 }
 
 /* Modal Content */
-.modal-content {
+.modalContent {
     background-color: #fefefe;
     margin: auto;
     padding: 20px;
@@ -287,10 +287,13 @@ input {
     float: right;
     font-size: 28px;
     font-weight: bold;
+    width: 30px;
+    height: 30px;
 }
 
 .closeModal:hover {
     background-color: lightgray;
+    cursor: pointer;
 }
 
 .modal-clear-btn {
@@ -311,6 +314,5 @@ input {
     border-radius: 10px;
     border: 1px solid gray;
     background: white;
-    /*border-color: #497EFF;*/
 }
 

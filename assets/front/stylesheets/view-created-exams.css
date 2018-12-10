@@ -2,23 +2,78 @@ body {
     margin: 0;
 }
 
+input {
+    border: solid 1px gray;
+    border-radius: 5px;
+    text-align: center;
+}
+
+:disabled {
+    background: white;
+}
+
+.col {
+    float: left;
+}
+
+/* For preview exam */
+.row {
+    border: solid 1px lightgray;
+    border-radius: 15px;
+    margin-bottom: 40px;
+    box-shadow: 1px 1px 5px lightgray;
+    padding-right: 7px;
+    padding-bottom: 10px;
+    text-align: center;
+}
+
+.question-content textarea {
+    border-radius: 15px;
+
+}
+
+.question-easy {
+    background: #8AFF8A;
+}
+
+.question-medium {
+    background: #FFEC8A;
+}
+
+.question-hard {
+    background: #FF8A8A;
+}
+
 #exams-container {
-    width: 300px;
+    width: 80%;
     text-align: center;
     margin: auto;
 }
 
 .examDivParent {
     border: solid 1px lightgray;
-    border-top: solid 10px dodgerblue;
+    border-top: solid 10px #40434E;
     border-radius: 10px;
-    box-shadow: 2px 2px 3px lightgray;
-    margin-bottom: 20px;
+    box-shadow: 0 0 10px lightgray;
+    margin: 50px;
+    width: 300px;
+    transition: all .2s ease-in-out;
+}
+
+.examDivParent:hover {
+    cursor: pointer;
+    box-shadow: 0 0 20px lightgray;
+    transform: scale(1.1);
+
 }
 
 .header {
     color: #40434E;
     padding: 10px;
+}
+
+#divPubOrUnpub {
+    height: 15px;
 }
 
 .divBody {

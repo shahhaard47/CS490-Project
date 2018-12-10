@@ -61,7 +61,7 @@ function submitGetReleasedExams() {
 /* AJAX request when don't care about response */
 function submitGetExamGradesRequest() {
     let obj = {};
-    obj.userID = getURLParams(window.location.href).ucid;
+    obj.userID = userID;
     obj.requestType = 'allStudentExamInfo';
     log(obj);
     let xhr = new XMLHttpRequest();
@@ -102,15 +102,13 @@ function getReleasedExams() {
 }
 
 function showExams(obj) {
+    log(obj);
     if (obj.length === 0) {
-        let dialog = showDialog(document.body, 'There are no grades to view. Try again later.');
+        let dialog = showDialog('Whoops...', 'There are no grades to view. Try again later.');
         dialog.show();
         let btn = dialog.getElementsByTagName('button');
 
-        btn[0].onclick = function () {
-            window.history.back();
-            // window.location = 'student-home.html?ucid=' + userID;
-        };
+        btn[0].remove();
         return;
     }
     let table = appendNodeToNode('table', 'table', '', container);
@@ -145,18 +143,16 @@ function showExams(obj) {
         viewExamBtn.onclick = function () {
             let id = this.id.split('b')[1];
             let tbl = getelm('table');
-            /*let examID = obj[id - 1].examID,
-                userID = tbl.rows[id].cells[1].innerHTML,
-                score = tbl.rows[id].cells[2].childNodes[0].value,
-                comments = tbl.rows[id].cells[3].childNodes[0].value;
-*/
+
             window.location = `student-view-grades.html?user=${obj[i].userID}&examID=${obj[i].examID}`;
         };
 
     }
 }
 
-window.onload = function () {
+function initializeStudentViewExams() {
+    setNavbarActive(TITLE_STUDENT_VIEW_EXAMS);
     submitGetExamGradesRequest();
-    // submitGetReleasedExams();
-};
+}
+
+initializeStudentViewExams();

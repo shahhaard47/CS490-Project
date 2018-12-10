@@ -3,10 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>View Grade</title>
+    <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/top-navbar.css">
     <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/gradeAnExam.css">
     <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/dialog.css">
 </head>
 <body>
+<div class="nav" id="nav">
+    <a onclick="goToStudentHomePage();" id="studentHomeBtn">Home</a>
+    <a onclick="goToStudentGradesPage();" id="studentGradesBtn">Grades</a>
+    <a onclick="logout();" class="logoutBtn" id="logoutBtn">Logout</a>
+</div>
 <div class="header centered">
     <label>
         <strong>User ID</strong>

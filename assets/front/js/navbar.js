@@ -1,3 +1,15 @@
+/** For Instructor and Student */
+
+function logout() {
+    let obj = {};
+    obj.page = TITLE_LOGIN;
+    obj.js = JS_LOGIN;
+    obj.url = '';
+
+    getPage(JSON.stringify(obj), changeToNewPage);
+}
+
+/** For Instructor side */
 function goToInstructorHome() {
     let obj = {};
     obj.page = TITLE_INSTRUCTOR_HOME;
@@ -21,7 +33,7 @@ function goToViewCreatedExamsPage() {
     obj.page = TITLE_VIEW_CREATED_EXAMS;
     obj.js = JS_CREATED_EXAMS;
     obj.url = './viewCreatedExams';
-
+    //fixme: ERROR after exam created and trying to publish
     getPage(JSON.stringify(obj), changeToNewPage);
 }
 
@@ -34,16 +46,26 @@ function goToGradePage() {
     getPage(JSON.stringify(obj), changeToNewPage);
 }
 
-function logout() {
+/** For Student Side */
+function goToStudentHomePage() {
     let obj = {};
-    obj.page = TITLE_LOGIN;
-    obj.js = JS_LOGIN;
-    obj.url = '';
+    obj.page = TITLE_STUDENT_HOME;
+    obj.js = JS_STUDENT_HOME;
+    obj.url = './student';
 
     getPage(JSON.stringify(obj), changeToNewPage);
 }
 
+function goToStudentGradesPage() {
+    let obj = {};
+    obj.page = TITLE_STUDENT_VIEW_EXAMS;
+    obj.url = './studentGrades';
+    getPage(JSON.stringify(obj), changeToNewPage);
+}
+
 function setNavbarActive(pageTitle) {
+    if (userID)
+        getelm('logoutBtn').innerHTML += ` <strong>${userID}</strong>`;
     /* Remove active class from all 'a' attributes in the navbar */
     let aElms = getelm('nav').getElementsByTagName('a');
     for (let i = 0; i < aElms.length; i++) {
@@ -63,6 +85,12 @@ function setNavbarActive(pageTitle) {
             break;
         case TITLE_VIEW_COMPLETED_EXAMS:
             addClass('gradeBtn', 'active');
+            break;
+        case TITLE_STUDENT_HOME:
+            addClass('studentHomeBtn', 'active');
+            break;
+        case TITLE_STUDENT_VIEW_EXAMS:
+            addClass('studentGradesBtn', 'active');
             break;
         default:
             break;

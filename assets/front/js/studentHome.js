@@ -1,26 +1,27 @@
 let examIDsArr = [];
 
+/* userID is globally defined in login.js */
 function getPublishedExam() {
     let obj = {};
     obj.requestType = GET_AVAILABLE_EXAM_RT;
-    obj.userID = getURLParams(window.location.href).ucid;
+    obj.userID = userID;
+    log(obj);
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         /* Check if the xhr request was successful */
         if (this.readyState === 4) {
             if (this.status === 200) {
                 let response = parseJSON(xhr.responseText);
-                if (!window.location.href.includes('student-home.html') && (response.length === 0 || response.error)) {
+                log(response);
+                if ((response.length === 0 || response.error)) {
                     let d = showDialog('Whoops...', 'There are no exams available to take at this moment.');
                     d.show();
 
-                    getDialogCloseButton(d).onclick = function () {
-                        window.history.back();
-                        // window.location = 'student-home.html?ucid=' + userID;
-                    };
+                    getDialogCloseButton(d).remove();
                     return;
                 }
-                populateExamsTable(parseJSON(xhr.responseText));
+                jsonExamObj = parseJSON(xhr.responseText);
+                populateExamsContainer(jsonExamObj);
             } else {
             }
         }
@@ -38,7 +39,7 @@ function submitCheckIfExamPublishedRequest(examID, examName) {
     let obj = {};
     obj.examID = examID;
     obj.requestType = 'isPublished';
-    obj.userID = getURLParams(window.location.href).ucid;
+    obj.userID = userID;
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         /* Check if the xhr request was successful */
@@ -82,6 +83,33 @@ function populateExamsTable(jsonObj) {
     }
 }
 
+function populateExamsContainer(jsonObj) {
+    //TODO: What if there's more then one exam published?
+    let container = getelm('availableExamsContainer');
+    let divParent = appendNodeToNode('div', 'examID' + jsonObj.examID, 'divParent', container);
+    let divHeader = appendNodeToNode('div', '', 'divHeader', divParent);
+    let title = appendNodeToNode('h2', '', '', divHeader);
+    title.innerHTML = jsonObj.examName;
+
+    let divBody = appendNodeToNode('div', '', 'divBody', divParent);
+    let headerTag = appendNodeToNode('p', '', '', divBody);
+    headerTag.innerHTML = 'Questions';
+
+    // let pTag = appendNodeToNode('p', '', '', divBody);
+    // pTag.innerHTML = jsonObj.count;
+
+    let inputTextTag = appendNodeToNode('input', '', '', divBody);
+    inputTextTag.disabled = true;
+    inputTextTag.value = jsonObj.count;
+    inputTextTag.setAttribute('size', 3);
+
+    let btn = appendNodeToNode('button', '', 'startExamBtn', divBody);
+    btn.innerHTML = 'Start';
+    btn.onclick = function () {
+        submitCheckIfExamPublishedRequest(jsonObj.examID, jsonObj.examName);
+    }
+}
+
 function populateExamsArray(jsonObj) {
     log(`In populateExamsArray. jsonObj= ${jsonObj}`);
     for (let i = 0; i < jsonObj.length; i++) {
@@ -95,20 +123,23 @@ function populateExamsArray(jsonObj) {
 }
 
 function openExam(examID, examName) {
-    let ucid = getURLParams(window.location.href).ucid;
-    window.location = `take-exam.html?userid=${ucid}&id=${examID}&examName=${examName}`;
+    //TODO: Use AJAX here
+    log('Open Exam here');
+    let obj = {};
+    obj.page = TITLE_STUDENT_TAKE_EXAM;
+    obj.js = JS_STUDENT_TAKE_EXAM;
+    obj.url = './take-exam';
+    obj.examID = examID;
+    obj.examName = examName;
 
+    examIDToOpen = examID;
+    examNameToOpen = examName;
+    getPage(JSON.stringify(obj), changeToNewPage);
 }
 
-function takeToViewExamBH(url) {
-    let ucid = getURLParams(window.location.href).ucid;
-    // prevUrl = url;
-    window.location = 'view-exams.html?ucid=' + ucid;
-}
-
-function takeToViewExamsBH() {
-    let ucid = getURLParams(window.location.href).ucid;
-    window.location = 'view-all-graded-exams.html?ucid=' + ucid;
+function initializeStudentHome() {
+    setNavbarActive(TITLE_STUDENT_HOME);
+    getPublishedExam();
 }
 
 function btnGoBack() {
@@ -116,6 +147,4 @@ function btnGoBack() {
 
 }
 
-window.onload = function () {
-    getPublishedExam();
-};
+initializeStudentHome();

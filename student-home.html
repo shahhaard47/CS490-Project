@@ -3,18 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Student Home</title>
+    <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/top-navbar.css">
+    <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/student-home.css">
+    <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/dialog.css">
+
 </head>
 <body>
+<div class="nav" id="nav">
+    <a onclick="goToStudentHomePage();" id="studentHomeBtn">Home</a>
+    <a onclick="goToStudentGradesPage();" id="studentGradesBtn">Grades</a>
+    <a onclick="logout();" class="logoutBtn" id="logoutBtn">Logout</a>
+</div>
 <div class="header">
-    <h1>Student Home</h1>
+    <h1>Take Available Exams</h1>
 </div>
-<div class="options">
-    <button onclick="takeToViewExamBH(window.location.href)">Take Exams</button>
-    <button onclick="takeToViewExamsBH(window.location.href)">View Grades</button>
+<div class="examsContainer" id="availableExamsContainer"></div>
 
-</div>
 </body>
-<script src="/~sk2283/assets/front/js/handyMethods.js"></script>
-<script src="/~sk2283/assets/front/js/studentHome.js"></script>
-<script src="/~sk2283/assets/front/js/dialog.js"></script>
+
 </html>

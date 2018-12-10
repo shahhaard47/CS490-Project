@@ -5,14 +5,15 @@
     <title>Grade Exam</title>
     <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/gradeAnExam.css">
     <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/top-navbar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
 <div class="nav" id="nav">
-    <a onclick="goToInstructorHome()"  id="homeBtn">Home</a>
+    <a onclick="goToInstructorHome()" id="homeBtn">Home</a>
     <a onclick="goToExamCreator()" id="examCreatorBtn">Exam Creator</a>
     <a onclick="goToViewCreatedExamsPage();" id="createdExamsBtn">Created Exams</a>
     <a onclick="goToGradePage();" id="gradeBtn">Grade</a>
-    <a onclick="logout();" class="logoutBtn" id="logoutBtn">Logout</a>
+    <a onclick="logout();" id="logoutBtn">Logout</a>
 </div>
 <div class="header centered">
     <label>
@@ -35,15 +36,16 @@
 
 <div class="bottom-bar centered">
     <button id="btnBack" onclick="btnGoBack()">Back</button>
-    <button id="btnSaveExam" onclick="submitSaveExamRequest()">Save Exam</button>
-    <button id="btnGradeExam" onclick="btnGradeExam()">Grade Exam</button>
-    <button id="btnReleaseGrade" onclick="btnReleaseGrade()">Release Grade</button>
+    <button id="btnSaveExam" onclick="submitSaveExamRequest()"><i class="fa fa-refresh fa-spin"
+                                                                  style="display: none;"></i>Save Exam
+    </button>
+    <button id="btnGradeExam" onclick="btnGradeExam()"><i class="fa fa-refresh fa-spin" style="display: none;"></i>Grade
+        Exam
+    </button>
+    <button id="btnReleaseGrade" onclick="btnReleaseGrade()"><i class="fa fa-refresh fa-spin"
+                                                                style="display: none;"></i>Release Grade
+    </button>
 </div>
 
 </body>
-
-
-<!--<script src="/~sk2283/assets/front/js/handyMethods.js"></script>-->
-<!--<script src="/~sk2283/assets/front/js/instructorGradeAnExam.js"></script>-->
-<!--<script src="/~sk2283/assets/front/js/dialog.js"></script>-->
 </html>

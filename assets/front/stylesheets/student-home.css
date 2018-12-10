@@ -1,13 +1,76 @@
 body {
     background: #f9f9f9;
     margin: 0;
+    color: #333;
 }
 
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    text-align: center;
+}
 
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding-bottom: 8px;
+}
 
+.header {
+    text-align: center;
+}
 
+.examsContainer {
+    /*width: ;*/
+    text-align: center;
+}
 
+.divParent input {
+    text-align: center;
+    background: white;
+    border-radius: 5px;
+}
 
+.divParent {
+    background: white;
+    border: solid 1px lightgray;
+    border-top: solid 15px #40434E;
+    border-radius: 10px;
+    box-shadow: 2px 2px 3px lightgray;
+    margin: auto;
+    margin-bottom: 20px;
+    width: 20%;
+}
+
+.divHeader {
+    font-size: 18px;
+    color: #40434E;
+    border-bottom: solid 1px lightgray;
+    /*background: #afafaf;*/
+}
+
+.divBody {
+    color: #40434E;
+    /*padding: 10px;*/
+}
+
+.startExamBtn {
+    font-size: 16px;
+    font-weight: bold;
+    height: 50px;
+    width: 100%;
+    border: solid 1px lightgray;
+    background: #7fc0ff;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    margin-top: 10px;
+
+}
+
+.startExamBtn:hover {
+    background: #3c5a78;
+    color: white;
+}
 
 .bottom-bar {
     width: 100%;

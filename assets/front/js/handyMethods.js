@@ -1,7 +1,15 @@
 const URL = 'https://web.njit.edu/~sk2283/assets/front/php/contact_middle.php';
 const GET_AVAILABLE_EXAM_RT = 'getAvailableExam';
 
-/* HTML file names */
+/* Difficulties for questions */
+const DIF_EASY = 'e', DIF_MED = 'm', DIF_HARD = 'h';
+
+/* CSS classes for difficulties. */
+const EASY_QUESTION_CLASS = 'question-easy',
+    MEDIUM_QUESTION_CLASS = 'question-medium',
+    HARD_QUESTION_CLASS = 'question-hard';
+
+/* Instructor HTML file names */
 const TITLE_LOGIN = 'index.html',
     TITLE_EXAM_CREATOR = 'exam-creator.html',
     TITLE_INSTRUCTOR_HOME = 'instructor-home.html',
@@ -9,13 +17,25 @@ const TITLE_LOGIN = 'index.html',
     TITLE_VIEW_COMPLETED_EXAMS = 'view-completed-exams.html',
     TITLE_GRADE_AN_EXAM = 'grade-an-exam.html';
 
-/* JS file names */
+/* Student HTML file names */
+const TITLE_STUDENT_HOME = 'student-home.html',
+    TITLE_STUDENT_VIEW_EXAMS = 'view-all-graded-exams.html',
+    TITLE_STUDENT_VIEW_AN_EXAM = 'student-view-grades.html',
+    TITLE_STUDENT_TAKE_EXAM = 'take-exam.html';
+
+/* Instructor JS file names */
 const JS_LOGIN = 'login.js',
     JS_EXAM_CREATOR = 'examCreator',
     JS_CREATED_EXAMS = 'instructorControlCreatedExams',
     JS_GRADE_AN_EXAM = 'instructorGradeAnExam',
     JS_VIEW_COMPLETED_EXAMS = 'instructorViewCompletedExams',
     JS_INSTRUCTOR_HOME = 'instructorHome';
+
+/* Student JS file names */
+const JS_STUDENT_HOME = 'studentHome',
+    JS_STUDENT_VIEW_ALL_GRADED_EXAMS = 'studentViewAllGradedExams',
+    JS_STUDENT_VIEW_AN_EXAM = 'studentViewGrades',
+    JS_STUDENT_TAKE_EXAM = 'takeExam';
 
 /* Used for debug. If true, console logs are executed. */
 let debug = true;
@@ -38,6 +58,16 @@ function includeJS(jsFileName) {
 
     }
 
+}
+
+/* Add stylesheet in head element. Returns the link element. */
+function addStylesheet(cssFileName) {
+    let head = document.getElementsByTagName('head')[0];
+    let linkElm = appendNodeToNode('link', '', '', head);
+    linkElm.rel = 'stylesheet';
+    linkElm.href = '/~sk2283/assets/front/stylesheets/' + cssFileName;
+
+    return linkElm;
 }
 
 function loader(id, state) {
@@ -77,13 +107,37 @@ function removeClass(id, clss) {
 }
 
 function hideElement(element) {
-    element.style = 'display:none';
+    if (typeof element === "object")
+        element.style = 'display:none';
+    else
+        getelm(element).style = 'display:none';
 }
 
-
+/** Takes the element to be shown as argument */
 function showElement(element) {
-    element.style = 'display:block'
+    element.style = 'display:inline-block';
+}
 
+/** Show a modal based on its DOM ID */
+function showModalBH(id) {
+    getelm(id).style.display = "block";
+}
+
+/** Close a modal based on its DOM ID */
+function closeModalBH(id) {
+    getelm(id).style.display = "none";
+}
+
+function showButtonLoading(btnID) {
+    let iTag = getelm(btnID).getElementsByTagName('i');
+    if (iTag.length > 0)
+        showElement(iTag[0]);
+}
+
+function hideButtonLoading(btnID) {
+    let iTag = getelm(btnID).getElementsByTagName('i');
+    if (iTag.length > 0)
+        hideElement(iTag[0]);
 }
 
 function parseJSON(str) {
@@ -146,8 +200,12 @@ function changeToNewPage(sentContent, xhrResponse, title, jsFileToInclude, newUR
 }
 
 function initPage(htmlFileName, sentContent, isPopstate) {
+    /* Add the font stylesheet to each page. */
+    addStylesheet('font.css');
+
     /* sentContent is what was sent in an AJAX request. */
     switch (htmlFileName) {
+        /* Instructor Pages */
         case TITLE_LOGIN:
             if (typeof initializeLogin === "function")
                 initializeLogin();
@@ -181,6 +239,23 @@ function initPage(htmlFileName, sentContent, isPopstate) {
             includeJS(JS_VIEW_COMPLETED_EXAMS);
             if (typeof initializeViewCompletedExams === "function")
                 initializeViewCompletedExams();
+            break;
+
+        /* Student Pages */
+        case TITLE_STUDENT_HOME:
+            includeJS(JS_STUDENT_HOME);
+            if (typeof initializeStudentHome === "function")
+                initializeStudentHome();
+            break;
+        case TITLE_STUDENT_VIEW_EXAMS:
+            includeJS(JS_STUDENT_VIEW_ALL_GRADED_EXAMS);
+            if (typeof initializeStudentViewExams === "function")
+                initializeStudentViewExams();
+            break;
+        case TITLE_STUDENT_TAKE_EXAM:
+            includeJS(JS_STUDENT_TAKE_EXAM);
+            if (typeof initializeTakeExam === "function")
+                initializeTakeExam();
             break;
         default:
             break;
@@ -232,7 +307,7 @@ function sendAJAXReq(callback, contentToSend) {
 }
 
 function submitUpdateOverallGradeRequest(grade, userID, examID) {
-    obj = {};
+    let obj = {};
     obj.userID = userID;
     obj.examID = examID;
     obj.score = parseInt(grade);
@@ -324,6 +399,12 @@ function jsFileOnPage(file) {
     return false;
 }
 
+function appendBreakTag(appendTo) {
+    return appendNodeToNode('br', '', '', appendTo);
+}
+
 function log(str) {
     console.log(str);
 }
+
+addStylesheet('font.css');
