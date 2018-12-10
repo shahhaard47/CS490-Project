@@ -155,15 +155,25 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
     $individualTCpoints = $maxPoints / count($testCases);
     $passedTC = 0;
     $totalPoints = $maxPoints;
+    $deductPointsTagOpen = "<mark style=\"background: indianred; color: white;\">"; $pointsTagClose = "</mark>";
     for ($i = 0; $i < count($testCases); $i++) {
         if ($testCasesPassFail[$i] != 1) {
             $studentOutput = $testCasesPassFail[$i];
             $currentTC = explode(";", $testCases[$i]);
             $TCnumber = $i + 1;
-            $tmp = "Failed testcase$TCnumber: ";
-            $tmp .= "input(".$currentTC[0]."), expected_output(".$currentTC[1];
-            $tmp .= "), student_output(".$studentOutput.")\t[-";
-            $tmp .= round($individualTCpoints, 2)." points]";
+//            $tmp = "Failed testcase $TCnumber: ";
+//            $tmp .= "input(".$currentTC[0]."), expected output(".$currentTC[1];
+//            $tmp .= "), student output(".$studentOutput.")\t[-";
+//            $tmp .= round($individualTCpoints, 0)." points]";
+            $changeFontOpen = "<span style=\"font-family: Menlo, monospace;\">"; $changeFontClose="</span>";
+
+            $tmp = $deductPointsTagOpen.sprintf("%-61s %s", "Failed test-case $TCnumber", "<strong>"."-".round($individualTCpoints, 0)." points"."</strong>").$pointsTagClose;
+//            $tmp = $deductPointsTagOpen."Failed test-case $TCnumber: \t\t\t"."-"."<strong>".round($individualTCpoints, 0)." points"."</strong>".$pointsTagClose;
+
+            $tmp .= "\nInput:\t\t\t".$changeFontOpen.trim($currentTC[0]).$changeFontClose;
+            $tmp .= "\nExpected output:\t".$changeFontOpen.trim($currentTC[1]).$changeFontClose;
+            $tmp .= "\nStudent output:\t".$changeFontOpen.$studentOutput.$changeFontClose;
+
             array_push($finalComments, $tmp);
             $totalPoints -= $individualTCpoints;
 
@@ -174,37 +184,50 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
             $passedTC++;
         }
     }
-    $TCsummary = "Testcases passed: ".$passedTC."/".count($testCases);
+    $greenTagOpen = "<mark style=\"background: palegreen; color: black;\">"; $greenTagClose = "</mark>";
+//    $TCsummary = "Testcases passed: \t\t\t".$passedTC."/".count($testCases);
+    $TCsummary = sprintf("<strong>%-56s  %s</strong>", "Test-cases passed", "$passedTC/".count($testCases));
+    $TCsummary = $greenTagOpen.$TCsummary.$greenTagClose;
     array_unshift($finalComments, $TCsummary);
     // otherComments
     $deductCustomPoints = $deduction = 2.0;
+    if (false) {
+        $otherComments = array(WRONG_FUNCTION_NAME, NOT_RETURNING, CONSTRAINT_WHILELOOP, CONSTRAINT_FORLOOP, CONSTRAINT_RECURSION, INCORRECT_PARAMS_NAMES, MISSING_COLON);
+    }
     foreach ($otherComments as $c) {
         if ($totalPoints < $deductCustomPoints) {
             $deduction = 0;
             $totalPoints = 0;
         }
+        $deductString = "<strong>".$deductCustomPoints." points</strong>";
         switch ($c) {
             case WRONG_FUNCTION_NAME:
-                $tmp = "Used incorrect function name.\t[-".$deductCustomPoints."]"; break;
+                $tmp = "Used incorrect function name.\t\t\t"; break;
             case NOT_RETURNING:
-                $tmp = "Function is not returning anything.\t[-".$deductCustomPoints."]"; break;
+                $tmp = "Function is not returning anything.\t\t\t"; break;
             case CONSTRAINT_WHILELOOP:
-                $tmp = "Function is not using while loop.\t[-".$deductCustomPoints."]"; break;
+                $tmp = "Function is not using while loop.\t\t\t"; break;
             case CONSTRAINT_FORLOOP:
-                $tmp = "Function is not using for loop.\t[-".$deductCustomPoints."]"; break;
+                $tmp = "Function is not using for loop.\t\t\t\t"; break;
             case CONSTRAINT_RECURSION:
-                $tmp = "Function is not using recursion.\t[-".$deductCustomPoints."]"; break;
+                $tmp = "Function is not using recursion.\t\t\t"; break;
             case INCORRECT_PARAMS_NAMES:
-                $tmp = "Used incorrect parameter name/s\t[-".$deductCustomPoints."]"; break;
+                $tmp = "Used incorrect parameter names.\t\t\t"; break;
+            case MISSING_COLON:
+                $tmp = "Missing colon\t\t\t\t\t\t\t"; break;
             default:
                 if (TESTING) { echo "(middle) encounter unhandled comment/constraint.\n";}
                 continue;
         }
+        $tmp = $tmp."-$deductString";
+        $tmp = $deductPointsTagOpen.$tmp.$pointsTagClose;
         array_push($finalComments, $tmp);
         $totalPoints -= $deduction;
     }
     $totalPoints = round($totalPoints, 2);
-    $tmp = "Final score: ".$totalPoints."/".$maxPoints;
+//    $tmp = "Final score: ".$totalPoints."/".$maxPoints;
+    $tmp = sprintf("<strong>%-63s %s</strong>", "Final score: ", $totalPoints."/".$maxPoints." points");
+    $tmp = $greenTagOpen.$tmp.$greenTagClose;
     array_push($finalComments, $tmp);
     $final_package = array("qScore" => $totalPoints,
         "testCasesPassFail" => $testCasesPassFail,
@@ -351,6 +374,9 @@ function parseResponse($question_data) {
 //            $mlines[$i] = $mline;
             $parsed[PARSEKEY_STUDENT_RESPONSE] = implode("\n", $lines);
             $parsed[PARSEKEY_MODRESPONSE] = implode("\n", $mlines);
+
+            // add missing semicolon
+            array_push($parsed[PARSEKEY_ERROR_CODES], MISSING_COLON);
         }
 
         $defPos = strpos($lines[$i], "def");
@@ -386,15 +412,6 @@ function parseResponse($question_data) {
                 $idealNumParams = count($question_data["params"]); // NOTE: this did not work because "parameters" was not being returned from back
 //                $tc1params = explode(";", $question_data["test_cases"][0]);
 //                $idealNumParams = count(explode(",", $tc1params[0]));
-
-                if (TESTING) {
-//                    echo "PARAM INFO:\n";
-//                    echo "params: "; var_dump($parameters);
-//                    echo "num params: "; var_dump($numParams);
-//                    echo "ideal params: "; var_dump($tc1params[0]); // this is for when i was using test_cases to get params
-//                    echo "ideal num params: "; var_dump($idealNumParams);
-//                    exit();
-                }
 
                 if ($numParams != $idealNumParams) {
                     array_push($parsed[PARSEKEY_ERROR_CODES], INCORRECT_PARAMS);
@@ -450,6 +467,7 @@ function extractError($programOutputString) {
             $errorMarker = strpos($student_output[$i], "^");
             if ($errorMarker !== false) {
                 $errorDetail = substr($student_output[$i-1], 0, $errorMarker)."<mark>".substr($student_output[$i-1], $errorMarker, 1). "</mark>".substr($student_output[$i-1], $errorMarker+1);
+                $errorDetail = trim($errorDetail);
             }
         }
         if ($errorDetail) { $outputString = $errorTag." --> ".$errorDetail; }
@@ -579,11 +597,11 @@ function gradeQuestion($question_data) {
 //    if (TESTING) {
 //        echo $rtn_package[PARSEKEY_NEW_STUDENT_RESPONSE]."\n"; exit();
 //    }
-//    if (TESTING) {
-//        echo "graded:\n";
-//        var_dump($rtn_package);
-//        exit();
-//    }
+    if (TESTING) {
+        echo "graded:\n";
+        var_dump($rtn_package);
+        exit();
+    }
 
     return $rtn_package;
 }

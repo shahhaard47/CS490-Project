@@ -21,6 +21,32 @@ function constructQuestion($funcName, $params, $does, $returns) {
     return $constructed;
 }
 
+// convert gradedComments to tabular format aka 2d array
+//function convertToTabularArray($gradedComments) {
+//    if (count($gradedComments) < 2) { // sanity check (don't have 1 or 0 line comments)
+//        if (TESTING) {
+//            echo "(middle) count(gradedComments) < 2 is true\n";
+//        }
+//        return;
+//    }
+//
+//    $gradedCommentsArray = array();
+//
+//    $summary = array();
+//    $first = $gradedComments[0];
+//
+//    $normalCase = strpos($first, "Testcases");
+//    if ($normalCase !== false) {
+//
+//    }
+//
+//
+//    if (TESTING) {
+//        echo "GRADED COMMENTS:\n"; var_dump($gradedComments);
+//        exit();
+//    }
+//}
+
 function constructExams($raw, $userID=0){
     $detailed_info = array();
     $user_exam_ids = array();
@@ -50,6 +76,7 @@ function constructExams($raw, $userID=0){
         $constraints                = $r_elem["constraints"];
         $topic                      = $r_elem["topic"];
         $gradedComments             = $r_elem["gradedComments"];
+//        $gradedCommentsArray        = convertToTabularArray($gradedComments);
         $instructorComments         = $r_elem["instructorComments"];
         $constructed = constructQuestion($funcName, $params, $does, $returns);
         $questioninfo_arr = array(
@@ -65,6 +92,7 @@ function constructExams($raw, $userID=0){
             "topic"				    => $topic,
             "gradedComments" 	    => $gradedComments,
             "instructorComments"    => $instructorComments
+//            "gradedCommentsArray"   => $gradedCommentsArray
         );
         if ($detailed_info["$userid"]["$examid"]){ // same student same exam NEW question
             array_push($detailed_info["$userid"]["$examid"]["examQuestions"], $questioninfo_arr);

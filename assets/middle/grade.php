@@ -25,7 +25,7 @@ $jsonrequest = file_get_contents('php://input');
 $decoded = json_decode($jsonrequest, true);
 
 if (TESTING) {
-    $decoded = array("examID" => 95, "userID" => "jsnow"); $jsonrequest = json_encode($decoded);
+    $decoded = array("examID" => 97, "userID" => "jsnow"); $jsonrequest = json_encode($decoded);
 }
 
 $examID = $decoded["examID"];
