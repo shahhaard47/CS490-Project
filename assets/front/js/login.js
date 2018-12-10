@@ -10,7 +10,7 @@ historyReplaceState({
 
 function authenticateLogin() {
     /* Check if username and password are empty */
-    let user = document.forms["login-form"]["user"].value;
+    userID = document.forms["login-form"]["user"].value;
     let pass = document.forms["login-form"]["pass"].value;
     if (user === '' || pass === '') {
         changeInnerHTML('error', "Username and password are required.");
@@ -18,7 +18,7 @@ function authenticateLogin() {
     }
     /* Later used to send as JSON */
     let credentialsObj = {
-        "user": user,
+        "user": userID,
         "pass": pass,
         "requestType": "login"
     };
@@ -68,12 +68,12 @@ function authenticateLogin() {
             } else if (json.user === INSTRUCTOR) {
                 obj.page = TITLE_INSTRUCTOR_HOME;
                 obj.url = './instructor';
-                obj.user = user;
                 getPage(JSON.stringify(obj), changeToNewPage);
 
             } else if (json.user === STUDENT) {
-                obj.page = 'student-home.html?ucid=' + user;
-                history.pushState({'user': user}, 'Login', './student');
+                obj.page = TITLE_STUDENT_HOME;
+                obj.url = './student';
+                obj.user = user;
                 getPage(JSON.stringify(obj), changeToNewPage);
             }
         }
@@ -85,6 +85,7 @@ function authenticateLogin() {
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     /* Send the POST request with the data */
     xhr.send(JSON.stringify(credentialsObj));
+    log(credentialsObj);
 
 }
 

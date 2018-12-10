@@ -5,6 +5,7 @@ let questionIDsInExam = [], solutions = {}, previousIDSelected = '', currentSele
 function submitGetAvailableExamsRequest() {
     let obj = {};
     obj.requestType = GET_AVAILABLE_EXAM_RT;
+    obj.userID = userID;
 
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
@@ -31,7 +32,7 @@ function submitGetAvailableExamsRequest() {
 function submitGradeExamRequest() {
     x = {};
     x.examID = parseInt(examID);
-    x.userID = getURLParams(window.location.href).userid;
+    x.userID = userID;
     x.requestType = GRADE_EXAM_RT;
     log(x);
 
@@ -63,7 +64,7 @@ function submitExamRequest(obj) {
         /* Check if the xhr request was successful */
         if (this.readyState === 4) {
             if (this.status === 200) {
-                /* Check if e   xam was successfully submitted */
+                /* Check if exam was successfully submitted */
                 let response = parseJSON(xhr.responseText);
                 log(`Response from back after submitting exam: ${response.query}`);
                 log(response);
@@ -71,9 +72,8 @@ function submitExamRequest(obj) {
                     let d = showDialog('Success!', 'Exam was submitted successfully!');
                     d.show();
                     let btn = d.getElementsByTagName('button');
-
                     btn[0].onclick = function () {
-                        window.location = 'student-home.html?ucid=' + userID;
+                        goToStudentHomePage();
                     };
 
                     /* When the submit request is good, send an auto grade exam request */
@@ -81,6 +81,7 @@ function submitExamRequest(obj) {
 
                 } else {
                     // TODO: Save exam somehow in case database is down
+                    getelm('submitBtn').disabled = false;
                     let d = showDialog('Whoops...', 'Exam was not submitted. Please try again.');
                     d.show();
                 }
@@ -128,6 +129,7 @@ function openQuestion(questionsObj) {
 }
 
 function loadQuestions(obj) {
+    log(obj)
     let num = 1, questionsList = obj.questions;
     for (let i = 0; i < questionsList.length; i++) {
         questionIDsInExam.push(questionsList[i].questionID);
@@ -135,6 +137,7 @@ function loadQuestions(obj) {
         btn.innerHTML = `Question ${num++}`;
         btn.setAttribute('style', 'width:100%');
         btn.onclick = function () {
+            currentSelectedID = this.id;
             getelm('questionTitle').innerHTML = `${btn.innerHTML}<br>Points: ${questionsList[i].points}`;
             saveSolution(previousIDSelected, solutionTextArea.value);
 
@@ -182,11 +185,11 @@ function getAnswers() {
 
 function submitExamBH() {
     /* Make sure the solution to the last question is saved */
-    saveSolution('btn' + questionIDsInExam[questionIDsInExam.length - 1], solutionTextArea.value);
+    saveSolution(currentSelectedID, solutionTextArea.value);
 
     let obj = {};
     obj.examID = parseInt(examID);
-    obj.userID = getURLParams(window.location.href).userid;
+    obj.userID = userID;
     obj.answers = getAnswers();
     obj.totalQuestions = obj.answers.length;
     obj.requestType = SUBMIT_EXAM_RT;
@@ -208,7 +211,10 @@ function initView() {
         btn.click();
 }
 
-window.onload = function () {
+/*
+document.addEventListener('DOMContentLoaded', function () {
+    log('=takeExamList=');
+
     questionTextArea = getelm('question-content');
     solutionTextArea = getelm('solution-code');
     enableTab(solutionTextArea.id);
@@ -218,8 +224,17 @@ window.onload = function () {
     examName = params.examName;
     changeInnerHTML('header-examName', `<strong>Exam Name</strong><br>${params.examName}`);
     submitGetAvailableExamsRequest();
-};
-
-/*
-grade.php -> userID, examID
+});
 */
+
+function initializeTakeExam() {
+    questionTextArea = getelm('question-content');
+    solutionTextArea = getelm('solution-code');
+    enableTab(solutionTextArea.id);
+    examID = parseInt(examIDToOpen);
+    examName = examNameToOpen;
+    changeInnerHTML('header-examName', `<strong>Exam Name</strong><br>${examNameToOpen}`);
+    submitGetAvailableExamsRequest();
+}
+
+initializeTakeExam();

@@ -2,7 +2,10 @@
     background-color: #333;
     /*color: black;*/
     overflow: hidden;
-    margin-bottom: 20px;
+    position: sticky;
+    /*margin-bottom: 40px;*/
+    top: 0;
+    width: 100%;
 }
 
 .nav a {
@@ -17,9 +20,15 @@
 .nav a:hover {
     background-color: #afafaf;
     color: black;
+    cursor: pointer;
 }
 
 .nav a.active {
     border-bottom: solid 7px #4CAF50;
     color: white;
+}
+
+#logoutBtn {
+    float: right;
+    margin-right: 10px;
 }

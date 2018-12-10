@@ -1,15 +1,9 @@
 <?php
-//update grade information for a specific student for a specific exam in the rawExamData table and in the grades table
-
-
-
 $servername = "sql2.njit.edu";
 $username = "ds547";
 $password = "OVzSWetym";
 $databaseName = "ds547";
-//connecting to database
 $conn = new mysqli($servername, $username, $password, $databaseName);
-
 if ($conn->connect_error) 
 {
     $myObj->conn=false;
@@ -17,8 +11,6 @@ if ($conn->connect_error)
     echo json_encode($myObj);
     die();
 } 
-
-
 $topics=array();
 $topicsQuery = mysqli_query($conn, "SELECT topic FROM BETA_questionBank");
 if($topicsQuery->num_rows!=0)
@@ -32,6 +24,4 @@ if($topicsQuery->num_rows!=0)
   }
 }
 echo json_encode($topics);
-
-
 ?>

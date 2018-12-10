@@ -1,18 +1,24 @@
 body {
     background: #f9f9f9;
+    font-size: 18px;
+    color: #333333;
+    font-family: Book Antiqua, Helvetica, sans-serif;
     margin: 0;
 }
 
 textarea {
     width: 100%;
+    font-size: 16px;
 }
 
 textarea:disabled {
     background: white;
+    color: #333333;
 }
 
 input {
     text-align: center;
+    font-size: 16px;
 }
 
 button {
@@ -38,7 +44,6 @@ button:hover {
     border-bottom: solid 1px lightgray;
     width: 100%;
     position: fixed;
-    /*margin-bottom: 20px;*/
     top: 0;
     box-shadow: 1px 1px lightgray;
     background: white;
@@ -55,19 +60,36 @@ button:hover {
     box-shadow: 1px 1px 5px lightgray;
     padding: 20px;
     background: white;
-    /*margin: 10px;*/
     margin-top: 50px;
 }
 
 .row {
     border: solid 1px lightgray;
     border-radius: 15px;
-    /*margin-bottom: 40px;*/
     box-shadow: 1px 1px 5px lightgray;
+}
+
+.textDiv {
+    white-space: pre;
+    text-align: left;
+    height: 300px;
+    border: solid 1px lightgray;
+    padding: 10px;
+    overflow: auto;
+}
+
+.instructorCommentsTextArea {
+    font-size: 18px;
+
 }
 
 #allQuestionsContainer {
     margin: 100px 50px;
+}
+
+#questionStringInput {
+    color: black;
+    font-size: 18px;
 }
 
 #questionConstructedContainer {
@@ -75,8 +97,15 @@ button:hover {
 }
 
 #studentResponseInput {
-    height: 100%;
+    font-family: Menlo, monospace;
 }
+/*<i style='font-family: Menlo, monospace;'></i><br>*/
+
+#studentResponseInput * {
+    font-family: Menlo, monospace;
+
+}
+
 
 .bottom-bar {
     width: 100%;

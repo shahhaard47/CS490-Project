@@ -1,11 +1,6 @@
 const RT_GETQBANK = 'getqbank';
-const DIF_EASY = 'e', DIF_MED = 'm', DIF_HARD = 'h';
 const CREATEEXAM_RT = 'create_exam';
 const ADDQUESTION_RT = 'add_question';
-const EASY_QUESTION_CLASS = 'question-easy',
-    MEDIUM_QUESTION_CLASS = 'question-medium',
-    HARD_QUESTION_CLASS = 'question-hard',
-    ERR_MODAL_CONTENT = 'errorModalContent';
 
 /* Used to check if this JS file is included. */
 const EXAM_CREATOR_INCLUDED = true;
@@ -71,9 +66,9 @@ function loadQuestionBank(xhrResponseText) {
             inputDifficulty.setAttribute('value', dif);
 
             let label = appendNodeToNode('label', '', '', options);
-            label.innerHTML = 'Contraints';
+            label.innerHTML = 'Constraints';
             let constraintsInput = appendNodeToNode('input', '', '', label);
-            constraintsInput.setAttribute('size', '4');
+            constraintsInput.setAttribute('size', '8');
             constraintsInput.disabled = true;
             constraintsInput.value = questionArray[i].constraints;
 
@@ -102,12 +97,6 @@ function loadQuestionBank(xhrResponseText) {
         }
     }
 
-    // log('topic')
-
-    /* Add this page to history. */
-    // history.pushState(questionIDsInBank, null, null);
-    // log('history state');
-    // log(history.state);
 }
 
 /** Reloads question bank. */
@@ -348,16 +337,6 @@ function updateExamQuestionsArray(questionId, removeId) {
 /** Remove a node from DOM */
 function removeNode(node) {
     node.parentNode.removeChild(node);
-}
-
-/** Show a modal based on its DOM ID */
-function showModalBH(id) {
-    getelm(id).style.display = "block";
-}
-
-/** Close a modal based on its DOM ID */
-function closeModalBH(id) {
-    getelm(id).style.display = "none";
 }
 
 /** Button handler for adding a new parameter when adding a new question to the question bank */
@@ -671,12 +650,12 @@ function createExamBH() {
         'points': [],
         'requestType': CREATEEXAM_RT
     };
-
     for (let i in questionIDsInExam) {
         obj.questions.push(parseInt(questionIDsInExam[i]));
     }
-
     obj.points = getPoints();
+
+    log(obj);
 
     submitCreateExamRequest(JSON.stringify(obj));
 }
@@ -689,6 +668,8 @@ function submitCreateExamRequest(content) {
         if (this.readyState === 4) {
             if (this.status === 200) {
                 let response = parseJSON(xhr.responseText);
+                log('Response for CREATE EXAM:');
+                log(response);
                 if (response.examCreated) {
                     let d = showDialog('Success!', 'Exam was successfully created.');
                     d.show();
@@ -697,7 +678,6 @@ function submitCreateExamRequest(content) {
                         d.close();
                         d.remove();
                         goToViewCreatedExamsPage();
-
                     }
                 } else {
                     showDialog('Whoops...', 'Something went wrong. Please try again.');

@@ -1,15 +1,9 @@
 <?php
-//return exam that has been marked as published for the student to take
-
-
-
 $servername = "sql2.njit.edu";
 $username = "ds547";
 $password = "OVzSWetym";
 $databaseName = "ds547";
-//connecting to database
 $conn = new mysqli($servername, $username, $password, $databaseName);
-
 if ($conn->connect_error) 
 {
     $myObj->conn=false;
@@ -17,22 +11,18 @@ if ($conn->connect_error)
     echo json_encode($myObj);
     die();
 } 
-
 $rawRequest = file_get_contents('php://input'); 
 $data = json_decode($rawRequest, true); 
-$request = array('userID' => $data['user']); 
-
+$request = array('userID' => $data['userID']);
 if(!$request['userID'])
 {
   $myObj->error='back: no userID was passed';
   echo json_encode($myObj);
   exit();
 }
-
 $exam = array();
 $questionData = array();
 $examRecord = mysqli_query($conn, "SELECT examID,examName,questionIDs,points FROM BETA_exams WHERE published=TRUE");
-
 if($examRecord->num_rows!=0)
 {
   $tempArray=array();
@@ -45,13 +35,11 @@ if($examRecord->num_rows!=0)
   }
   $exam['examID']=$examInfo['examID'];
   $exam['examName']=$examInfo['examName'];
-  
   $questionIDs=explode(',',$examInfo['questionIDs']);
   $points=explode(',',$examInfo['points']);
   for($i=0;$i<sizeof($questionIDs);$i++)
   {
     $tempArray['questionID']=$questionIDs[$i];
-
     $tempArray['points']=$points[$i];
     $questionRecord = mysqli_query($conn, "SELECT functionName,parameters,functionDescription,output,topic,constraints FROM BETA_questionBank WHERE questionID=$questionIDs[$i]");
     if($questionRecord!=FALSE)
@@ -74,11 +62,8 @@ if($examRecord->num_rows!=0)
   $exam['questions']=$questionData;
   echo json_encode($exam);
 }
-else //meaning, no exams were found in the table that have been published
+else
 {
   echo json_encode($exam);
 }
-
-
-
 ?>

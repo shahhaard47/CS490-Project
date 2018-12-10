@@ -19,6 +19,7 @@ function submitGetAvailableExams() {
 }
 
 function sendGradeRequest() {
+    showButtonLoading('btnGradeExam');
     let obj = {};
     obj.userID = examObj.userID;
     obj.examID = parseInt(currentExamID);
@@ -26,11 +27,14 @@ function sendGradeRequest() {
     obj.requestType = GRADE_EXAM_RT;
     log(obj);
 
-    sendAJAXReq(reloadView, JSON.stringify(obj))
+    sendAJAXReq(reloadViewGradeAnExam, JSON.stringify(obj))
 
 }
 
 function submitSaveExamRequest() {
+    /* Show the loading icon in button. */
+    showButtonLoading('btnSaveExam');
+
     let obj = {};
     obj.userID = examObj.userID;
     obj.examID = parseInt(examObj.examID);
@@ -46,9 +50,10 @@ function submitSaveExamRequest() {
                     log("--In Callback of 'submitSaveExamRequest'--");
                     log(parseJSON(xhr.responseText));
                 }
+                hideButtonLoading('btnSaveExam');
                 let overallGrade = getelm('overallGrade').value;
                 submitUpdateOverallGradeRequest(overallGrade, examObj.userID, examObj.examID);
-                reloadView();
+                reloadViewGradeAnExam();
             } else {
 
             }
@@ -84,39 +89,7 @@ function sendReleaseGradeRequest(obj) {
         if (this.readyState === 4) {
             if (this.status === 200) {
                 log(parseJSON(xhr.responseText));
-                reloadView();
-            } else {
-
-            }
-        }
-    };
-
-    /* Open a POST request */
-    xhr.open("POST", URL, true);
-    /* Encode the data properly. Otherwise, php will not be able to get the values */
-    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    /* Send the POST request with the data */
-    xhr.send(JSON.stringify(obj));
-}
-
-function sendUpdateComments() {
-    log('sending comments request. Send data: ');
-    let obj = {};
-    obj.userID = examObj.userID;
-    obj.examID = parseInt(examObj.examID);
-    obj.data = getExamData();
-    obj.requestType = 'update_comments';
-
-    log(obj);
-
-    let xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-        /* Check if the xhr request was successful */
-        if (this.readyState === 4) {
-            if (this.status === 200) {
-                log(parseJSON(xhr.responseText));
-                // window.location.reload();
-                /* Update the overall score in the database for an exam */
+                reloadViewGradeAnExam();
             } else {
 
             }
@@ -162,49 +135,47 @@ function loadQuestionsInExam() {
         let questionContainer = appendNodeToNode('div', 'question' + i, 'questionContainer', getelm('allQuestionsContainer'));
 
         let questionTop = appendNodeToNode('div', '', 'questionTop', questionContainer);
-        appendNodeToNode('p', 'questionNumber' + i, '', questionTop).innerHTML = 'Question ' + (i + 1);
+        appendNodeToNode('p', 'questionNumber' + i, '', questionTop).innerHTML = '<strong>Question ' + (i + 1) + '</strong>';
         let questionConstructedContainer = appendNodeToNode('div', 'questionConstructedContainer', '', questionTop);
-        let label = appendNodeToNode('label', '', '', questionConstructedContainer);
-        let textarea = appendNodeToNode('textarea', 'questionStringInput', '', label);
-        textarea.rows = 5;
+        let p = appendNodeToNode('p', '', '', questionConstructedContainer);
+        let textarea = appendNodeToNode('textarea', 'questionStringInput', '', p);
+        textarea.rows = 4;
         textarea.innerHTML = examQuestions[i].constructed;
         textarea.disabled = true;
 
         let studentResponseContainer = appendNodeToNode('div', '', 'studentResponseContainer', questionContainer);
-        label = appendNodeToNode('label', '', '', studentResponseContainer);
-        textarea = appendNodeToNode('textarea', '', '', studentResponseContainer);
-        textarea.rows = 20;
-        textarea.innerHTML = examQuestions[i].studentResponse;
-        textarea.disabled = true;
+        p = appendNodeToNode('p', '', '', studentResponseContainer);
+        let studentResponseDiv = appendNodeToNode('div', 'studentResponseInput', 'textDiv', studentResponseContainer);
+        studentResponseDiv.innerHTML = examQuestions[i].studentResponse.replace(/\n/g, "<br/>");
+
 
         let questionBottom = appendNodeToNode('div', '', 'questionBottom', questionContainer);
-        label = appendNodeToNode('label', '', '', questionBottom);
-        label.innerHTML = 'Points';
-        let inputPoints = appendNodeToNode('input', 'points' + i, '', label);
+        p = appendNodeToNode('p', '', '', questionBottom);
+        p.innerHTML = '<strong>Points </strong>';
+        let inputPoints = appendNodeToNode('input', 'points' + i, '', p);
         inputPoints.setAttribute('size', 3);
+
+        p.appendChild(document.createTextNode(`out of ${examQuestions[i].maxPoints}`));
+
         inputPoints.value = examQuestions[i].points;
 
-        label.appendChild(document.createTextNode(`out of ${examQuestions[i].maxPoints}`));
+        appendNodeToNode('br', '', '', p);
 
-        appendNodeToNode('br', '', '', label);
+        p = appendNodeToNode('p', '', '', questionBottom);
+        p.innerHTML = '<strong>Autograde Comments</strong><br>';
 
-        label = appendNodeToNode('label', '', '', questionBottom);
-        label.innerHTML = 'Autograde Comments<br>';
-        textarea = appendNodeToNode('textarea', '', '', label);
-        textarea.rows = 10;
-        textarea.disabled = true;
-
+        let instructorCommentsDiv = appendNodeToNode('div', '', 'textDiv', questionBottom);
 
         let x = examQuestions[i].gradedComments;
         /* Display comments line by line */
         for (let j = 0; j < x.length; j++) {
-            textarea.innerHTML += examQuestions[i].gradedComments[j] + '\n';
+            instructorCommentsDiv.innerHTML += examQuestions[i].gradedComments[j] + '<br><br>';
         }
 
-        label = appendNodeToNode('label', '', '', questionBottom);
-        label.innerHTML = 'Instructor Comments<br>';
-        textarea = appendNodeToNode('textarea', 'comments' + i, '', label);
-        textarea.rows = 10;
+        p = appendNodeToNode('p', '', '', questionBottom);
+        p.innerHTML = '<strong>Instructor Comments</strong><br>';
+        textarea = appendNodeToNode('textarea', 'comments' + i, 'instructorCommentsTextArea', p);
+        textarea.rows = 5;
         textarea.innerHTML = examQuestions[i].instructorComments;
 
         /* Dynamically change overall score as points are changed for individual questions */
@@ -217,8 +188,6 @@ function loadQuestionsInExam() {
             }
 
             overallScore.value = sum;
-            if (debug)
-                log(sum);
         };
 
     }
@@ -258,12 +227,13 @@ function btnGradeExam() {
 }
 
 function btnReleaseGrade() {
+    showButtonLoading('btnReleaseGrade');
     let obj = {};
     obj.examID = currentExamID;
     obj.userID = getelm('userID').value;
     obj.requestType = RELEASE_GRADE_RT;
 
-    sendReleaseGradeRequest(obj);
+    sendAJAXReq(reloadViewGradeAnExam, JSON.stringify(obj));
 
 }
 
@@ -282,7 +252,9 @@ function getScores() {
     return scores;
 }
 
-function reloadView() {
+function reloadViewGradeAnExam() {
+    hideButtonLoading('btnGradeExam');
+    hideButtonLoading('btnReleaseGrade');
     submitGetAvailableExams();
 }
 

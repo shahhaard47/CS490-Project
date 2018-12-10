@@ -5,6 +5,7 @@
     <title>Publish Exam</title>
     <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/top-navbar.css">
     <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/view-created-exams.css">
+    <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/modal.css">
 </head>
 <body>
 <div class="nav" id="nav">
@@ -13,6 +14,19 @@
     <a onclick="goToViewCreatedExamsPage();" id="createdExamsBtn">Created Exams</a>
     <a onclick="goToGradePage();" id="gradeBtn">Grade</a>
     <a onclick="logout();" class="logoutBtn" id="logoutBtn">Logout</a>
+</div>
+
+<div class="modal" id="previewExamModal">
+    <div class="modalBody">
+        <div class="modalHeader">
+            <span class="modalClose" id="btnClosePreviewExamModal"
+                  onclick="hideElement('previewExamModal')">&times;</span>
+            <h1 id="modalHeaderTitle">Modal</h1>
+        </div>
+        <div class="modalContent" id="modalContent">
+            <div class=="questions" id="questions"></div>
+        </div>
+    </div>
 </div>
 
 <div id="exams-container"></div>

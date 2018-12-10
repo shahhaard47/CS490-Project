@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <title>View Exam Grades</title>
     <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/top-navbar.css">
+    <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/student-view-graded-exams.css">
+    <link rel="stylesheet" href="/~sk2283/assets/front/stylesheets/dialog.css">
 </head>
 <body>
 <div class="nav" id="nav">
-    <a onclick="goToInstructorHome()" id="homeBtn">Home</a>
-    <a onclick="goToExamCreator()" id="examCreatorBtn">Exam Creator</a>
-    <a onclick="goToViewCreatedExamsPage();" id="createdExamsBtn">Created Exams</a>
-    <a onclick="goToGradePage();" id="gradeBtn">Grade</a>
+    <a onclick="goToStudentHomePage();" id="studentHomeBtn">Home</a>
+    <a onclick="goToStudentGradesPage();" id="studentGradesBtn">Grades</a>
     <a onclick="logout();" class="logoutBtn" id="logoutBtn">Logout</a>
 </div>
 <div class="header" id="header">
@@ -19,7 +19,4 @@
 <div class="container" id="container"></div>
 </body>
 
-<script src="/~sk2283/assets/front/js/handyMethods.js"></script>
-<script src="/~sk2283/assets/front/js/studentViewAllGradedExams.js"></script>
-<script src="/~sk2283/assets/front/js/dialog.js"></script>
 </html>
