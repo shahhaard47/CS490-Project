@@ -155,24 +155,40 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
     $individualTCpoints = $maxPoints / count($testCases);
     $passedTC = 0;
     $totalPoints = $maxPoints;
-    $deductPointsTagOpen = "<mark style=\"background: indianred; color: white;\">"; $pointsTagClose = "</mark>";
+//    $deductPointsTagOpen = "<mark style=\"background: indianred; color: white;\">"; $pointsTagClose = "</mark>";
+    $deductPointsTagOpen = ""; $pointsTagClose = "";
     for ($i = 0; $i < count($testCases); $i++) {
         if ($testCasesPassFail[$i] != 1) {
             $studentOutput = $testCasesPassFail[$i];
+
             $currentTC = explode(";", $testCases[$i]);
             $TCnumber = $i + 1;
 //            $tmp = "Failed testcase $TCnumber: ";
 //            $tmp .= "input(".$currentTC[0]."), expected output(".$currentTC[1];
 //            $tmp .= "), student output(".$studentOutput.")\t[-";
 //            $tmp .= round($individualTCpoints, 0)." points]";
-            $changeFontOpen = "<span style=\"font-family: Menlo, monospace;\">"; $changeFontClose="</span>";
+
+//            $changeFontOpen = "<span style=\"font-family: Menlo, monospace;\">"; $changeFontClose="</span>";
+            $changeFontOpen = ""; $changeFontClose="";
+
 
             $tmp = $deductPointsTagOpen.sprintf("%-61s %s", "Failed test-case $TCnumber", "<strong>"."-".round($individualTCpoints, 0)." points"."</strong>").$pointsTagClose;
 //            $tmp = $deductPointsTagOpen."Failed test-case $TCnumber: \t\t\t"."-"."<strong>".round($individualTCpoints, 0)." points"."</strong>".$pointsTagClose;
 
+            $studentOutput = explode('\'', $studentOutput);
+            $studentOutput = implode("", $studentOutput);
+
             $tmp .= "\nInput:\t\t\t".$changeFontOpen.trim($currentTC[0]).$changeFontClose;
             $tmp .= "\nExpected output:\t".$changeFontOpen.trim($currentTC[1]).$changeFontClose;
             $tmp .= "\nStudent output:\t".$changeFontOpen.$studentOutput.$changeFontClose;
+
+            if (TESTING) {
+//                if (strpos($studentOutput, "NameError") !== false) {
+////                    var_dump($studentOutput);
+//                    echo $tmp;
+//                    exit();
+//                }
+            }
 
             array_push($finalComments, $tmp);
             $totalPoints -= $individualTCpoints;
@@ -184,9 +200,10 @@ function constructCommentsAndPoints($maxPoints, $testCases, $testCasesPassFail, 
             $passedTC++;
         }
     }
-    $greenTagOpen = "<mark style=\"background: palegreen; color: black;\">"; $greenTagClose = "</mark>";
+//    $greenTagOpen = "<mark style=\"background: palegreen; color: black;\">"; $greenTagClose = "</mark>";
+    $greenTagOpen = ""; $greenTagClose = "";
 //    $TCsummary = "Testcases passed: \t\t\t".$passedTC."/".count($testCases);
-    $TCsummary = sprintf("<strong>%-56s  %s</strong>", "Test-cases passed", "$passedTC/".count($testCases));
+    $TCsummary = sprintf("<strong>%-56s  %s</strong>", "YOOOTest-cases passed", "$passedTC/".count($testCases));
     $TCsummary = $greenTagOpen.$TCsummary.$greenTagClose;
     array_unshift($finalComments, $TCsummary);
     // otherComments
@@ -389,6 +406,7 @@ function parseResponse($question_data) {
                 $funcTitle = substr($lines[$i], $defPos, $leftPar - $defPos);
 //                $tmp = explode(" ", $funcTitle);
 //                $student_function_name = $tmp[count($tmp) - 1];
+
                 $studentFunctionName = end(explode(" ", $funcTitle));
                 if ($studentFunctionName != $correctFunctionName){
                     // replace
@@ -462,7 +480,11 @@ function extractError($programOutputString) {
     $errorDetail = "";
     if (count($student_output) > 1) {
         $last = $student_output[count($student_output)-1];
-        $errorTag = explode(":", $last)[0];
+//        $errorTag = explode(":", $last)[0];
+        $errorTag = addslashes($last); // want all of last line not just 'NameError'
+//        $errorTag = $last."YOOOOO";
+
+
         for ($i = 0; $i < count($student_output); $i++) {
             $errorMarker = strpos($student_output[$i], "^");
             if ($errorMarker !== false) {
@@ -501,7 +523,7 @@ function runTestCases($functionCalls, $studentResponse) {
         $text .= "correct = $type($expectedValue)\n";
 //        if (TESTING) {
 //            $text .= "print('TEST check response:', response)\n";
-//            $text .= "print('TEST check correct:', correct)\n";
+//            $text .= "print('TEST check correct:', correct)\n"; exit();
 //        }
         $text .= "if (response == correct):\n";
         $text .= "\tprint('output is correct')\n";
@@ -520,11 +542,10 @@ function runTestCases($functionCalls, $studentResponse) {
 //        if (TESTING) { var_dump($command); }
 //        $student_output = shell_exec($command);
         $student_output = "";
+//        if (TESTING) {echo "HERE\n"; exit();}
+        // execute python program
         exec("$command 2>&1", $student_output);
-        if (TESTING) {
-//            echo "raw STUDENT OUT: \n"; var_dump($student_output);
-//            exit();
-        }
+
         $student_output = implode("\n", $student_output);
 
         // compare outputs
@@ -540,8 +561,17 @@ function runTestCases($functionCalls, $studentResponse) {
 //            } else {
 //                $outputString = rtrim($student_output);
 //            }
+            if (TESTING) {
+//                if (strpos($text, "mathOperations") !== false) {
+//                    echo "raw STUDENT OUT: \n"; var_dump($student_output);
+//                    exit();
+//                }
+            }
 
             $outputString = extractError($student_output);
+            if (TESTING) {
+//                var_dump($outputString); exit();
+            }
 
             array_push($TCresults, $outputString);
         }
@@ -584,7 +614,13 @@ function gradeQuestion($question_data) {
         $TCresults = runTestCases($functioncalls, $student_response);
 
         if ($TCresults) { // just a sanity to make sure everything went well
+
             $rtn_package = constructCommentsAndPoints($maxPoints, $test_cases, $TCresults, $errorCodes);
+            if (TESTING) {
+//                if ($function_name == "mathOperations") {
+//                    echo "RTN PKG\n"; var_dump($rtn_package); exit();
+//                }
+            }
         }
         else {
             // something went wrong
@@ -598,9 +634,9 @@ function gradeQuestion($question_data) {
 //        echo $rtn_package[PARSEKEY_NEW_STUDENT_RESPONSE]."\n"; exit();
 //    }
     if (TESTING) {
-        echo "graded:\n";
-        var_dump($rtn_package);
-        exit();
+//        echo "graded:\n";
+//        var_dump($rtn_package);
+//        exit();
     }
 
     return $rtn_package;
