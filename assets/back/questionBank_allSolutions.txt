@@ -159,7 +159,7 @@ def isPal(word):
 
 def caesarEncrypt(text):
 	alpha='abcdefghijklmnopqrstuvwxyz'
-	APLPHA=alpha.upper()
+	ALPHA=alpha.upper()
 	encryptedText=''
 	for char in text:
 		if(char.isupper()):
